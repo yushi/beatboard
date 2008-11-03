@@ -1,0 +1,4 @@
+# Application appender
+appender bbircd pattern file test.log %d [%c] %p - %m%n
+# 出力レベル DEBUG, INFO, WARN, ERROR etc
+priority bbircd DEBUG
