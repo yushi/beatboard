@@ -1,6 +1,5 @@
 #include "bbircd.h"
 
-
 void BeatBoard::BBIRCD::setUp() {
   event_init();
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
@@ -27,6 +26,8 @@ void unexpected_exception_handler( void ) {
 }
 
 int main( int argc, char** argv ) {
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.info("bbircd started");
   std::set_unexpected( unexpected_exception_handler );
 
   BeatBoard::BBIRCD bbircd;

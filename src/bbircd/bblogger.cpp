@@ -1,11 +1,20 @@
 #include "bblogger.h"
+
 BeatBoard::BBLogger::BBLogger(){
-  this->logger = &log4cpp::Category::getInstance(std::string(APPNAME4LOG));
-  log4cpp::SimpleConfigurator::configure(INIFILE4LOG);
   return;
 }
 
 void BeatBoard::BBLogger::debug(const std::string message){
-  this->logger->debug(message.data());
+  this->printLog( "DEBUG", message);
+  return;
+}
+
+void BeatBoard::BBLogger::info(const std::string message){
+  this->printLog( "INFO", message);
+  return;
+}
+
+void BeatBoard::BBLogger::printLog(const std::string level, const std::string message){
+  std::cout << level.data() << ": " << message.data() << std::endl;
   return;
 }

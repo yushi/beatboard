@@ -1,19 +1,19 @@
 #ifndef __BB_LOGGER__
 #define __BB_LOGGER__
 
-#include "log4cpp_def.h"
 #include <string>
+#include <iostream>
 namespace BeatBoard{
   /*
-   *Singleton class
-   * this class is log4cpp wrapper
+   * Singleton class
    */
   class BBLogger{
   private:
     BBLogger(void);
-    log4cpp::Category *logger;
+    void printLog(const std::string level, const std::string message);
   public:
     void debug(const std::string message);
+    void info(const std::string message);
     static BBLogger& getInstance(void){
       static BBLogger singleton;
       return singleton;

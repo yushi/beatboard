@@ -1,7 +1,7 @@
 CC=g++ -g -Wall -Werror
 CC_INC_DIR=/opt/local/include
 CC_LIB_DIR=/opt/local/lib
-CC_LIBS=-llog4cpp -levent
+CC_LIBS=-levent
 CC_OPTS=-L$(CC_LIB_DIR) -I$(CC_INC_DIR) $(CC_LIBS)
 OBJ_FILES=irc_connection.o bblogger.o bbircd.o http_api_server.o irc_client_operation.o
 
