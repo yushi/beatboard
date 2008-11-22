@@ -1,10 +1,7 @@
 package bbbackend;
 
 
-import java.io.FileDescriptor;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,13 +24,20 @@ public class IRCLogCollector
   }
   
   public void startCollection() {
-    
+    // ActiveMQReceiver.recv
+    // parseIrclog
+    // HbaseIrcLogger.insert
   }
 
-  private static String popIrcLog() {
-    return null;
-  }
-  
+  /**
+   * ActiveMQ からデキューした protobuf 形式のデータを IrcLog クラスに
+   * パースして返すメソッド。
+   * パースできない場合に発生する InvalidProtocolBufferException は
+   * 内部で処理する。
+   * 
+   * @param data
+   * @return パース成功ならば IrcLog、パース失敗ならば null
+   */
   private static IrcLog parseIrcLogProtoBuf( final byte data[] ) {
     IrcLog irclog = null;
     try
@@ -51,6 +55,11 @@ public class IRCLogCollector
     return irclog;
   }
 
+  /**
+   * IrcLog クラスを print するメソッド
+   * 
+   * @param irclog
+   */
   private static void printIrcLog( IrcLog irclog )
   {
     LOG.info( "Parse irclog... " );    
@@ -61,7 +70,4 @@ public class IRCLogCollector
     }
   }
   
-  private static String insertIrcLog() {
-    return null;
-  }
 }
