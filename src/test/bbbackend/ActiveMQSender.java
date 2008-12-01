@@ -14,7 +14,7 @@ import org.apache.activemq.ActiveMQConnection;
 
 public class ActiveMQSender
 {
-    public static void send( final String destURI )
+    public static void send( final String destURI, byte[] data )
     {
 
         try
@@ -32,7 +32,8 @@ public class ActiveMQSender
 
             //Message msg = session.createTextMessage( "This is Message!!" );
             BytesMessage msg = session.createBytesMessage();
-            msg.writeBytes( "This is Message!!".getBytes()  );
+//            msg.writeBytes( "This is Message!!".getBytes()  );
+            msg.writeBytes( data );
 
             //メッセージの送信
             sender.send( msg );

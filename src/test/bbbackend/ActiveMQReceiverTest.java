@@ -26,9 +26,10 @@ public class ActiveMQReceiverTest
   @Test
   public void testRecv() throws JMSException, UnsupportedEncodingException
   {
-    ActiveMQSender.send(destURI);
+    final String msg = "This is Message!!";
+    ActiveMQSender.send(destURI, msg.getBytes());
     byte[] message = receiver.recv();
-    assertEquals( "This is Message!!", new String(message, "utf-8") );
+    assertEquals( msg, new String(message, "utf-8") );
   }
 
 }

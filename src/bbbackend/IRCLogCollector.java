@@ -12,7 +12,7 @@ import com.google.protobuf.Descriptors.FieldDescriptor;
 import bb.Bbprotobuf.IrcLog;
 
 /**
- * BBBackend Log 管理クラス
+ * BBBackend Log 管理クラス<br>
  * ActiveMQ にエンキューされたログをデキューし HbaseIrcLogClient 経由で
  * Hbase に保存する
  */
@@ -26,19 +26,19 @@ public class IRCLogCollector
   public void startCollection() {
     // ActiveMQReceiver.recv
     // parseIrclog
-    // HbaseIrcLogger.insert
+    // HbaseIrcLogClient.insert
   }
 
   /**
    * ActiveMQ からデキューした protobuf 形式のデータを IrcLog クラスに
-   * パースして返すメソッド。
-   * パースできない場合に発生する InvalidProtocolBufferException は
-   * 内部で処理する。
+   * パースして返すメソッド。<br>
+   * パースできない場合は InvalidProtocolBufferException を投げる。
    * 
    * @param data
-   * @return パース成功ならば IrcLog、パース失敗ならば null
+   * @return パース成功ならば IrcLog
+   * @throws InvalidProtoclBufferException 
    */
-  private static IrcLog parseIrcLogProtoBuf( final byte data[] ) {
+  private static IrcLog parseIrcLogProtoBuf( final byte data[] ) throws InvalidProtoclBufferException {
     IrcLog irclog = null;
     try
     {
@@ -47,8 +47,8 @@ public class IRCLogCollector
     catch ( InvalidProtocolBufferException e )
     {
       LOG.info( "InvalidProtocolBufferException" );
-      printIrcLog( irclog );
-      e.printStackTrace();
+      e.printStackTrace();      
+      throw new InvalidProtoclBufferException();
     }
     printIrcLog( irclog );
     
