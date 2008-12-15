@@ -20,6 +20,7 @@ public class ActiveMQReceiver
   private QueueSession session;
   private Queue queue;
   private QueueReceiver receiver;
+  private final long TIMEOUT = 1000;
 
   /**
    * ActiveMQReceiver のコンストラクタ
@@ -44,15 +45,19 @@ public class ActiveMQReceiver
    * 
    * @return byte[] ba
    * @throws JMSException
+   * @throws ActiveMQReceiverTimeout 
    */
-  public byte[] recv() throws JMSException
+  public byte[] recv() throws JMSException, ActiveMQReceiverTimeout
   {
-    BytesMessage msg = ( BytesMessage ) receiver.receive();
+//    BytesMessage msg = ( BytesMessage ) receiver.receive();
+    BytesMessage msg = ( BytesMessage ) receiver.receive(TIMEOUT);
+    if (msg == null) {
+      throw new ActiveMQReceiverTimeout();
+    }
+    
     long len = msg.getBodyLength();
     byte[] ba = new byte[( int ) len];
-
     msg.readBytes( ba );
-
     return ba;
   }
 
@@ -60,7 +65,7 @@ public class ActiveMQReceiver
    * ActiveMQ との接続を切断するメソッド
    * @throws JMSException
    */
-  public void stop() throws JMSException
+  public void close() throws JMSException
   {
     receiver.close();
     session.close();

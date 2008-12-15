@@ -55,8 +55,6 @@ public class HbaseIrcLogClientTest
     assertEquals( time, result.get( 1 ) );
     assertEquals( name, result.get( 2 ) );
     assertEquals( message, result.get( 3 ) );
-    
-    
   }
 
 }
