@@ -15,12 +15,12 @@ BeatBoard::HTTPAPIServer::~HTTPAPIServer() {
   }
 }
 
-void BeatBoard::HTTPAPIServer::setUp(int port) {
+void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
   this->ev_base = event_init();
 
   httpd = evhttp_new( this->ev_base );
-
-  if ( evhttp_bind_socket( this->httpd, "0.0.0.0", port ) != 0 ) {}
+  
+  if ( evhttp_bind_socket( this->httpd, addr, port ) != 0 ) {}
 
   evhttp_set_cb( httpd, "/", HTTPAPIServer::rootHandler, NULL );
 
@@ -36,7 +36,35 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
   if ( buf == NULL ) {
     fprintf( stderr, "failed to create response buffer\n" );
   } else {
-    evbuffer_add_printf( buf, "This is BeatBoard API Server" );
+    evbuffer_add_printf( buf, "This is BeatBoard API Server<br />\n" );
+    evbuffer_add_printf( buf, req->uri);
+    evbuffer_add_printf( buf, "<br />\n" );
+
+    // HTTP Header Dump
+    if(evhttp_find_header (req->input_headers, "User-Agent")){
+      evbuffer_add_printf( buf, evhttp_find_header (req->input_headers, "User-Agent"));
+      evbuffer_add_printf( buf, "<br />\n" );
+    }
+
+    if(evhttp_find_header (req->input_headers, "Content-Length")){
+      evbuffer_add_printf( buf, "Content-Length: " );
+      evbuffer_add_printf( buf, evhttp_find_header (req->input_headers, "Content-Length"));
+      evbuffer_add_printf( buf, "<br />\n" );
+      printf("%s\n", req->input_buffer->buffer);
+    }
+
+    // ここで input_headers が GET引数に変わる
+    // evkeyvalq 型が確保できないので input_headersを使う
+    evhttp_parse_query(evhttp_decode_uri(req->uri), req->input_headers);
+
+
+    const char *hogehoge = evhttp_find_header (req->input_headers, "hogehoge");
+    if(hogehoge != NULL){
+      evbuffer_add_printf( buf, evhttp_find_header (req->input_headers, "hogehoge"));
+      evbuffer_add_printf( buf, "<br />\n" );
+      //      evbuffer_add_printf( buf, req->input_buffer);
+      //evbuffer_add_printf( buf, "<br />\n" );
+        }
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
   }
 
@@ -54,6 +82,7 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
     try{
       IRCConnection *newConnection = new IRCConnection(std::string("yushi_new"));
       instance->setIRCConnection( newConnection );
+      //FIXME server and port fixed
       newConnection->connectIRCServer(std::string("localhost"), 6667);
       newConnection->joinIRCChannel("#beatboard");
       

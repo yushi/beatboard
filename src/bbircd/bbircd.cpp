@@ -6,8 +6,7 @@ void BeatBoard::BBIRCD::setUp() {
 
   try {
     this->httpd = new HTTPAPIServer();
-    // FIXME fixed port number
-    this->httpd->setUp(8000);
+    this->httpd->setUp(http_api_server_addr, http_api_server_port);
   } catch ( BeatBoard::Exception& error ) {
     logger.debug( error.message.data() );
     std::cerr << "daemon start failed.\n";
