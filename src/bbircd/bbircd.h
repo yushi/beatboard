@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "irc_connection.h"
-#include "bb_exception.h"
+#include <irc_connection.h>
+#include <bb_exception.h>
 #include "bblogger.h"
 #include "http_api_server.h"
 
