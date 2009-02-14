@@ -1,6 +1,6 @@
 #include "irc_connection.h"
-//FIXME �ʸ�����������Ϣ��뒤ǒ�䒤뒤Β�ϒ�����
-//��Ւ�������ޒ�Ò�Ȓʸ������ǒ�䒤�?
+//FIXME 文字列操作を連結でやるのは汚い
+//フォーマット文字列でやる?
 
 
 // static field
