@@ -5,7 +5,10 @@
 
 // static field
 std::string BeatBoard::IRCConnection::newline = std::string("\r\n");
-
+int BeatBoard::IRCConnection::is_initialized = 0;
+void BeatBoard::IRCConnection::bb_event_dispatch(){
+  event_dispatch();
+}
 
 /* readable event handler for libevent */
 
@@ -31,6 +34,10 @@ void irc_buffevent_error( struct bufferevent *bev, short what, void *arg ) {
 
 BeatBoard::IRCConnection::IRCConnection(std::string nick) {
   this->nick = nick;
+  if(0 == this->is_initialized){
+    this->is_initialized = 1;
+    event_init();
+  }
 }
 
 void BeatBoard::IRCConnection::create_socket() throw( Exception ) {
