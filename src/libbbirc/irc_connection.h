@@ -17,7 +17,6 @@ namespace BeatBoard{
    * IRC Connection Class
    */
   class IRCConnection{
-
     // fields /////////////////////////////////////////////
   public:
     int sock;
@@ -25,8 +24,10 @@ namespace BeatBoard{
   private:
     std::string nick;
     static std::string newline;
+    static int is_initialized;
     // methods ////////////////////////////////////////////
   public:
+    static void bb_event_dispatch();
     IRCConnection(std::string nick);
     void connectIRCServer(std::string addr, int port) throw (Exception);
     void joinIRCChannel(std::string channel) throw (Exception);
