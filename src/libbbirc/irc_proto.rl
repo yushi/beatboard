@@ -4,7 +4,8 @@
   machine foo;
 
   action start_command { start = fpc; }
-  action end_command { end = fpc;
+  action end_command {
+    end = fpc;
     ret->command = get_substr(start, end);
   }
   
@@ -53,7 +54,7 @@
 %% write data;
 
 std::string* get_substr(char* start, char* end){
-  char *buf = (char*)malloc(sizeof(char) * (end - start));
+  char *buf = (char*)malloc(sizeof(char) * (end - start + 1));
   std::string *ret;
   memcpy(buf, start, end - start);
   buf[end - start] = 0;
@@ -62,16 +63,56 @@ std::string* get_substr(char* start, char* end){
   return ret;
   
 }
-IRCEvent* parse_irc_message(char message[]){
+
+BeatBoard::IRCEvent* BeatBoard::parse_irc_message(char message[]){
   int cs, res = 0;
   char *p = message;
   char *pe = p + strlen(p) + 1;
   char *start, *end;
   start = end = 0;
-  IRCEvent *ret = new IRCEvent();
+  BeatBoard::IRCEvent *ret = new BeatBoard::IRCEvent();
   
   %% write init; 
   %% write exec;
+  if(res){
+    return ret;
+  }else{
+    delete ret;
+    return NULL;
+  }
+}
 
-  return ret;
+BeatBoard::IRCEvent::IRCEvent(){
+  this->param_num = 0;
+  this->prefix = NULL;
+  this->command = NULL;
+  for(int i = 0; i < 15; i++){
+    this->params[i] = NULL;
+  }
+}
+
+BeatBoard::IRCEvent::~IRCEvent(){
+  if(this->prefix){
+    delete this->prefix;
+  }
+
+  if(this->command){
+    delete this->command;
+  }
+
+  for(int i = 0; i < this->param_num; i++){
+    delete this->params[i];
+  }
+}
+
+void BeatBoard::IRCEvent::print(){
+  if(this->prefix){
+    std::cout << "PREFIX: " <<  *(this->prefix) << std::endl;
+  }
+  if(this->command){
+    std::cout << "COMMAND: " << *(this->command) << std::endl;
+  }
+  for (int i = 0; i < param_num; i++){
+    std::cout << "PARAM: " << *(this->params[i]) << std::endl;
+  }
 }
