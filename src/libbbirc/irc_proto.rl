@@ -1,18 +1,24 @@
-#include <string.h>
-#include <stdlib.h> 
-#include <stdio.h> 
+#include "irc_proto.h"
+
 %%{ 
   machine foo;
 
-  action start_command { command_start = fpc; }
-  action end_command { command_end = fpc; }
-  action start_prefix { prefix_start = fpc; }
-  action end_prefix { prefix_end = fpc; }
-  action start_param { param_start = fpc; }
+  action start_command { start = fpc; }
+  action end_command { end = fpc;
+    ret->command = get_substr(start, end);
+  }
+  
+  action start_prefix { start = fpc; }
+  action end_prefix {
+    end = fpc;
+    ret->prefix = get_substr(start, end);
+  }
+  
+  action start_param { start = fpc; }
   action end_param {
-    param_end = fpc;
-    params[param_num] = get_substr(param_start, param_end);
-    param_num++;
+    end = fpc;
+    ret->params[ret->param_num] = get_substr(start, end);
+    ret->param_num++;
   }
   
   irc_nonwhite = ^(0x20 | 0x0 | 0xd | 0xa);
@@ -46,48 +52,26 @@
 }%% 
 %% write data;
 
-char* get_substr(char* start, char* end){
-  char *ret = (char*)malloc(sizeof(char) * (end - start));
-  memcpy(ret, start, end - start);
-  ret[end - start] = 0;
+std::string* get_substr(char* start, char* end){
+  char *buf = (char*)malloc(sizeof(char) * (end - start));
+  std::string *ret;
+  memcpy(buf, start, end - start);
+  buf[end - start] = 0;
+  ret = new std::string(buf);
+  free(buf);
   return ret;
   
 }
-int parse_irc_message(char message[]){
+IRCEvent* parse_irc_message(char message[]){
   int cs, res = 0;
   char *p = message;
   char *pe = p + strlen(p) + 1;
-  char *command_start, *command_end;
-  command_start = command_end = 0;
-  char *prefix_start, *prefix_end;  
-  prefix_start = prefix_end = 0;
-  char *param_start, *param_end;
-  int param_num = 0;
-  param_start = param_end = 0;
-  char *params[15];
-  for(int i = 0; i < 15; i++){
-    params[i] = 0;
-  }
+  char *start, *end;
+  start = end = 0;
+  IRCEvent *ret = new IRCEvent();
+  
   %% write init; 
   %% write exec;
-  
-  if(command_start && command_end){
-    printf("COMMAND: %s\n", get_substr(command_start, command_end) );
-  }
-  if(prefix_start && prefix_end){
-    printf("PREFIX: %s\n", get_substr(prefix_start, prefix_end) );
-  }
 
-  for (int i = 0; i < param_num; i++){
-    printf("PARAM%2d: %s\n", i, params[i] );
-  }
-  return 0;
+  return ret;
 }
-int main( int argc, char **argv ) 
-{
-  parse_irc_message("PRIVMSG #channel text\r\n");
-  parse_irc_message("PRIVMSG #channel :text hoge\r\n");
-  parse_irc_message(":example.com PRIVMSG #channel text\r\n");
-  return 0; 
-} 
-
