@@ -4,8 +4,6 @@
 #include "irc_connection.h"
 
 int main(){
-  //event_init();
-
   int nums = 1;
   BeatBoard::IRCConnection* connections[nums];
   try{
@@ -22,18 +20,7 @@ int main(){
     std::cout << e.message << std::endl;
     printf("HOGEHOGE\n");
   }
-  /*
-    BeatBoard::IRCConnection a("a");
-    a.connectIRCServer(std::string("localhost"),6667);
-    a.joinIRCChannel(std::string("#beatboard"));
-    a.privMSG( std::string("#beatboard"), std::string( "hogera-" ) );
-    BeatBoard::IRCConnection b("b");
-    b.connectIRCServer(std::string("localhost"),6667);
-    b.joinIRCChannel(std::string("#beatboard"));
-    b.privMSG( std::string("#beatboard"), std::string( "hogera-" ) );
-  */
   BeatBoard::IRCConnection::bb_event_dispatch();
-  //event_dispatch();
   
   return 0;
 }

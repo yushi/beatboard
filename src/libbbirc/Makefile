@@ -10,7 +10,7 @@ LIBBBIRC=libbbirc.so
 .cpp.o:
 	$(CC) $(CC_OPTS) -c $<
 
-all: $(LIBBBIRC) $(OBJS)
+all: $(LIBBBIRC) $(OBJS) irc_client
 	make -C ruby -f Makefile.bb
 	make -C tests
 
@@ -26,7 +26,13 @@ test: all
 memtest: all
 	make -C tests memtest
 
+irc_client: irc_client.cpp
+	$(CC) $(CC_OPTS) $< -o irc_client -lpthread -lbbirc -L.
+
+run_irc_client: irc_client
+	LD_LIBRARY_PATH=. ./irc_client
+
 clean:
-	rm -rf $(LIBBBIRC) $(OBJS) irc_proto.cpp
+	rm -rf $(LIBBBIRC) $(OBJS) irc_proto.cpp irc_client
 	make -C ruby -f Makefile.bb clean
 	make -C tests clean
