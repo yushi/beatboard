@@ -29,7 +29,7 @@ namespace BeatBoard{
   public:
     static void bb_event_dispatch();
     IRCConnection(std::string nick);
-    void connectIRCServer(std::string addr, int port) throw (Exception);
+    void connectIRCServer(std::string addr, std::string port) throw (Exception);
     void joinIRCChannel(std::string channel) throw (Exception);
     void privMSG(std::string channel, std::string msg) throw (Exception);
   private:

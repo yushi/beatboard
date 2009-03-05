@@ -16,7 +16,7 @@ int main(void){
 
   std::cout << "server: ";
   std::getline(std::cin, line);
-  conn->connectIRCServer(line, 6667);
+  conn->connectIRCServer(line, std::string("6667"));
 
   std::cout << "channel: ";
   std::getline(std::cin, channel);

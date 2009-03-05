@@ -50,31 +50,29 @@ void BeatBoard::IRCConnection::create_socket() throw( Exception ) {
   }
 }
 
-void BeatBoard::IRCConnection::connectIRCServer(std::string addr, int port) throw (Exception){
+void BeatBoard::IRCConnection::connectIRCServer(std::string addr, std::string port) throw (Exception){
   this->create_socket();
 
-  struct sockaddr_in toSockAddr;
+  struct addrinfo hints;
   struct addrinfo *addrinfo = NULL;
   int result = -1;
 
-  /* get server hostent */
-  result = getaddrinfo(addr.c_str(),NULL,NULL,&addrinfo);
+  memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = 0;
+  hints.ai_protocol = 0;
+  
+  result = getaddrinfo(addr.c_str(),port.c_str(),&hints,&addrinfo);
   if ( 0 != result  ) {
     throw Exception( "error: invalid address" );
   }
   
-  /* setup server infomation */
-  memset( &toSockAddr, 0, sizeof( toSockAddr ));
-  toSockAddr.sin_family = AF_INET;
-  toSockAddr.sin_port = htons( port );
-  memcpy(addrinfo->ai_addr, &toSockAddr.sin_addr, addrinfo->ai_addrlen);
-  freeaddrinfo(addrinfo);
-
-  /* connect to server */
-  if ( -1 == connect( this->sock, ( struct sockaddr* ) &toSockAddr, sizeof( toSockAddr ) ) ) {
+  if ( -1 == connect( this->sock, addrinfo->ai_addr, addrinfo->ai_addrlen ) ) {
     printf( "connect failed" );
     exit( -1 );
   }
+  freeaddrinfo(addrinfo);
 
   /* add event to this connection */
   this->buffevent = bufferevent_new( this->sock, irc_buffevent_read, irc_buffevent_write, irc_buffevent_error, NULL );
