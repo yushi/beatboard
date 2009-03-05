@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "irc_proto.h"
+#include "../irc_proto.h"
 using namespace BeatBoard;
 namespace {
   // The fixture for testing class Foo.
