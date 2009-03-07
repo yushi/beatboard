@@ -10,9 +10,12 @@
 #include <errno.h>
 #include <event.h>
 #include <iostream>
+#include <sstream>
 #include "bb_exception.h"
 
+using namespace std;
 namespace BeatBoard{
+  struct event_base *ev_base = NULL;
   /*
    * IRC Connection Class
    */
@@ -22,16 +25,18 @@ namespace BeatBoard{
     int sock;
     struct bufferevent *buffevent;
   private:
-    std::string nick;
-    static std::string newline;
+    string nick;
+    static string newline;
     static int is_initialized;
     // methods ////////////////////////////////////////////
   public:
     static void bb_event_dispatch();
-    IRCConnection(std::string nick);
-    void connectIRCServer(std::string addr, std::string port) throw (Exception);
-    void joinIRCChannel(std::string channel) throw (Exception);
-    void privMSG(std::string channel, std::string msg) throw (Exception);
+    static void bb_event_finish();
+    IRCConnection(string nick);
+    ~IRCConnection();
+    void connectIRCServer(string addr, string port) throw (Exception);
+    void joinIRCChannel(string channel) throw (Exception);
+    void privMSG(string channel, string msg) throw (Exception);
   private:
     void create_socket(void) throw (Exception);
   };

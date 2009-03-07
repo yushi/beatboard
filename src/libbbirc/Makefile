@@ -30,7 +30,7 @@ irc_client: irc_client.cpp
 	$(CC) $(CC_OPTS) $< -o irc_client -lpthread -lbbirc -L.
 
 run_irc_client: irc_client
-	LD_LIBRARY_PATH=. ./irc_client
+	LD_LIBRARY_PATH=. valgrind --leak-check=full --show-reachable=yes ./irc_client
 
 clean:
 	rm -rf $(LIBBBIRC) $(OBJS) irc_proto.cpp irc_client

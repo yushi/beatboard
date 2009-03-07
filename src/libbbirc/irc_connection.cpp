@@ -1,22 +1,32 @@
 #include "irc_connection.h"
 //FIXME 文字列操作を連結でやるのは汚い
-//フォーマット文字列でやる?
-
 
 // static field
-std::string BeatBoard::IRCConnection::newline = std::string("\r\n");
+string BeatBoard::IRCConnection::newline = string("\r\n");
 int BeatBoard::IRCConnection::is_initialized = 0;
+
 void BeatBoard::IRCConnection::bb_event_dispatch(){
-  event_dispatch();
+  //event_dispatch();
+  event_base_loop(ev_base,0);
+}
+
+void BeatBoard::IRCConnection::bb_event_finish(){
+  if(ev_base != NULL){
+    event_base_free(ev_base);
+  }
 }
 
 /* readable event handler for libevent */
 
 void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
   char buf[1024];
-  while ( 0 < bufferevent_read( bev, buf, 1023 ) ) {
-    //std::cout << std::string(buf);
+  ostringstream str_stream;
+  size_t read_size = 0;
+  while ( 0 < (read_size = bufferevent_read( bev, buf, 1023 ) ) ){
+    buf[read_size] = 0;
+    str_stream << string(buf);
   }
+  cout << str_stream.str() << endl;
 }
 
 /* writable event handler for libevent */
@@ -27,16 +37,16 @@ void irc_buffevent_write( struct bufferevent *bev, void *arg ) {
 /* error event handler for libevent */
 
 void irc_buffevent_error( struct bufferevent *bev, short what, void *arg ) {
-  std::cout << "error ev\n";
+  cout << "error ev\n";
   //FIXME cleanup bufferevent
 }
 
 
-BeatBoard::IRCConnection::IRCConnection(std::string nick) {
+BeatBoard::IRCConnection::IRCConnection(string nick) {
   this->nick = nick;
   if(0 == this->is_initialized){
     this->is_initialized = 1;
-    event_init();
+    ev_base = event_init();
   }
 }
 
@@ -44,13 +54,13 @@ void BeatBoard::IRCConnection::create_socket() throw( Exception ) {
   this->sock = socket( AF_INET, SOCK_STREAM, 0 );
 
   if ( this->sock == -1 ) {
-    std::string message = std::string( "socket: " );
+    string message = string( "socket: " );
     message += strerror( errno );
     throw Exception( message );
   }
 }
 
-void BeatBoard::IRCConnection::connectIRCServer(std::string addr, std::string port) throw (Exception){
+void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw (Exception){
   this->create_socket();
 
   struct addrinfo hints;
@@ -87,7 +97,7 @@ void BeatBoard::IRCConnection::connectIRCServer(std::string addr, std::string po
   }
 
   /* send first message (NICK, User) */
-  std::string initMessage("NICK ");
+  string initMessage("NICK ");
   initMessage += this->nick + "\r\nUSER " + this->nick + " 0 * :beatboard\r\n";
   result = bufferevent_write( this->buffevent, initMessage.c_str(), initMessage.length());
 
@@ -96,8 +106,8 @@ void BeatBoard::IRCConnection::connectIRCServer(std::string addr, std::string po
   }
 }
 
-void BeatBoard::IRCConnection::joinIRCChannel(std::string channel) throw (Exception){
-  std::string message("JOIN ");
+void BeatBoard::IRCConnection::joinIRCChannel(string channel) throw (Exception){
+  string message("JOIN ");
   message += channel;
   message += this->newline;
   
@@ -110,7 +120,7 @@ void BeatBoard::IRCConnection::joinIRCChannel(std::string channel) throw (Except
 }
 
 
-void BeatBoard::IRCConnection::privMSG( std::string channel, std::string msg ) throw (Exception){
+void BeatBoard::IRCConnection::privMSG( string channel, string msg ) throw (Exception){
   int result;
   msg = "PRIVMSG " + channel + " :" + msg + this->newline;
   result = bufferevent_write( this->buffevent, ( void* )( msg.c_str() ), msg.size() );
@@ -119,3 +129,12 @@ void BeatBoard::IRCConnection::privMSG( std::string channel, std::string msg ) t
     throw Exception( "bufferevent_write: failed" );
   }
 }
+
+BeatBoard::IRCConnection::~IRCConnection(){
+  close(this->sock);
+  if(this->buffevent){
+    bufferevent_disable(this->buffevent, EV_READ | EV_WRITE);
+    bufferevent_free(this->buffevent);
+  }
+}
+

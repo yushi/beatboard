@@ -1,25 +1,37 @@
 #include <pthread.h>
 #include <stdio.h>
 #include "irc_connection.h"
+#include <signal.h>
+using namespace std;
 
 void* func(void* args);
+void sigcatch(int sig);
 BeatBoard::IRCConnection *conn;
-std::string channel;
+string channel;
+pthread_t pt;
 
 int main(void){
-  pthread_t pt;
-  std::string line;
 
-  std::cout << "nick: ";
-  std::getline(std::cin, line);
-  conn = new BeatBoard::IRCConnection(line.c_str());
+  char buf[1024];
+  string line;
 
-  std::cout << "server: ";
-  std::getline(std::cin, line);
-  conn->connectIRCServer(line, std::string("6667"));
+  if(SIG_ERR == signal(SIGINT,sigcatch)){
+    fprintf(stderr,"failed to set signalhandler.\n");
+    exit(1);
+  }
 
-  std::cout << "channel: ";
-  std::getline(std::cin, channel);
+  cout << "nick: ";
+
+  cin.getline(buf,1024);
+  conn = new BeatBoard::IRCConnection(string(buf));
+
+  cout << "server: ";
+  cin.getline(buf, 1024);
+  conn->connectIRCServer(string(buf), string("6667"));
+
+  cout << "channel: ";
+  cin.getline(buf, 1024);
+  channel = string(buf);
   conn->joinIRCChannel(channel);
 
   pthread_create( &pt, NULL, &func, NULL );
@@ -28,9 +40,23 @@ int main(void){
   return 0;
 }
 
+void sigcatch(int sig)
+{
+  fprintf(stdout,"catch signal %d\n",sig);
+  if(conn != NULL){
+    delete conn;
+  }
+  BeatBoard::IRCConnection::bb_event_finish();
+  pthread_detach(pt);
+  pthread_exit((void*)pt);
+  exit(0);
+  //signal(sig,SIG_DFL);
+}
+
 void* func(void* args){
-  std::string line;
-  while(std::getline(std::cin, line)){
+  string line;
+
+  while(getline(cin, line)){
     conn->privMSG(channel, line);
     sleep(2);
   }
