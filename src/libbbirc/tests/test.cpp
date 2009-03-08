@@ -48,18 +48,15 @@ namespace {
     this->ret = parse_irc_message("PRIVMSG #channel text");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
 
-    this->ret = parse_irc_message("PRIVMSG #channel text\r");
+    this->ret = parse_irc_message("PRIVMSG #channel text");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
 
-    this->ret = parse_irc_message("PRIVMSG #channel text\n");
-    ASSERT_EQ(this->ret, (IRCEvent*)NULL);
-
-    this->ret = parse_irc_message(":1 PRIVMSG #channel text\n");
+    this->ret = parse_irc_message(":1 PRIVMSG #channel text");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
   }
 
   TEST_F(IRCProtoTest, parse_privmsg_1) {
-    this->ret = parse_irc_message("PRIVMSG #channelA text\r\n");
+    this->ret = parse_irc_message("PRIVMSG #channelA text\r");
     ASSERT_NE(this->ret, (IRCEvent*)NULL);
     ASSERT_EQ(this->ret->prefix, (std::string*)NULL);    
     ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");
@@ -70,7 +67,7 @@ namespace {
   }
 
   TEST_F(IRCProtoTest, parse_privmsg_2) {
-    this->ret = parse_irc_message("PRIVMSG #channelB :text hoge\r\n");
+    this->ret = parse_irc_message("PRIVMSG #channelB :text hoge\r");
     ASSERT_NE(this->ret, (IRCEvent*)NULL);
     ASSERT_EQ(this->ret->prefix, (std::string*)NULL);
     ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");
@@ -81,7 +78,7 @@ namespace {
   }  
 
   TEST_F(IRCProtoTest, parse_privmsg_3) {
-    this->ret = parse_irc_message(":example.com PRIVMSG #channelC text\r\n");
+    this->ret = parse_irc_message(":example.com PRIVMSG #channelC text\r");
     ASSERT_NE(this->ret, (IRCEvent*)NULL);
     ASSERT_STREQ(this->ret->prefix->c_str(), "example.com");
     ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");
@@ -89,7 +86,19 @@ namespace {
     ASSERT_STREQ(this->ret->params[0]->c_str(), "#channelC");
     ASSERT_STREQ(this->ret->params[1]->c_str(), "text");
     ASSERT_EQ(this->ret->params[2], (std::string*)NULL);
-  }  
+  }
+
+  TEST_F(IRCProtoTest, parse_privmsg_4) {
+    this->ret = parse_irc_message(":yushi_ai_!~yushi_ai@192.168.1.5 PRIVMSG #bb :test\r");
+    ASSERT_NE(this->ret, (IRCEvent*)NULL);
+    ASSERT_STREQ(this->ret->prefix->c_str(), "yushi_ai_!~yushi_ai@192.168.1.5");
+    ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");
+    ASSERT_EQ(this->ret->param_num, 2);
+    ASSERT_STREQ(this->ret->params[0]->c_str(), "#bb");
+    ASSERT_STREQ(this->ret->params[1]->c_str(), "test");
+    ASSERT_EQ(this->ret->params[2], (std::string*)NULL);
+    
+  }
 }  // namespace
 
 int main(int argc, char **argv) {

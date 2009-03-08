@@ -19,14 +19,27 @@ void BeatBoard::IRCConnection::bb_event_finish(){
 /* readable event handler for libevent */
 
 void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
+  BeatBoard::IRCConnection *irc_conn = (BeatBoard::IRCConnection*)arg;
   char buf[1024];
-  ostringstream str_stream;
+  stringstream str_stream;
   size_t read_size = 0;
   while ( 0 < (read_size = bufferevent_read( bev, buf, 1023 ) ) ){
     buf[read_size] = 0;
     str_stream << string(buf);
   }
-  cout << str_stream.str() << endl;
+  //cout << str_stream.str() << endl;
+  while(str_stream.getline(buf, 1024)){
+    cout << string(buf) << endl;
+    BeatBoard::IRCEvent *hoge = BeatBoard::parse_irc_message(buf);
+    if(hoge != NULL){
+      if(*(hoge->command) == string("PING")){
+        irc_conn->PONG( *(hoge->params[0]) );
+      }
+      delete hoge;
+    }else{
+      cout << "event not found" << endl;
+    }
+  }
 }
 
 /* writable event handler for libevent */
@@ -85,7 +98,11 @@ void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw 
   freeaddrinfo(addrinfo);
 
   /* add event to this connection */
-  this->buffevent = bufferevent_new( this->sock, irc_buffevent_read, irc_buffevent_write, irc_buffevent_error, NULL );
+  this->buffevent = bufferevent_new( this->sock,
+                                     irc_buffevent_read,
+                                     irc_buffevent_write,
+                                     irc_buffevent_error,
+                                     (void*)this );
   if ( NULL == this->buffevent ) {
     throw Exception( "bufferevent_new: failed" );
   }
@@ -96,38 +113,42 @@ void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw 
     throw Exception( "bufferevent_enable: failed" );
   }
 
-  /* send first message (NICK, User) */
-  string initMessage("NICK ");
-  initMessage += this->nick + "\r\nUSER " + this->nick + " 0 * :beatboard\r\n";
-  result = bufferevent_write( this->buffevent, initMessage.c_str(), initMessage.length());
-
+  this->NICK(this->nick);
+  this->USER(this->nick, "0", "*", ":beatboard");
+}
+void BeatBoard::IRCConnection::write(string str) throw (Exception){
+  int result;
+  str += this->newline;
+  result =   bufferevent_write( this->buffevent, str.c_str(), str.length());
   if ( 0 != result ) {
     throw Exception( "bufferevent_write: failed" );
   }
 }
 
-void BeatBoard::IRCConnection::joinIRCChannel(string channel) throw (Exception){
-  string message("JOIN ");
-  message += channel;
-  message += this->newline;
-  
-  int result;
-  result = bufferevent_write( this->buffevent, message.c_str(), message.length() );
+void BeatBoard::IRCConnection::NICK(string name) throw (Exception){
+  string message("NICK :" + name);
+  this->write(message);
+}
 
-  if ( 0 != result ) {
-    throw Exception( "bufferevent_write: failed" );
-  }
+void BeatBoard::IRCConnection::USER(string user, string host, string server, string real) throw (Exception){
+  string message("USER " + user + " " + host + " " + server + " :" + real);
+  this->write(message);
+}
+
+void BeatBoard::IRCConnection::PONG(string server) throw (Exception){
+  string message("PONG :" + server);
+  this->write(message);
+}
+
+void BeatBoard::IRCConnection::JOIN(string channel) throw (Exception){
+  string message("JOIN :" + channel);
+  this->write(message);
 }
 
 
-void BeatBoard::IRCConnection::privMSG( string channel, string msg ) throw (Exception){
-  int result;
-  msg = "PRIVMSG " + channel + " :" + msg + this->newline;
-  result = bufferevent_write( this->buffevent, ( void* )( msg.c_str() ), msg.size() );
-
-  if ( 0 != result ) {
-    throw Exception( "bufferevent_write: failed" );
-  }
+void BeatBoard::IRCConnection::PRIVMSG( string channel, string text ) throw (Exception){
+  string message("PRIVMSG " + channel + " :" + text);
+  this->write(message);
 }
 
 BeatBoard::IRCConnection::~IRCConnection(){

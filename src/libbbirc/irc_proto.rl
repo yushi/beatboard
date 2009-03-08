@@ -23,7 +23,8 @@
   }
   
   irc_nonwhite = ^(0x20 | 0x0 | 0xd | 0xa);
-  irc_special = '-' | '[' | ']' | '\\' | '`' | '^' | '{' | '}';
+  irc_special = '-' | '[' | ']' | '\\' | '`' | '^' | '{' | '}' | '_' | '|';
+  #%x5B-60 / %x7B-7D
   irc_number = digit;
   irc_letter = alpha;
   irc_user = irc_nonwhite irc_nonwhite*;
@@ -35,7 +36,8 @@
   irc_servername = irc_hostname;
   irc_channel = ('#' | '&') irc_chstring;
   irc_to = irc_channel | irc_user '@' irc_servername | irc_nick | irc_mask;
-  irc_crlf = 0xd 0xa;
+#  irc_crlf = 0xd 0xa;
+  irc_crlf = 0xd;
   irc_space = ' '+;
   irc_trailing = zlen | (irc_space | irc_nonwhite )+;
   irc_middle = ^(':'|0x20|0x0|0xd|0xa) irc_nonwhite*;
@@ -43,7 +45,7 @@
   irc_params_act = irc_params;
   irc_command = irc_letter+ | irc_number irc_number irc_number;
   irc_command_act = irc_command  >start_command %end_command;
-  irc_prefix = irc_servername | (irc_nick ('!' irc_user)? ('@' irc_hostname)?);
+  irc_prefix = (irc_servername) | (irc_nick ('!' irc_user)? ('@' irc_servername)?);
   irc_prefix_act = irc_prefix >start_prefix %end_prefix;
   irc_message = (':' irc_prefix_act irc_space)? irc_command_act irc_params_act irc_crlf;
 

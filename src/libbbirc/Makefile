@@ -26,7 +26,7 @@ test: all
 memtest: all
 	make -C tests memtest
 
-irc_client: irc_client.cpp
+irc_client: irc_client.cpp libbbirc.so
 	$(CC) $(CC_OPTS) $< -o irc_client -lpthread -lbbirc -L.
 
 run_irc_client: irc_client

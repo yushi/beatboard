@@ -32,7 +32,7 @@ int main(void){
   cout << "channel: ";
   cin.getline(buf, 1024);
   channel = string(buf);
-  conn->joinIRCChannel(channel);
+  conn->JOIN(channel);
 
   pthread_create( &pt, NULL, &func, NULL );
   BeatBoard::IRCConnection::bb_event_dispatch();
@@ -47,8 +47,8 @@ void sigcatch(int sig)
     delete conn;
   }
   BeatBoard::IRCConnection::bb_event_finish();
-  pthread_detach(pt);
-  pthread_exit((void*)pt);
+  //pthread_detach(pt);
+  //pthread_exit((void*)pt);
   exit(0);
   //signal(sig,SIG_DFL);
 }
@@ -57,7 +57,7 @@ void* func(void* args){
   string line;
 
   while(getline(cin, line)){
-    conn->privMSG(channel, line);
+    conn->PRIVMSG(channel, line);
     sleep(2);
   }
   return NULL;
