@@ -63,6 +63,8 @@ namespace {
     ASSERT_EQ(this->ret->param_num, 2);
     ASSERT_STREQ(this->ret->params[0]->c_str(), "#channelA");
     ASSERT_STREQ(this->ret->params[1]->c_str(), "text");
+    ASSERT_STREQ(this->ret->inspect().c_str(),
+                 "COMMAND: PRIVMSG\nPARAM: #channelA\nPARAM: text\n");
     ASSERT_EQ(this->ret->params[2], (std::string*)NULL);
   }
 
@@ -85,6 +87,8 @@ namespace {
     ASSERT_EQ(this->ret->param_num, 2);
     ASSERT_STREQ(this->ret->params[0]->c_str(), "#channelC");
     ASSERT_STREQ(this->ret->params[1]->c_str(), "text");
+    ASSERT_STREQ(this->ret->inspect().c_str(),
+                 "PREFIX: example.com\nCOMMAND: PRIVMSG\nPARAM: #channelC\nPARAM: text\n");
     ASSERT_EQ(this->ret->params[2], (std::string*)NULL);
   }
 

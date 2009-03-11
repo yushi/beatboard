@@ -107,14 +107,16 @@ BeatBoard::IRCEvent::~IRCEvent(){
   }
 }
 
-void BeatBoard::IRCEvent::print(){
+std::string BeatBoard::IRCEvent::inspect(){
+  std::ostringstream o;
   if(this->prefix){
-    std::cout << "PREFIX: " <<  *(this->prefix) << std::endl;
+    o << "PREFIX: " <<  *(this->prefix) << std::endl;
   }
   if(this->command){
-    std::cout << "COMMAND: " << *(this->command) << std::endl;
+    o << "COMMAND: " << *(this->command) << std::endl;
   }
   for (int i = 0; i < param_num; i++){
-    std::cout << "PARAM: " << *(this->params[i]) << std::endl;
+    o << "PARAM: " << *(this->params[i]) << std::endl;
   }
+  return o.str();
 }

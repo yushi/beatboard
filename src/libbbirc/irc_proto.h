@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 namespace BeatBoard{
   class IRCEvent{
@@ -13,7 +14,7 @@ namespace BeatBoard{
     int param_num;
     IRCEvent();
     ~IRCEvent();
-    void print();
+    std::string inspect();
   };  
 
   IRCEvent* parse_irc_message(char message[]);
