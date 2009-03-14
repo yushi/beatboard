@@ -28,14 +28,14 @@ namespace BeatBoard{
   private:
     string nick;
     static string newline;
-    static int is_initialized;
     // methods ////////////////////////////////////////////
   public:
-    static void bb_event_dispatch();
+    static bool bb_event_dispatch();
     static void bb_event_finish();
     IRCConnection(string nick);
     ~IRCConnection();
     void connectIRCServer(string addr, string port) throw (Exception);
+    void disconnectIRCServer(void) throw (Exception);
     void JOIN(string channel) throw (Exception);
     void PRIVMSG(string channel, string msg) throw (Exception);
     void PONG(string server) throw (Exception);
