@@ -1,6 +1,6 @@
 #include <map>
 #include <string>
-#include <irc_connection.h>
+#include "../libbbirc/irc_connection.h"
 
 namespace BeatBoard{
   class IRCClientOperation{

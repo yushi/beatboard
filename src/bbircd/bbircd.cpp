@@ -3,7 +3,7 @@
 void BeatBoard::BBIRCD::setUp() {
   event_init();
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-
+  /*
   try {
     this->httpd = new HTTPAPIServer();
     this->httpd->setUp(http_api_server_addr, http_api_server_port);
@@ -11,6 +11,7 @@ void BeatBoard::BBIRCD::setUp() {
     logger.debug( error.message.data() );
     std::cerr << "daemon start failed.\n";
   }
+  */
   return;
 }
 
