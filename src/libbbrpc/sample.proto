@@ -1,0 +1,13 @@
+package sample;
+
+message Request {
+  required string query = 1;
+}
+
+message Response {
+  required string result = 1;
+}
+
+service RpcService {
+  rpc RpcFunc (Request) returns (Response);
+}
