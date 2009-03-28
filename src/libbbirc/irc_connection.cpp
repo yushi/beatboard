@@ -3,16 +3,27 @@
 
 // static field
 string BeatBoard::IRCConnection::newline = string("\r\n");
-int BeatBoard::IRCConnection::is_initialized = 0;
 
-void BeatBoard::IRCConnection::bb_event_dispatch(){
-  //event_dispatch();
-  event_base_loop(ev_base,0);
+bool BeatBoard::IRCConnection::bb_event_dispatch(){
+  if(NULL == ev_base){
+    ev_base = event_init();
+  }
+  int ret = event_base_loop(ev_base,0);
+    if( 0 != ret ){
+    //TODO error handling
+    return false;
+  }
+
+  return true;
 }
 
 void BeatBoard::IRCConnection::bb_event_finish(){
   if(ev_base != NULL){
-    event_base_free(ev_base);
+    struct timeval time;
+    time.tv_sec = 0;
+    time.tv_usec = 0;
+    event_base_loopexit	(ev_base,&time);
+    event_loopexit(&time);
   }
 }
 
@@ -29,7 +40,6 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
   }
   //cout << str_stream.str() << endl;
   while(str_stream.getline(buf, 1024)){
-    cout << string(buf) << endl;
     BeatBoard::IRCEvent *hoge = BeatBoard::parse_irc_message(buf);
     if(hoge != NULL){
       if(*(hoge->command) == string("PING")){
@@ -50,15 +60,14 @@ void irc_buffevent_write( struct bufferevent *bev, void *arg ) {
 /* error event handler for libevent */
 
 void irc_buffevent_error( struct bufferevent *bev, short what, void *arg ) {
-  cout << "error ev\n";
+  //BeatBoard::IRCConnection *irc_conn = (BeatBoard::IRCConnection*)arg;
   //FIXME cleanup bufferevent
 }
 
 
 BeatBoard::IRCConnection::IRCConnection(string nick) {
   this->nick = nick;
-  if(0 == this->is_initialized){
-    this->is_initialized = 1;
+  if(NULL == ev_base){
     ev_base = event_init();
   }
 }
@@ -92,7 +101,8 @@ void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw 
   }
   
   if ( -1 == connect( this->sock, addrinfo->ai_addr, addrinfo->ai_addrlen ) ) {
-    printf( "connect failed" );
+    // TODO error handling
+    printf( "connect failed\n" );
     exit( -1 );
   }
   freeaddrinfo(addrinfo);
@@ -116,6 +126,13 @@ void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw 
   this->NICK(this->nick);
   this->USER(this->nick, "0", "*", ":beatboard");
 }
+
+void BeatBoard::IRCConnection::disconnectIRCServer(void) throw (Exception){
+  if(this->sock){
+    close(this->sock);
+  }
+}
+  
 void BeatBoard::IRCConnection::write(string str) throw (Exception){
   int result;
   str += this->newline;

@@ -1,9 +1,9 @@
 CC=g++ -g -Wall -Werror
-CC_INC_DIR=-I/opt/local/include -I../libbbirc
-CC_LIB_DIR=-L/opt/local/lib -L../libbbirc
+CC_INC_DIR=-I/home/bb/local/include -I../libbbirc
+CC_LIB_DIR=-L/home/bb/local/lib -L../libbbirc
 CC_LIBS=-levent -lbbirc
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
-OBJ_FILES=bblogger.o bbircd.o http_api_server.o irc_client_operation.o
+OBJ_FILES=bblogger.o bbircd.o irc_client_operation.o
 
 all: bbircd
 
