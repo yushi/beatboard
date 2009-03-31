@@ -1,8 +1,18 @@
-.SUFFIXES: .cpp .o .h
+.SUFFIXES: .cc .cpp .o .h
 
 CC = g++
-CFLAGS = -Wall -Werror -pipe
-CLIBFLAGS = -G -dynamiclib -Kpic
+COMMON_CFLAGS = -g -Wall -pipe
+OS	= ${shell uname}
+ifeq (${OS}, Linux)
+CFLAGS = $(COMMON_CFLAGS) -fpic
+CLIBFLAGS = -shared
+endif
+ifeq (${OS}, MacOS)
+CFLAGS = $(COMMON_CFLAGS) -Kpic
+CLIBFLAGS = -G -dynamiclib
+endif
+
+
 LIBLDFLAGS = -levent -lprotobuf
 LIBS = -L/usr/local/lib -L.
 INCLUDES = -I.
@@ -16,6 +26,7 @@ LIB_SRCS =  rpc_server.cpp\
 			bb_rpc_service.cpp
 LIB_OBJS = $(LIB_SRCS:.cpp=.o)
 
+SAMPLECFLAGS = $(COMMON_CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc
 PROTOBUF_SRC = sample.pb.cc
 COMMON_SRCS = $(PROTOBUF_SRC)
@@ -23,12 +34,12 @@ COMMON_SRCS = $(PROTOBUF_SRC)
 SERVER_TARGET = server
 SERVER_MAIN = sample_rpc_service.cpp
 SERVER_SRCS = $(COMMON_SRCS)
-SERVER_OBJS = $(SERVER_SRCS:.cpp=.o)
+SERVER_OBJS = $(SERVER_SRCS:.cc=.o) 
 
 CLIENT_TARGET = client
 CLIENT_MAIN = sample_rpc_client.cpp
 CLIENT_SRCS = $(COMMON_SRCS)
-CLIENT_OBJS = $(CLIENT_SRCS:.cpp=.o)
+CLIENT_OBJS = $(CLIENT_SRCS:.cc=.o)
 
 all: $(TARGET)
 
@@ -38,10 +49,10 @@ $(TARGET): $(LIB_OBJS)
 sample: $(SERVER_TARGET) $(CLIENT_TARGET)
 
 $(SERVER_TARGET): $(SERVER_OBJS)
-	$(CC) $(CFLAGS) $(SERVER_MAIN) $(SERVER_OBJS) $(LIBS) $(LDFLAGS) -o $(SERVER_TARGET)
+	$(CC) $(SAMPLECFLAGS) $(SERVER_MAIN) $(SERVER_OBJS) $(LIBS) $(LDFLAGS) -o $(SERVER_TARGET)
 
 $(CLIENT_TARGET): $(CLIENT_OBJS)
-	$(CC) $(CFLAGS) $(CLIENT_MAIN) $(CLIENT_OBJS) $(LIBS) $(LDFLAGS) -o $(CLIENT_TARGET)
+	$(CC) $(SAMPLECFLAGS) $(CLIENT_MAIN) $(CLIENT_OBJS) $(LIBS) $(LDFLAGS) -o $(CLIENT_TARGET)
 
 .cpp.o:
 	$(CC) -c $(CFLAGS) $<
