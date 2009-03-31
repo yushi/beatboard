@@ -1,0 +1,6 @@
+package BeatBoard;
+
+message QueueIndex{
+  required uint64 head = 1;
+  required uint64 tail = 2;
+}
