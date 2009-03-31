@@ -7,7 +7,7 @@ ifeq (${OS}, Linux)
 CFLAGS = $(COMMON_CFLAGS) -fpic
 CLIBFLAGS = -shared
 endif
-ifeq (${OS}, MacOS)
+ifeq (${OS}, Darwin)
 CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
 endif
