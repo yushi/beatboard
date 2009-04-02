@@ -43,7 +43,7 @@ int BeatBoard::ProtobufQueueMemcached::initQueue(){
   index.set_tail(0);
   index.SerializeToString(serializedIndex);
   
-  int ret = this->_set(this->index_key ,serializedIndex->c_str());
+  int ret = this->_add(this->index_key ,serializedIndex->c_str());
   delete serializedIndex;
 
   return ret;
@@ -59,6 +59,7 @@ uint64_t BeatBoard::ProtobufQueueMemcached::addIndex(){
     result = this->_get(&index_key);
     if(result == NULL){
       // failed to get index
+      this->initQueue();
       continue;
     }
     //TODO overflow check
@@ -98,6 +99,7 @@ uint64_t BeatBoard::ProtobufQueueMemcached::popIndex(){
     result = this->_get(&index_key);
     if(result == NULL){
       // failed to get index
+      this->initQueue();
       continue;
     }
 
@@ -246,6 +248,24 @@ int BeatBoard::ProtobufQueueMemcached::_cas(const char *key, const char *val, ui
 
   if(rc == MEMCACHED_SUCCESS){
     return 0;
+  }
+
+  return -1;
+}
+
+int BeatBoard::ProtobufQueueMemcached::_add(const char *key, const char *val){
+  memcached_return rc;
+
+  for(int tried = 0; tried < this->retry; tried++){
+    rc = memcached_add (this->memc,
+                        key, strlen(key),
+                        val, strlen(val),
+                        (time_t)0,
+                        (uint32_t)0);
+
+    if(rc == MEMCACHED_SUCCESS){
+      return 0;
+    }
   }
 
   return -1;

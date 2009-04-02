@@ -30,6 +30,7 @@ namespace BeatBoard{
     MemcachedValue* _get(char **key);
     uint64_t addIndex();
     uint64_t popIndex();
+    int _add(const char *key, const char *val);
     int _set(const char *key, const char *val);
     int _cas(const char *key, const char *val, uint64_t cas);
     int _del(const char *key);
