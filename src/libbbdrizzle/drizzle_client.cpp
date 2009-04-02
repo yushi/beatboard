@@ -63,6 +63,12 @@ BeatBoard::DrizzleClient::send_query( const std::string& query, BeatBoard::Drizz
 bool
 BeatBoard::DrizzleClient::check_drizzle_response( BeatBoard::DrizzleResponse& response, const bool drizzle_column_skip_flag )
 {
+  if (response.ret != DRIZZLE_RETURN_OK)
+  {
+    std::cout << "drizzle_query:" << drizzle_client_error() << std::endl;
+    return false;
+  }
+
   if (drizzle_result_error_code( &response.result ) != 0)
   {
     std::cout << drizzle_result_error_code(&response.result) << ":" << drizzle_result_error(&response.result) << std::endl;

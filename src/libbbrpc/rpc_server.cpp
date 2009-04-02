@@ -82,7 +82,10 @@ BeatBoard::RpcServer::Accept( int sockfd, short event )
 void
 BeatBoard::RpcServer::clientAdd( const int sockfd )
 {
+  std::cerr << __func__ << std::endl;
   ClientEventStatus* ces = new ClientEventStatus(sockfd);
+  std::cerr << "ces created" << std::endl;
+
   EventStatus *es = new EventStatus(this, libevent_read, ces);
   ces->eventSet(EV_READ | EV_PERSIST, EventHandller, es);
   ces->eventAdd(NULL);
@@ -146,7 +149,7 @@ BeatBoard::RpcServer::recvData( int sockfd )
   std::cerr << data << std::endl;
 
   if ( !service->readRequest(data) ) {
-    std::cout << "Failed readRequest." << std::endl;
+    std::cerr << "Failed readRequest." << std::endl;
     close(sockfd);
     return false;
   }
