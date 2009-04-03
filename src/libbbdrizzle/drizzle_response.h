@@ -10,4 +10,4 @@ namespace BeatBoard {
   };
 }
 
-#endif DRIZZLE_RESPONSE_H
+#endif

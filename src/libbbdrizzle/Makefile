@@ -1,8 +1,18 @@
 .SUFFIXES: .cpp .o .h
 
 CC = g++
-CFLAGS = -Wall -Werror
+
+COMMON_CFLAGS = -Wall -Werror
+OS	= ${shell uname}
+ifeq (${OS}, Linux)
+CFLAGS = $(COMMON_CFLAGS) -fpic
+CLIBFLAGS = -shared
+endif
+ifeq (${OS}, Darwin)
+CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
+endif
+
 LDFLAGS = -ldrizzle
 LIBS = -L/usr/local/lib -L.
 INCLUDES = -I.

@@ -1,11 +1,20 @@
 #include "drizzle_client.h"
 
 int main( int argc, char** argv ) {
-  std::cout << "start" << std::endl;
-
   std::string db = "test";
   std::string host = "localhost";
   in_port_t port = 8888;
+
+  if (argc != 2)
+  {
+    std::cout << "Usage: " << argv[0] << " [port]" << std::endl;
+  }
+  else
+  {
+    port = atoi(argv[1]);
+    std::cout << port << std::endl;
+  }
+
   BeatBoard::DrizzleClient* client = new BeatBoard::DrizzleClient( host, port, db );
 
   BeatBoard::DrizzleResponse response;
