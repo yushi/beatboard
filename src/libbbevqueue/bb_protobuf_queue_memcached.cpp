@@ -49,8 +49,8 @@ int BeatBoard::ProtobufQueueMemcached::initQueue(){
   return ret;
 }
 
-uint64_t BeatBoard::ProtobufQueueMemcached::addIndex(){
-  uint64_t ret = -1;
+uint64_t* BeatBoard::ProtobufQueueMemcached::addIndex(){
+  uint64_t *ret = NULL;
   MemcachedValue *result;
   char *index_key = (char*)malloc(sizeof(char) * (strlen(this->index_key) + 1));
   memcpy(index_key, this->index_key, strlen(this->index_key) + 1);
@@ -69,13 +69,14 @@ uint64_t BeatBoard::ProtobufQueueMemcached::addIndex(){
     index.set_tail(index.tail());
     index.set_head(index.head() + 1);
     index.SerializeToString(serializedIndex);
-    // increment index value  
 
+    // increment index value  
     if(-1 == this->_cas(this->index_key, serializedIndex->c_str(), result->cas)){
       //cas error
       continue;
     }
-    ret = index.head() - 1;
+    ret = (uint64_t*)malloc(sizeof(uint64_t));
+    *ret = index.head() - 1;
     delete(serializedIndex);
     break;
   }
@@ -89,32 +90,35 @@ uint64_t BeatBoard::ProtobufQueueMemcached::addIndex(){
   return ret;
 }
 
-uint64_t BeatBoard::ProtobufQueueMemcached::popIndex(){
-  uint64_t ret = -1;
+uint64_t* BeatBoard::ProtobufQueueMemcached::popIndex(){
+  uint64_t *ret = (uint64_t*)malloc(sizeof(uint64_t));
   MemcachedValue *result;
   char *index_key = (char*)malloc(sizeof(char) * (strlen(this->index_key) + 1));
   memcpy(index_key, this->index_key, strlen(this->index_key) + 1);
   for(int tried = 0; tried < this->retry; tried++){
-    // get current index value
     result = this->_get(&index_key);
     if(result == NULL){
-      // failed to get index
       this->initQueue();
       continue;
     }
 
-    // TODO underflow check
     QueueIndex index;
     QueueIndex newIndex;
     string *serializedIndex = new string();    
     index.ParseFromString(string(result->value));
 
+    if(index.head() == index.tail()){
+      free(ret);
+      delete(serializedIndex);
+      ret = NULL;
+      break;
+    }
+
     newIndex.set_head(index.head());
     newIndex.set_tail(index.tail() + 1);    
-    ret = index.tail();
+    *ret = index.tail();
     newIndex.SerializeToString(serializedIndex);
     if(-1 == this->_cas(this->index_key, serializedIndex->c_str(), result->cas)){
-      //cas error
       continue;
     }
     delete(serializedIndex);
@@ -137,13 +141,14 @@ int BeatBoard::ProtobufQueueMemcached::set(string data){
   }
 
   for(int tried = 0; tried < this->retry; tried++){
-    int next_index;
-    if( (next_index = this->addIndex()) == -1){
+    uint64_t *next_index;
+    if( (next_index = this->addIndex()) == NULL){
       continue;
     }
     char next[this->uint64_str_len];
     bzero(next, this->uint64_str_len);
-    sprintf(next, "%d", next_index);
+    sprintf(next, "%llu", *next_index);
+    free(next_index);
     if( this->_set(next, data.c_str()) != 0){
       continue;
     }
@@ -161,9 +166,12 @@ string* BeatBoard::ProtobufQueueMemcached::get(){
   bzero(target, this->uint64_str_len);
   MemcachedValue *result = NULL;
   for(int tried = 0; tried < this->retry; tried++){
-    // get
-    int target_int = this->popIndex();
-    sprintf(target, "%d", target_int);
+    uint64_t *target_int = this->popIndex();
+    if(target_int == NULL){
+      break;
+    }
+    sprintf(target, "%llu", *target_int);
+    free(target_int);
     result = this->_get(&target);
     if(result != NULL){
       this->_del(target);
