@@ -7,8 +7,8 @@ int counter = 0;
 void* set_func(void *arg){
   int *counter = (int*)arg;
   BeatBoard::ProtobufQueueMemcached queue;
-  for(int i = 0; i < 10; i++){
-    if(queue.set(string("hogehoge")) != -1){
+  for(int i = 0; i < 1; i++){
+    if(queue.enqueue(string("hogehoge")) != -1){
       *(counter) += 1;
     }
   }
@@ -28,7 +28,7 @@ int main(){
   counter = 0;
   BeatBoard::ProtobufQueueMemcached queue;
   string *value = NULL;
-  while( (value = queue.get()) != NULL){
+  while( (value = queue.dequeue_nb()) != NULL){
     counter += 1;
     delete value;
     value = NULL;

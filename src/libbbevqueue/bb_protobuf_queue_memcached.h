@@ -17,8 +17,9 @@ namespace BeatBoard{
   public:
     ProtobufQueueMemcached();
     ~ProtobufQueueMemcached();    
-    string* get();
-    int set(string data);
+    string* dequeue();
+    string* dequeue_nb();
+    int enqueue(string data);
     int initQueue();
   private:
     static const char *index_key;

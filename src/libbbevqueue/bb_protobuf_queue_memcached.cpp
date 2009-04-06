@@ -135,7 +135,7 @@ uint64_t* BeatBoard::ProtobufQueueMemcached::popIndex(){
   return ret;
 }
 
-int BeatBoard::ProtobufQueueMemcached::set(string data){
+int BeatBoard::ProtobufQueueMemcached::enqueue(string data){
   if(this->memc == NULL){
     this->setUp();
   }
@@ -157,7 +157,15 @@ int BeatBoard::ProtobufQueueMemcached::set(string data){
   return -1;
 }
 
-string* BeatBoard::ProtobufQueueMemcached::get(){
+string* BeatBoard::ProtobufQueueMemcached::dequeue(){
+  string* ret;
+  while( (ret = this->dequeue_nb()) == NULL){
+    sleep(1);
+  }
+  return ret;
+}
+
+string* BeatBoard::ProtobufQueueMemcached::dequeue_nb(){
   if(this->memc == NULL){
     this->setUp();
   }
