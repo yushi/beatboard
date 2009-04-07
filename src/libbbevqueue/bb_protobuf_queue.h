@@ -5,7 +5,7 @@ namespace BeatBoard{
   class ProtobufQueue{
   public:
     virtual ~ProtobufQueue(){};
-    virtual string* get(){return new string("");};
-    virtual int set(string data){return 0;};
+    virtual string* dequeue(){return new string("");};
+    virtual int enqueue(string data){return 0;};
   };
 }
