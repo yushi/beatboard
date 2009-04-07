@@ -7,13 +7,16 @@ BeatBoard::LogApiService::RpcFunc(google::protobuf::RpcController* controller,
                                   google::protobuf::Closure* done)
 {
   std::cout << __func__ << std::endl;
-  if (request->query() == "query") 
+  if (request->identifier() != "+" || request->identifier() != "-") 
   {
-    response->set_result("query");
+    response->set_result(LOGAPI_RESULT_OK);
+    std::cout << "OK: " << response->result() << std::endl;
   }
   else 
   {
-    response->set_result("not query");
+    response->set_result(LOGAPI_RESULT_ERROR);
+    response->set_error("message wasn't set");
+    std::cout << "NG: " << response->result() << std::endl;
   }
   done->Run();
 }

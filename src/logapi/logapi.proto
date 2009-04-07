@@ -1,11 +1,15 @@
 package logapi;
 
 message Request {
-  required string query = 1;
+  required string channel = 1;
+  required string time = 2; 
+  required string identifier = 3;
+  required string message = 4;
 }
 
 message Response {
-  required string result = 1;
+  required uint64 result = 1;
+  optional string error = 2;
 }
 
 service RpcService {

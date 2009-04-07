@@ -9,6 +9,7 @@
 
 #include "bb_rpc_channel.h"
 #include "bb_rpc_controller.h"
+#include "logapi_service_common.h"
 
 google::protobuf::RpcChannel* channel;
 google::protobuf::RpcController* controller;
@@ -36,8 +37,14 @@ void DoSearch() {
 
   service = new logapi::RpcService::Stub(channel);
 
-  request.set_query("query from client");
-  std::cout << "query: " << request.query() << std::endl;
+  request.set_channel("channel");
+  request.set_time("20202002");
+  request.set_identifier("identifier");
+  request.set_message("hello!!");
+  std::cout << "channel: " << request.channel() << std::endl;
+  std::cout << "time: " << request.time() << std::endl;
+  std::cout << "identifier: " << request.identifier() << std::endl;
+  std::cout << "message: " << request.message() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback);

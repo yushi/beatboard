@@ -6,6 +6,7 @@
 #include <string>
 
 #include "logapi.pb.h"
+#include "logapi_service_common.h"
 
 namespace BeatBoard {
   class LogApiService : public logapi::RpcService {

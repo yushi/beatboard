@@ -20,7 +20,12 @@ BeatBoard::LogApiServiceRpc::readRequest( const std::string& data )
     std::cout << "Failed to parse request." << std::endl;
     return false;
   }
-  std::cout << "client query: " << request.query() << std::endl;
+
+  std::cout << "channel: " << request.channel() << std::endl;
+  std::cout << "time: " << request.time() << std::endl;
+  std::cout << "identifier: " << request.identifier() << std::endl;
+  std::cout << "message: " << request.message() << std::endl;
+
   callServiceFunc( request );
 
   return true;
