@@ -1,5 +1,18 @@
 #include "logapi_service.h"
 
+BeatBoard::LogApiService::LogApiService( const std::string& db, 
+                                         const std::string& tablename, 
+                                         const std::string& host, 
+                                         const in_port_t port )
+{
+}
+
+BeatBoard::LogApiService::~LogApiService()
+{
+
+}
+
+
 void
 BeatBoard::LogApiService::RpcFunc(google::protobuf::RpcController* controller,
                                   const logapi::Request* request,

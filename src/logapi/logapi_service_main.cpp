@@ -9,7 +9,12 @@ int main(int argc, char** argv)
   BeatBoard::RpcServer* server = new BeatBoard::RpcServer(host);
 
   //google::protobuf::Service* service = new ExampleService;
-  logapi::RpcService* service = new BeatBoard::LogApiService;
+  std::string db = "test";
+  std::string table = "test2";
+  std::string drizzle_host = "localhost";
+  in_port_t drizzle_port = 8888;
+
+  logapi::RpcService* service = new BeatBoard::LogApiService( db, table, drizzle_host, drizzle_port );
   BeatBoard::BBRpcService* logapiservicerpc = new BeatBoard::LogApiServiceRpc( service );
 
   server->ExportOnPort(port, logapiservicerpc);
