@@ -21,11 +21,6 @@ BeatBoard::LogApiServiceRpc::readRequest( const std::string& data )
     return false;
   }
 
-  std::cout << "channel: " << request.channel() << std::endl;
-  std::cout << "time: " << request.time() << std::endl;
-  std::cout << "identifier: " << request.identifier() << std::endl;
-  std::cout << "message: " << request.message() << std::endl;
-
   callServiceFunc( request );
 
   return true;

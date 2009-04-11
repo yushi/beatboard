@@ -4,7 +4,7 @@ CC = g++
 CFLAGS = -g -Wall -pipe
 OS	= ${shell uname}
 
-LIBLDFLAGS = -lprotobuf -lbbrpc
+LIBLDFLAGS = -lprotobuf -lbbrpc -luuid
 LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/
 

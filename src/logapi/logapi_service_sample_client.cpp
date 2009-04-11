@@ -37,10 +37,10 @@ void DoSearch() {
 
   service = new logapi::RpcService::Stub(channel);
 
-  request.set_channel("channel");
+  request.set_channel("cha'nnel");
   request.set_time("20202002");
-  request.set_identifier("identifier");
-  request.set_message("hello!!");
+  request.set_identifier("iden,tifier");
+  request.set_message("hel\lo!!");
   std::cout << "channel: " << request.channel() << std::endl;
   std::cout << "time: " << request.time() << std::endl;
   std::cout << "identifier: " << request.identifier() << std::endl;
