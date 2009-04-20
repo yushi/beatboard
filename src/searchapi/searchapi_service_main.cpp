@@ -14,7 +14,10 @@ int main(int argc, char** argv)
   std::string drizzle_host = "localhost";
   in_port_t drizzle_port = 8888;
 
-  searchapi::RpcService* service = new BeatBoard::SearchApiService( db, table, drizzle_host, drizzle_port );
+  std::string memcached_host = "localhost";
+  in_port_t memcached_port = 11211;
+
+  searchapi::RpcService* service = new BeatBoard::SearchApiService( db, table, drizzle_host, drizzle_port, memcached_host, memcached_port );
   BeatBoard::BBRpcService* searchapiservicerpc = new BeatBoard::SearchApiServiceRpc( service );
 
   server->ExportOnPort(port, searchapiservicerpc);

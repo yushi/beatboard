@@ -37,7 +37,7 @@ void DoSearch() {
 
   service = new searchapi::RpcService::Stub(channel);
 
-  request.set_query("e");
+  request.set_query("h");
   std::cout << "query: " << request.query() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);

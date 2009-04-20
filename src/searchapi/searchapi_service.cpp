@@ -1,18 +1,50 @@
 #include "searchapi_service.h"
 
 BeatBoard::SearchApiService::SearchApiService( const std::string& db, 
-                                         const std::string& table_name, 
-                                         const std::string& host, 
-                                         const in_port_t port )
+                                               const std::string& table_name, 
+                                               const std::string& drizzle_host, 
+                                               const in_port_t drizzle_port,
+                                               const std::string& memcached_host, 
+                                               const in_port_t memcached_port )
 {
-  client = new BeatBoard::DrizzleClient( host, port, db );
+  client = new BeatBoard::DrizzleClient( drizzle_host, drizzle_port, db );
   this->table_name = table_name;
+  this->expiration= 60;
+
+  setUpMemcached( memcached_host, memcached_port );
 }
 
 BeatBoard::SearchApiService::~SearchApiService()
 {
   delete client;
   client = NULL;
+  memcached_free(memc);
+}
+
+void
+BeatBoard::SearchApiService::setUpMemcached( const std::string& memcached_host,
+                                             const in_port_t memcached_port )
+{
+  memcached_server_st *servers;
+  memcached_return rc;
+
+  memcached_status = false;
+  memc = memcached_create(NULL);
+  servers = memcached_server_list_append(NULL, memcached_host.c_str(),
+                                         memcached_port, &rc);
+  if (rc != MEMCACHED_SUCCESS) {
+    std::cerr << memcached_strerror(memc, rc) << std::endl;
+    return;
+  }
+
+  rc = memcached_server_push(memc, servers);
+  if (rc != MEMCACHED_SUCCESS) {
+    std::cerr << memcached_strerror(memc, rc) << std::endl;
+    return;
+  }
+
+  memcached_server_list_free(servers);
+  memcached_status = true;
 }
 
 void
@@ -46,12 +78,38 @@ BeatBoard::SearchApiService::searchDB( std::string& query, std::string& result )
 {
   bool ret = false;
 
+  if (memcached_status)
+  {
+    ret = getMemcachedData(query, result);
+  }
+  if (!ret)
+  {
+    std::cerr << "select drizzle " << std::endl;
+    ret = searchDrizzleDB(query, result);
+    if (ret && memcached_status)
+    {
+      std::cerr << "set memcached " << std::endl;
+      setMemcachedData(query, result);
+    }
+  }
+  else
+  {
+    std::cerr << "get memcached " << std::endl;
+  }
+  return ret;
+}
+
+bool
+BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& result )
+{
+  bool ret = false;
+
   std::string select_list = "*";
   std::string from_clause = table_name;
+  // escape query here
   std::string where_clause = "where message like '%" + query + "%'";
 
   ret = client->select(select_list, from_clause, where_clause, drizzle_response);
-  
   if (ret && drizzle_response.ret == DRIZZLE_RETURN_OK )
   {
     ret = drizzleResultToJson(result);
@@ -61,6 +119,51 @@ BeatBoard::SearchApiService::searchDB( std::string& query, std::string& result )
     std::cerr << "select failure" << std::endl;
   }
 
+  return ret;
+}
+
+bool
+BeatBoard::SearchApiService::setMemcachedData( std::string& query, std::string& result )
+{
+  bool ret = true;
+
+  std::cerr << __func__ << std::endl;
+
+  memcached_return rc;
+  rc = memcached_set( memc, query.c_str(), query.size(),
+                      result.c_str(), result.size(),
+                      this->expiration, (uint32_t)0 );
+  if (rc != MEMCACHED_SUCCESS && rc != MEMCACHED_BUFFERED)
+  {
+    std::cerr << memcached_strerror(memc, rc) << std::endl;
+    ret = false;
+  }
+  return ret;
+}
+
+bool
+BeatBoard::SearchApiService::getMemcachedData( std::string& query, std::string& result )
+{
+  bool ret = true;
+  char *value;
+  size_t value_length;
+  uint32_t flags;
+
+  std::cerr << __func__ << std::endl;
+
+  memcached_return rc;
+  value = memcached_get( memc, query.c_str(), query.size(),
+                         &value_length, &flags, &rc);
+  if (rc != MEMCACHED_SUCCESS)
+  {
+    std::cerr << memcached_strerror(memc, rc) << std::endl;
+    ret = false;
+  }
+  else
+  {
+    std::cerr << "memc value: " << std::string(value) << std::endl;
+    result = std::string(value);
+  }
   return ret;
 }
 
@@ -134,7 +237,7 @@ BeatBoard::SearchApiService::fieldToJsonArray( struct json_object* my_object,
   
   for( ; it != field_data.end(); ++it )
   {
-    std::cout << *it << std::endl;
+    //std::cout << *it << std::endl;
     char *c_char;
     c_char = (char *)malloc(sizeof(char) * it->size() + 1);
     std::strncpy(c_char, it->c_str(), it->size() + 1);

@@ -9,7 +9,7 @@ LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/
 
 SAMPLECFLAGS = $(COMMON_CFLAGS)
-LDFLAGS = -lprotobuf -lbbrpc -ldrizzle -ljson
+LDFLAGS = -lprotobuf -lbbrpc -ldrizzle -ljson -lmemcached
 PROTOC = protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = searchapi.proto
