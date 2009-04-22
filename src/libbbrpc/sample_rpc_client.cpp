@@ -30,19 +30,32 @@ void Done()
   Done2( &response );
 }
 
-void DoSearch() {
+void Search(std::string query) {
   channel = new BeatBoard::BBRpcChannel("127.0.0.1", 1234);
   controller = new BeatBoard::BBRpcController();
 
   service = new sample::RpcService::Stub(channel);
 
-  request.set_query("query from client");
+  request.set_query(query);
   std::cout << "query: " << request.query() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback);
 }
 
+void DoSearch() {
+  Search("query from client");
+}
+
+void DoSearch2(char *query) {
+  Search(std::string(query));
+}
+
+const char* DoSearch3(char *query) {
+  Search(std::string(query));
+  std::string result = response.result();
+  return result.c_str();
+}
 
 int main() {
   DoSearch();
