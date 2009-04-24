@@ -31,21 +31,31 @@ void Done()
   Done2( &response );
 }
 
-void DoSearch() {
+void Search( std::string query ) {
   channel = new BeatBoard::BBRpcChannel("127.0.0.1", 1235);
   controller = new BeatBoard::BBRpcController();
 
   service = new searchapi::RpcService::Stub(channel);
 
-  request.set_query("h");
+  request.set_query(query);
   std::cout << "query: " << request.query() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback);
 }
 
+const char* DoSearch(char *query) {
+  Search(std::string(query));
+  std::string result = response.result();
+  return result.c_str();
+}
+
+void DoSearchDummy() {
+  Search("e");
+}
+
 
 int main() {
-  DoSearch();
+  DoSearchDummy();
   return 0;
 }

@@ -31,6 +31,19 @@ CLIENT_SRCS = $(COMMON_SRCS)\
 	      		searchapi_service_common.cpp
 CLIENT_OBJS = $(CLIENT_SRCS:.cpp=.o)
 
+PYTHON_WRRAPER_TARGET = _searchapi_service_sample_client.so
+SWIG_SRC = searchapi_service_sample_client.i
+SWIG = ~/local/bin/swig
+SWIG_OPT =-fPIC -c
+
+SWIG_LIB_OPT = -G -dynamiclib
+SWIG_LDFLAGS = -lprotobuf -lbbrpc -lpython
+
+SWIG_SRCS = searchapi_service_sample_client.cpp\
+			searchapi_service_sample_client_wrap.cxx\
+			searchapi.pb.cc
+SWIG_OBJS = $(SWIG_SRCS:.cpp=.o) 
+
 all: $(PROTOBUF_SRC) $(SERVER_TARGET) 
 
 $(SERVER_TARGET): $(SERVER_OBJS)
@@ -42,13 +55,18 @@ $(SERVER_TARGET): $(SERVER_OBJS)
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $<
 
-sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET)
+sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET) $(PYTHON_WRRAPER_TARGET)
 
 $(PROTOBUF_SRC):
 	$(PROTOC) $(PROTOFLAGS) $(PROTOSRC)
 
 $(CLIENT_TARGET): $(CLIENT_OBJS)
 	$(CC) $(SAMPLECFLAGS) $(CLIENT_MAIN) $(CLIENT_OBJS) $(LIBS) $(INCLUDES) $(LDFLAGS) -o $(CLIENT_TARGET)
+
+$(PYTHON_WRRAPER_TARGET): $(PYTHON_WRRAPER_OBJS)
+	$(SWIG) -c++ -python $(SWIG_SRC)
+	$(CC) $(SWIG_OPT)  $(SWIG_SRCS) -I/pt/local/linclude//python2.5 -I../libbbrpc/.
+	$(CC) $(SWIG_LIB_OPT) $(SWIG_OBJS) -o $(PYTHON_WRRAPER_TARGET) -L. -L/opt/local/lib/python2.5 $(SWIG_LDFLAGS)
 
 clean:
 	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) 
