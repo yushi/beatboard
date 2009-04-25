@@ -1,43 +1,6 @@
 #include "logapi_service.h"
 
 static const unsigned int UUID_UNPARSED_SIZE = 32;
-static const std::string comma = ",";
-static const std::string doublequotation = "\"";
-static const std::string singlequotation = "'";
-static const std::string backslash = "\\";
-
-
-void
-BeatBoard::LogApiService::replaceEscapeChar( std::string& data, std::string& escapechar)
-{
-  int position = data.find(escapechar);
-  while (position != -1)
-  {
-    data.replace( position, 1, backslash + escapechar, 0, escapechar.size() + backslash.size());
-    position = data.find( ".", position + 1 );
-    std::cout << "data: " << data << std::endl;
-  }
-}
-
-std::string
-BeatBoard::LogApiService::escape( const std::string& data )
-{
-  std::vector<std::string> escape_char;
-  escape_char.push_back(backslash);
-  escape_char.push_back(comma);
-  escape_char.push_back(doublequotation);
-  escape_char.push_back(singlequotation);
-
-  std::string escaped_data = data;
-  std::vector<std::string>::iterator it = escape_char.begin();
-  for( ; it != escape_char.end(); ++it )
-  {
-    std::cout << *it << std::endl;
-    replaceEscapeChar( escaped_data, *it );
-  }
-  return escaped_data;
-}
-
 
 BeatBoard::LogApiService::LogApiService( const std::string& db, 
                                          const std::string& table_name, 
@@ -62,10 +25,10 @@ BeatBoard::LogApiService::RpcFunc(google::protobuf::RpcController* controller,
 {
   std::cout << __func__ << std::endl;
 
-  std::string channel = escape(request->channel());
-  std::string time = escape(request->time());
-  std::string identifier = escape(request->identifier());
-  std::string message = escape(request->message());
+  std::string channel = ApiCommon::escape(request->channel());
+  std::string time = ApiCommon::escape(request->time());
+  std::string identifier = ApiCommon::escape(request->identifier());
+  std::string message = ApiCommon::escape(request->message());
   
   bool ret = insertLogToDB( channel, time, identifier, message );
   if (ret)

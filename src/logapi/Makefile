@@ -5,8 +5,8 @@ CFLAGS = -g -Wall -pipe
 OS	= ${shell uname}
 
 LIBLDFLAGS = -lprotobuf -lbbrpc -luuid
-LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/
-INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/
+LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon
+INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon
 
 SAMPLECFLAGS = $(COMMON_CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc
@@ -23,7 +23,7 @@ SERVER_SRCS = $(COMMON_SRCS)\
 				logapi_service_rpc.cpp\
 				logapi_service_common.cpp
 SERVER_OBJS = $(SERVER_SRCS:.cpp=.o) 
-SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle
+SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle -lapicommon
 
 CLIENT_TARGET = logapisampleclient
 CLIENT_MAIN = logapi_service_sample_client.cpp
