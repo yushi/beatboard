@@ -10,6 +10,7 @@
 #include "searchapi.pb.h"
 #include "searchapi_service_common.h"
 #include "drizzle_client.h"
+#include "api_common.h"
 
 #include <json/json.h>
 #include <libmemcached/memcached.h>

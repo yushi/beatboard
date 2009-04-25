@@ -107,7 +107,7 @@ BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& r
   std::string select_list = "*";
   std::string from_clause = table_name;
   // escape query here
-  std::string where_clause = "where message like '%" + query + "%'";
+  std::string where_clause = "where message like '%" + ApiCommon::escape(query) + "%'";
 
   ret = client->select(select_list, from_clause, where_clause, drizzle_response);
   if (ret && drizzle_response.ret == DRIZZLE_RETURN_OK )

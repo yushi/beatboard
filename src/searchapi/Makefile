@@ -5,11 +5,11 @@ CFLAGS = -g -Wall -pipe
 OS	= ${shell uname}
 
 LIBLDFLAGS = -lprotobuf -lbbrpc 
-LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/
-INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/
+LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon
+INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon
 
 SAMPLECFLAGS = $(COMMON_CFLAGS)
-LDFLAGS = -lprotobuf -lbbrpc -ldrizzle -ljson -lmemcached
+LDFLAGS = -lprotobuf -lbbrpc
 PROTOC = protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = searchapi.proto
@@ -23,7 +23,7 @@ SERVER_SRCS = $(COMMON_SRCS)\
 				searchapi_service_rpc.cpp\
 				searchapi_service_common.cpp
 SERVER_OBJS = $(SERVER_SRCS:.cpp=.o) 
-SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle
+SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle -lapicommon -lmemcached -ljson -ldrizzle
 
 CLIENT_TARGET = searchapisampleclient
 CLIENT_MAIN = searchapi_service_sample_client.cpp
@@ -65,8 +65,8 @@ $(CLIENT_TARGET): $(CLIENT_OBJS)
 
 $(PYTHON_WRRAPER_TARGET): $(PYTHON_WRRAPER_OBJS)
 	$(SWIG) -c++ -python $(SWIG_SRC)
-	$(CC) $(SWIG_OPT)  $(SWIG_SRCS) -I/pt/local/linclude//python2.5 -I../libbbrpc/.
-	$(CC) $(SWIG_LIB_OPT) $(SWIG_OBJS) -o $(PYTHON_WRRAPER_TARGET) -L. -L/opt/local/lib/python2.5 $(SWIG_LDFLAGS)
+	$(CC) $(SWIG_OPT)  $(SWIG_SRCS) -I../libbbrpc/ -I/opt/local/include/python2.5/
+	$(CC) $(SWIG_LIB_OPT) $(SWIG_OBJS) -o $(PYTHON_WRRAPER_TARGET)  -L. -L../libbbrpc/. -L/opt/local/lib/python2.5  $(SWIG_LDFLAGS)
 
 clean:
 	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) 
