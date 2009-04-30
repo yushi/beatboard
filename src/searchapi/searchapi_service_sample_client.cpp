@@ -3,20 +3,21 @@
 #include <fstream>
 #include <string>
 
-#include "sample.pb.h"
+#include "searchapi.pb.h"
 
 //#include "sample_rpc_channel.h"
 
 #include "bb_rpc_channel.h"
 #include "bb_rpc_controller.h"
+#include "searchapi_service_common.h"
 
 google::protobuf::RpcChannel* channel;
 google::protobuf::RpcController* controller;
-sample::RpcService* service;
-sample::Request request;
-sample::Response response;
+searchapi::RpcService* service;
+searchapi::Request request;
+searchapi::Response response;
 
-void Done2( sample::Response* response_ ) {
+void Done2( searchapi::Response* response_ ) {
   std::cout << "Done2" << std::endl;
   std::cout << "result: " << response_->result() << std::endl;
   delete service;
@@ -30,11 +31,11 @@ void Done()
   Done2( &response );
 }
 
-void Search(std::string query) {
-  channel = new BeatBoard::BBRpcChannel("127.0.0.1", 1234);
+void Search( std::string query ) {
+  channel = new BeatBoard::BBRpcChannel("127.0.0.1", 1235);
   controller = new BeatBoard::BBRpcController();
 
-  service = new sample::RpcService::Stub(channel);
+  service = new searchapi::RpcService::Stub(channel);
 
   request.set_query(query);
   std::cout << "query: " << request.query() << std::endl;
@@ -43,21 +44,18 @@ void Search(std::string query) {
   service->RpcFunc(controller, &request, &response, callback);
 }
 
-void DoSearch() {
-  Search("query from client");
-}
-
-void DoSearch2(char *query) {
-  Search(std::string(query));
-}
-
-const char* DoSearch3(char *query) {
+const char* DoSearch(char *query) {
   Search(std::string(query));
   std::string result = response.result();
   return result.c_str();
 }
 
+void DoSearchDummy() {
+  Search("e");
+}
+
+
 int main() {
-  DoSearch();
+  DoSearchDummy();
   return 0;
 }

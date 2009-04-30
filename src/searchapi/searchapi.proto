@@ -1,0 +1,14 @@
+package searchapi;
+
+message Request {
+    required string query = 1;
+}
+
+message Response {
+    required string result = 1;
+    optional string error = 2;
+}
+
+service RpcService {
+    rpc RpcFunc (Request) returns (Response);
+}
