@@ -1,0 +1,6 @@
+package BeatBoard.BBIRCD;
+
+message Event{
+  required uint32 type = 1;
+  repeated string value = 2;
+}

@@ -160,7 +160,7 @@ int BeatBoard::ProtobufQueueMemcached::enqueue(string data){
 string* BeatBoard::ProtobufQueueMemcached::dequeue(){
   string* ret;
   while( (ret = this->dequeue_nb()) == NULL){
-    sleep(1);
+    usleep(10);
   }
   return ret;
 }

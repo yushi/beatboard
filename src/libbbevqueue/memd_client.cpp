@@ -9,12 +9,10 @@ int main(){
     queue.enqueue(string("koko ni protobuf no data ireruyo-"));
   }
 
-  for(int i = 0; i < 1; i++){
-    string *value = queue.dequeue();
-    if(value != NULL){
+  string *value;
+  while((value = queue.dequeue_nb()) != NULL){
       cout << *value << endl;
       delete value;
-    }
   }
   return 0;
 }

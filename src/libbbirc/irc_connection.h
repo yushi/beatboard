@@ -16,7 +16,6 @@
 
 using namespace std;
 namespace BeatBoard{
-  struct event_base *ev_base = NULL;
   /*
    * IRC Connection Class
    */

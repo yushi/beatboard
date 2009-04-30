@@ -1,5 +1,6 @@
 #include "irc_connection.h"
 //FIXME 文字列操作を連結でやるのは汚い
+struct event_base *ev_base = NULL;
 
 // static field
 string BeatBoard::IRCConnection::newline = string("\r\n");
@@ -9,11 +10,11 @@ bool BeatBoard::IRCConnection::bb_event_dispatch(){
     ev_base = event_init();
   }
   int ret = event_base_loop(ev_base,0);
-    if( 0 != ret ){
+  if( -1 == ret || 1 == ret){
     //TODO error handling
     return false;
   }
-
+  
   return true;
 }
 
@@ -38,6 +39,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
     buf[read_size] = 0;
     str_stream << string(buf);
   }
+  //debug
   //cout << str_stream.str() << endl;
   while(str_stream.getline(buf, 1024)){
     BeatBoard::IRCEvent *hoge = BeatBoard::parse_irc_message(buf);
@@ -140,6 +142,8 @@ void BeatBoard::IRCConnection::write(string str) throw (Exception){
   if ( 0 != result ) {
     throw Exception( "bufferevent_write: failed" );
   }
+  //debug
+  cout << str << endl;
 }
 
 void BeatBoard::IRCConnection::NICK(string name) throw (Exception){
