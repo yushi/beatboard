@@ -28,6 +28,7 @@ BeatBoard::AuthApiService::RpcFunc(google::protobuf::RpcController* controller,
   unsigned int type = request->type();
   std::string username = ApiCommon::escape(request->username());
   std::string password = ApiCommon::escape(request->password());
+  std::string result;
   
   std::cout << "type: " << type << std::endl;
   std::cout << "username: " << username << std::endl;
@@ -36,66 +37,224 @@ BeatBoard::AuthApiService::RpcFunc(google::protobuf::RpcController* controller,
   if (type == AUTHAPI_ADD_USER)
   {
       std::cout << "add user" << std::endl;
-      bool ret = insertAccountToDB( username, password );
+      bool ret = insertAccountToDB( username, password, result );
       if (ret)
       {
         response->set_result(AUTHAPI_ACCOUNT_INSERT_OK);
+        response->set_error("insert success");
       }
       else 
       {
         response->set_result(AUTHAPI_ACCOUNT_EXIST);
-        response->set_error("account name already set");
+        response->set_error(result);
+        std::cerr << result  << std::endl;
       }
   }
   else if (type == AUTHAPI_VERIFY_USER)
   {
       std::cout << "verify user account" << std::endl;
-      bool ret = verifyAccountFromDB( username, password );
+      bool ret = verifyAccountFromDB( username, password, result );
       if (ret)
       {
         response->set_result(AUTHAPI_VERIFY_OK);
+        response->set_error(result);
       }
       else 
       {
         response->set_result(AUTHAPI_VERIFY_ERROR);
-        response->set_error("login incorrect");
+        response->set_error(result);
+        std::cerr << result  << std::endl;
       }
   }
-
   done->Run();
 }
 
 bool
-BeatBoard::AuthApiService::verifyAccountFromDB( std::string& username, std::string& password )
+BeatBoard::AuthApiService::verifyAccountFromDB( const std::string& username, 
+                                                const std::string& password,
+                                                std::string& result)
 {
+  bool ret = false;
+
+  std::string select_list = "password";
+  std::string from_clause = "test3";
+  std::string where_clause = "where username = \'" + username + "\' limit 1";
+
+  ret = client->select(select_list, from_clause, where_clause, response);
+  if (response.ret == DRIZZLE_RETURN_OK)
+  {
+    std::cerr << "drizzle return ok" << std::endl;
+  }
+  else
+  {
+    std::cerr << "drizzle db error" << std::endl;
+    return ret;
+  }
+
+  if (drizzle_row_read(&response.result, &response.ret) != 0)
+  {
+    std::string _password;
+    bool read_ret = getPasswordFromField(_password);
+    if (read_ret)
+    {
+      std::cerr << _password << ":" << password << std::endl;
+      std::cerr << _password.size() << ":" << password.size() << std::endl;
+      std::cerr << (password == _password) << std::endl;
+      if (password == _password)
+      {
+        result = "password correct";
+        std::cerr << result << std::endl;
+        ret = true;
+      }
+      else
+      {
+        result = "password incorrect";
+        std::cerr << result << std::endl;
+        ret = false;
+      }
+    }
+    else
+    {
+      ret = false;
+    }
+  }
+  else
+  {
+    std::cerr << "account not exist" << std::endl;
+    ret = false;
+  }
+
+  return ret;
+}
+
+bool
+BeatBoard::AuthApiService::getPasswordFromField(std::string& password)
+{
+  drizzle_field_t field;
+  size_t offset;
+  size_t size;
+  size_t total;
+
+  while (1)
+  {
+    field= drizzle_field_read(&response.result, &offset, &size, &total, &response.ret);
+    if (response.ret == DRIZZLE_RETURN_ROW_END)
+    {
+      std::cout << "row end" << std::endl;
+      break;
+    }
+    else if (response.ret != DRIZZLE_RETURN_OK)
+    {
+      std::cout << "row ng" << std::endl;
+      std::cout << "drizzle_field_read: " << client->drizzle_client_error() << std::endl;
+      return false;
+    }
+
+    if (field != NULL)
+    {
+      password = std::string(field);
+      password.erase(password.size() - 1, 1); // chop!
+    }
+  }
   return true;
 }
 
 bool
-BeatBoard::AuthApiService::insertAccountToDB( std::string& username, std::string& password )
+BeatBoard::AuthApiService::insertAccountToDB( const std::string& username, 
+                                              const std::string& password,
+                                              std::string& result )
 {
   bool ret = false;
 
-//   uuid_t out;
-//   char uuidstr[UUID_UNPARSED_SIZE];
+  if (!checkAccountExist(username))
+  {
+    uuid_t out;
+    char uuidstr[UUID_UNPARSED_SIZE];
 
-//   uuid_generate(out);
-//   uuid_unparse(out, uuidstr);
+    uuid_generate(out);
+    uuid_unparse(out, uuidstr);
 
-//   std::cout << "uuid: " << uuidstr << std::endl;
-//   std::cout << "channel: " << channel << std::endl;
-//   std::cout << "time: " << time << std::endl;
-//   std::cout << "identifier: " << identifier << std::endl;
-//   std::cout << "message: " << message << std::endl;
+    std::string insert_columns_and_source;
 
+    insert_columns_and_source = "values (0,\'" + std::string(uuidstr) +
+      "\', null, \'" + username + "\', \'" + password + "\', null )";
+    std::cout << insert_columns_and_source << std::endl;
+    ret = client->insert(table_name, insert_columns_and_source, response);
+    if (!ret)
+    {
+      result = "insert account failed";
+    }
+  }
+  else
+  {
+    result = "account already exist";
+    ret = false;
+  }
 
-//   std::string insert_columns_and_source;
-//   insert_columns_and_source = "values (0,\'" + std::string(uuidstr) +
-//     "\', null, \'" + channel + "\', \'" + time + "\', \'" + identifier +
-//     "\', \'" + message + "\')";
-
-//   std::cout << insert_columns_and_source << std::endl;
-
-//   ret = client->insert(table_name, insert_columns_and_source, response);
   return ret;
+}
+
+bool
+BeatBoard::AuthApiService::checkAccountExist( const std::string& username )
+{
+  bool ret = false;
+
+  std::string select_list = "*";
+  std::string from_clause = "test3";
+  std::string where_clause = "where username = \'" + username + "\' limit 1";
+
+  ret = client->select(select_list, from_clause, where_clause, response);
+  if (response.ret == DRIZZLE_RETURN_OK)
+  {
+    std::cerr << "drizzle return ok" << std::endl;
+  }
+  else
+  {
+    std::cerr << "drizzle db error" << std::endl;
+    return ret;
+  }
+    //ret = drizzle_column_skip(&response.result);
+  if (drizzle_row_read(&response.result, &response.ret) != 0)
+  {
+    std::cerr << "account already exist" << std::endl;
+    readDrizzleRow();
+    ret = true;
+  }
+  else
+  {
+    std::cerr << "account not exist" << std::endl;
+    ret = false;
+  }
+
+  return ret;
+}
+
+void
+BeatBoard::AuthApiService::readDrizzleRow()
+{
+  drizzle_field_t field;
+  size_t offset;
+  size_t size;
+  size_t total;
+
+  while ( drizzle_row_read(&response.result, &response.ret) != 0 && response.ret == DRIZZLE_RETURN_OK )
+  {
+    std::cout << "start read" << std::endl;
+    while (1)
+    {
+      field= drizzle_field_read(&response.result, &offset, &size, &total, &response.ret);
+      if (response.ret == DRIZZLE_RETURN_ROW_END)
+      {
+        std::cout << "row end" << std::endl;
+        break;
+      }
+      else if (response.ret != DRIZZLE_RETURN_OK)
+      {
+        std::cout << "row ng" << std::endl;
+        std::cout << "drizzle_field_read: " << client->drizzle_client_error() << std::endl;
+        return;
+      }
+    }
+  }
+  //ret = client->select(select_list, from_clause, where_clause, response);
 }

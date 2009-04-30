@@ -21,8 +21,16 @@ namespace BeatBoard {
     BeatBoard::DrizzleResponse response;
     std::string table_name;
 
-    bool insertAccountToDB( std::string& username, std::string& password );
-    bool verifyAccountFromDB( std::string& username, std::string& password );
+    bool insertAccountToDB( const std::string& username, 
+							const std::string& password, 
+							std::string& result );
+    bool verifyAccountFromDB( const std::string& username, 
+							  const std::string& password,
+							  std::string& result );
+	bool checkAccountExist( const std::string& username );
+	void readDrizzleRow();
+	bool getPasswordFromField(std::string& password);
+
 
   public:
 	AuthApiService( const std::string& db, const std::string& table_name, 

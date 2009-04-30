@@ -23,7 +23,7 @@ SERVER_SRCS = $(COMMON_SRCS)\
 				authapi_service_rpc.cpp\
 				authapi_service_common.cpp
 SERVER_OBJS = $(SERVER_SRCS:.cpp=.o) 
-SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle -lapicommon
+SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle -lapicommon -ldrizzle
 
 CLIENT_TARGET = authapisampleclient
 CLIENT_MAIN = authapi_service_sample_client.cpp

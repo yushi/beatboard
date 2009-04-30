@@ -21,9 +21,6 @@ void Done2( authapi::Response* response_ ) {
   std::cout << "Done2" << std::endl;
   std::cout << "result: " << response_->result() << std::endl;
   std::cout << "error: " << response_->error() << std::endl;
-  delete service;
-  delete channel;
-  delete controller;
 }
 
 void Done()
@@ -39,13 +36,26 @@ void DoSearch() {
   service = new authapi::RpcService::Stub(channel);
 
   request.set_type(BeatBoard::AUTHAPI_ADD_USER);
-  request.set_username("hoge");
+  request.set_username("hoge7");
   request.set_password("hoge");
   std::cout << "username: " << request.username() << std::endl;
   std::cout << "password: " << request.password() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback);
+
+  request.set_type(BeatBoard::AUTHAPI_VERIFY_USER);
+  request.set_username("hoge7");
+  request.set_password("hoge");
+  std::cout << "username: " << request.username() << std::endl;
+  std::cout << "password: " << request.password() << std::endl;
+
+  google::protobuf::Closure* callback2 = google::protobuf::NewCallback(&Done);
+  service->RpcFunc(controller, &request, &response, callback2);
+
+  delete service;
+  delete channel;
+  delete controller;
 }
 
 
