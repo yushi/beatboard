@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libmemcached/memcached.h>
-
+#include <unistd.h>
 #include "bb_protobuf_queue.h"
 #include "bb_queue_index.pb.h"
 
