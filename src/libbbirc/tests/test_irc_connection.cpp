@@ -44,7 +44,7 @@ namespace {
   
   // Tests that the Foo::Bar() method does Abc.
   TEST_F(IRCProtoTest, connect) {
-    usleep(1);
+    usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
     BeatBoard::IRCConnection::bb_event_dispatch();
@@ -54,7 +54,7 @@ namespace {
   }
 
   TEST_F(IRCProtoTest, pong) {
-    usleep(1);
+    usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
     this->conn->PONG("hoge");
@@ -65,7 +65,7 @@ namespace {
   }
 
   TEST_F(IRCProtoTest, JOIN) {
-    usleep(1);
+    usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
     this->conn->JOIN("hoge");
@@ -76,7 +76,7 @@ namespace {
   }
   
   TEST_F(IRCProtoTest, PRIVMSG) {
-    usleep(1);
+    usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
     this->conn->PRIVMSG("#hoge","hoge");

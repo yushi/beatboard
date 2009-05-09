@@ -1,6 +1,5 @@
 require "mkmf"
-$CFLAGS += " -Wall -I/home/bb/local/include"
-#$LIBPATH = "-L.."
+$CFLAGS += " -Wall -I/bb/local/include"
 $LOCAL_LIBS += "-L../ -lbbirc"
 create_makefile("bbirc")
 
