@@ -77,7 +77,7 @@ BeatBoard::AuthApiService::verifyAccountFromDB( const std::string& username,
   bool ret = false;
 
   std::string select_list = "password";
-  std::string from_clause = "test3";
+  std::string from_clause = table_name;
   std::string where_clause = "where username = \'" + username + "\' limit 1";
 
   ret = client->select(select_list, from_clause, where_clause, response);
@@ -135,25 +135,28 @@ BeatBoard::AuthApiService::getPasswordFromField(std::string& password)
   size_t size;
   size_t total;
 
-  while (1)
+  while ( drizzle_row_read(&response.result, &response.ret) != 0 && response.ret == DRIZZLE_RETURN_OK )
   {
-    field= drizzle_field_read(&response.result, &offset, &size, &total, &response.ret);
-    if (response.ret == DRIZZLE_RETURN_ROW_END)
+    while (1)
     {
-      std::cout << "row end" << std::endl;
-      break;
-    }
-    else if (response.ret != DRIZZLE_RETURN_OK)
-    {
-      std::cout << "row ng" << std::endl;
-      std::cout << "drizzle_field_read: " << client->drizzle_client_error() << std::endl;
-      return false;
-    }
+      field= drizzle_field_read(&response.result, &offset, &size, &total, &response.ret);
+      if (response.ret == DRIZZLE_RETURN_ROW_END)
+      {
+        std::cout << "row end" << std::endl;
+        break;
+      }
+      else if (response.ret != DRIZZLE_RETURN_OK)
+      {
+        std::cout << "row ng" << std::endl;
+        std::cout << "drizzle_field_read: " << client->drizzle_client_error() << std::endl;
+        return false;
+      }
 
-    if (field != NULL)
-    {
-      password = std::string(field);
-      password.erase(password.size() - 1, 1); // chop!
+      if (field != NULL)
+      {
+        password = std::string(field);
+        password.erase(password.size() - 1, 1); // chop!
+      }
     }
   }
   return true;
@@ -200,7 +203,7 @@ BeatBoard::AuthApiService::checkAccountExist( const std::string& username )
   bool ret = false;
 
   std::string select_list = "*";
-  std::string from_clause = "test3";
+  std::string from_clause = table_name;
   std::string where_clause = "where username = \'" + username + "\' limit 1";
 
   ret = client->select(select_list, from_clause, where_clause, response);
