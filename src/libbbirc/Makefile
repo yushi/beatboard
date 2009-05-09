@@ -17,7 +17,7 @@ CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
 OBJS=irc_proto.o irc_connection.o
 COVER_INFO=libbbirc.info
 COVER_DIR=cov
-
+RAGEL=/bb/local/bin/ragel
 .cpp.o:
 	$(CC) $(CC_OPTS) -c $<
 
@@ -29,7 +29,7 @@ $(LIBBBIRC): $(OBJS)
 	$(CC) $(CC_OPTS) $^ $(CLIBFLAGS) -o $@
 
 irc_proto.cpp: irc_proto.rl
-	ragel -C $< -o $@
+	$(RAGEL) -C $< -o $@
 
 test: all
 	make -C tests test
@@ -39,7 +39,7 @@ test: all
 memtest: all
 	make -C tests memtest
 
-irc_client: irc_client.cpp libbbirc.dylib
+irc_client: irc_client.cpp $(LIBBBIRC)
 	$(CC) $(CC_OPTS) $< -o irc_client -lpthread -lbbirc -L.
 
 run_irc_client: irc_client

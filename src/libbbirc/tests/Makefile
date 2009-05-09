@@ -15,10 +15,10 @@ CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
 all: test_irc_proto test_irc_connection
 
 test_irc_proto: test_irc_proto.cpp
-	$(CC) $(CC_OPTS) $(CC_LIBS_TEST) $^ -o $@
+	LD_RUN_PATH=/bb/local/lib $(CC) $(CC_OPTS) $(CC_LIBS_TEST) $^ -o $@
 
 test_irc_connection: test_irc_connection.cpp
-	$(CC) $(CC_OPTS) $(CC_LIBS_TEST) $^ -o $@
+	LD_RUN_PATH=/bb/local/lib $(CC) $(CC_OPTS) $(CC_LIBS_TEST) $^ -o $@
 
 test: test_irc_proto test_irc_connection
 	$(ENV_LIBRARY_PATH)=..:/bb/local/lib ./test_irc_proto
