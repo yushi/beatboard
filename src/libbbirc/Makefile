@@ -8,16 +8,17 @@ LIBBBIRC=libbbirc.dylib
 CLIBFLAGS = -dynamiclib
 endif
 
+BB_HOME=/usr/bb
 CC=g++ -g -Wall -Werror -fprofile-arcs -ftest-coverage 
-CC_INC_DIR=-I/bb/local/include
-CC_LIB_DIR=-L/bb/local/lib
+CC_INC_DIR=-I$(BB_HOME)/local/include
+CC_LIB_DIR=-L$(BB_HOME)/local/lib
 CC_LIBS=-levent
 CC_LIBS_TEST=-lgtest
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
 OBJS=irc_proto.o irc_connection.o
 COVER_INFO=libbbirc.info
 COVER_DIR=cov
-RAGEL=/bb/local/bin/ragel
+RAGEL=$(BB_HOME)/local/bin/ragel
 .cpp.o:
 	$(CC) $(CC_OPTS) -c $<
 
