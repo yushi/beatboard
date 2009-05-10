@@ -47,6 +47,14 @@ BeatBoard::DrizzleClient::select(  const std::string& select_list, const std::st
   return check_drizzle_response( response, true );
 }
 
+bool
+BeatBoard::DrizzleClient::update(  const std::string& target_table, const std::string& set_clause_list, const std::string& where_clause, BeatBoard::DrizzleResponse& response )
+{
+  std::string query = "UPDATE " + target_table + " SET " + set_clause_list + " " + where_clause;
+  send_query( query, response );
+  return check_drizzle_response( response, false );
+}
+
 std::string
 BeatBoard::DrizzleClient::drizzle_client_error()
 {

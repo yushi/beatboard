@@ -53,6 +53,17 @@ void DoSearch() {
   google::protobuf::Closure* callback2 = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback2);
 
+  request.set_type(BeatBoard::AUTHAPI_UPDATE_USERINFO);
+  request.set_username("hoge7");
+  request.set_password("hoge");
+  request.set_userinfo("12345");
+  std::cout << "username: " << request.username() << std::endl;
+  std::cout << "password: " << request.password() << std::endl;
+  std::cout << "userinfo: " << request.userinfo() << std::endl;
+
+  google::protobuf::Closure* callback3 = google::protobuf::NewCallback(&Done);
+  service->RpcFunc(controller, &request, &response, callback3);
+
   delete service;
   delete channel;
   delete controller;

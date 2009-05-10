@@ -41,14 +41,12 @@ BeatBoard::AuthApiService::RpcFunc(google::protobuf::RpcController* controller,
       if (ret)
       {
         response->set_result(AUTHAPI_ACCOUNT_INSERT_OK);
-        response->set_error("insert success");
       }
-      else 
+      else
       {
         response->set_result(AUTHAPI_ACCOUNT_EXIST);
-        response->set_error(result);
-        std::cerr << result  << std::endl;
       }
+      response->set_error(result);
   }
   else if (type == AUTHAPI_VERIFY_USER)
   {
@@ -57,22 +55,66 @@ BeatBoard::AuthApiService::RpcFunc(google::protobuf::RpcController* controller,
       if (ret)
       {
         response->set_result(AUTHAPI_VERIFY_OK);
-        response->set_error(result);
       }
       else 
       {
         response->set_result(AUTHAPI_VERIFY_ERROR);
-        response->set_error(result);
-        std::cerr << result  << std::endl;
       }
+      response->set_error(result);
   }
+  else if (type == AUTHAPI_UPDATE_USERINFO)
+  {
+      std::cout << "update user info" << std::endl;
+      std::string userinfo = ApiCommon::escape(request->userinfo());
+
+      bool ret = updateUserInfoToDB( username, password, userinfo, result );
+      if (ret)
+      {
+        response->set_result(AUTHAPI_UPDATE_OK);
+      }
+      else 
+      {
+        response->set_result(AUTHAPI_UPDATE_ERROR);
+      }
+      response->set_error(result);
+  }
+
   done->Run();
 }
 
 bool
+BeatBoard::AuthApiService::updateUserInfoToDB( const std::string& username, 
+                                               const std::string& password,
+                                               const std::string& userinfo,
+                                               std::string& result )
+{
+  bool ret = false;
+
+  std::string target_table = table_name;
+  std::string set_clause_list = "userinfo = \'" + userinfo + "\'";
+  std::string where_clause = "where username = \'" + username + "\' limit 1";
+
+  ret = client->update(target_table, set_clause_list, where_clause, response);
+  if (response.ret == DRIZZLE_RETURN_OK)
+  {
+    std::cerr << "drizzle return ok" << std::endl;
+    result = "update success";
+    ret = true;
+  }
+  else
+  {
+    std::cerr << "drizzle db error" << std::endl;
+    result = "update failed";
+  }
+
+  return ret;
+}
+
+
+bool
 BeatBoard::AuthApiService::verifyAccountFromDB( const std::string& username, 
                                                 const std::string& password,
-                                                std::string& result)
+                                                std::string& result )
 {
   bool ret = false;
 
@@ -123,7 +165,7 @@ BeatBoard::AuthApiService::verifyAccountFromDB( const std::string& username,
     std::cerr << "account not exist" << std::endl;
     ret = false;
   }
-
+  
   return ret;
 }
 
@@ -186,6 +228,11 @@ BeatBoard::AuthApiService::insertAccountToDB( const std::string& username,
     if (!ret)
     {
       result = "insert account failed";
+      ret = false;
+    }
+    else
+    {
+      result = "insert success";
     }
   }
   else
