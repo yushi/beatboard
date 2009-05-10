@@ -1,6 +1,7 @@
+BB_HOME=/usr/bb
 CC=g++ -g -Wall -Werror
-CC_INC_DIR=-I/home/bb/local/include -I../libbbirc -I../libbbevqueue
-CC_LIB_DIR=-L/home/bb/local/lib -L../libbbirc -L../libbbevqueue
+CC_INC_DIR=-I$(BB_HOME)/local/include -I../libbbirc -I../libbbevqueue
+CC_LIB_DIR=-L$(BB_HOME)/local/lib -L../libbbirc -L../libbbevqueue
 CC_LIBS=-levent -lbbirc -lbbevqueue -lprotobuf -lmemcached
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
 OBJ_FILES=bblogger.o irc_client_operation.o http_api_server.o
@@ -18,4 +19,4 @@ test:
 	tests/test
 
 clean:
-	rm $(OBJ_FILES) bbircd
+	rm -rf $(OBJ_FILES) bbircd bbircd.dSYM
