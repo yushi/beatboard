@@ -47,7 +47,7 @@ namespace {
     usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
-    BeatBoard::IRCConnection::bb_event_dispatch();
+    BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\n", this->buf);
     delete this->conn;
@@ -58,7 +58,7 @@ namespace {
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
     this->conn->PONG("hoge");
-    BeatBoard::IRCConnection::bb_event_dispatch();
+    BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nPONG :hoge\r\n", this->buf);
     delete this->conn;
@@ -69,7 +69,7 @@ namespace {
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
     this->conn->JOIN("hoge");
-    BeatBoard::IRCConnection::bb_event_dispatch();
+    BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nJOIN :hoge\r\n", this->buf);
     delete this->conn;    
@@ -80,7 +80,7 @@ namespace {
     this->conn = new BeatBoard::IRCConnection(string("tester"));
     this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
     this->conn->PRIVMSG("#hoge","hoge");
-    BeatBoard::IRCConnection::bb_event_dispatch();
+    BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nPRIVMSG #hoge :hoge\r\n", this->buf);
     delete this->conn;        

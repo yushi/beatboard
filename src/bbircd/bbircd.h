@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <bb_exception.h>
 #include "bblogger.h"
-#include <bb_ircd_event_queue.h>
 #include <pthread.h>
 #include "irc_client_operation.h"
 #include "http_api_server.h"

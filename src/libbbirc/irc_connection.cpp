@@ -5,11 +5,15 @@ struct event_base *ev_base = NULL;
 // static field
 string BeatBoard::IRCConnection::newline = string("\r\n");
 
-bool BeatBoard::IRCConnection::bb_event_dispatch(){
+bool BeatBoard::IRCConnection::bb_event_dispatch(struct event_base *ev){
+  if(ev != NULL){
+    ev_base = ev;
+  }
   if(NULL == ev_base){
     ev_base = event_init();
   }
-  int ret = event_base_loop(ev_base,0);
+  //int ret = event_base_loop(ev_base,0);
+  int ret = event_dispatch();
   if( -1 == ret || 1 == ret){
     //TODO error handling
     return false;

@@ -29,7 +29,7 @@ namespace BeatBoard{
     static string newline;
     // methods ////////////////////////////////////////////
   public:
-    static bool bb_event_dispatch();
+    static bool bb_event_dispatch(struct event_base *ev);
     static void bb_event_finish();
     IRCConnection(string nick);
     ~IRCConnection();

@@ -35,7 +35,7 @@ int main(void){
   conn->JOIN(channel);
 
   pthread_create( &pt, NULL, &func, NULL );
-  BeatBoard::IRCConnection::bb_event_dispatch();
+  BeatBoard::IRCConnection::bb_event_dispatch(NULL);
   pthread_join( pt, NULL );
   return 0;
 }

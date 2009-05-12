@@ -20,8 +20,7 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
 
   httpd = evhttp_new( this->http_ev_base );
   
-  if ( evhttp_bind_socket( this->httpd, addr, port ) != 0 ) {}
-
+  if ( evhttp_bind_socket( this->httpd, addr, port ) != 0 ) {};
   evhttp_set_cb( httpd, "/", HTTPAPIServer::rootHandler, NULL );
 
   evhttp_set_cb( httpd, "/JOIN", HTTPAPIServer::joinHandler, this );
@@ -29,7 +28,6 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
 }
 
 void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *arg ) {
-
   struct evbuffer *buf;
   buf = evbuffer_new();
 
@@ -108,7 +106,7 @@ void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *a
   if ( buf == NULL ) {
     fprintf( stderr, "failed to create response buffer\n" );
   } else {
-    IRCConnection *a = instance->getIRCConnection( std::string( "yushi_bbircd" ) );
+    IRCConnection *a = instance->getIRCConnection( std::string( "yushi_new" ) );
     a->PRIVMSG( std::string("#yushi"), std::string( "hogera-" ) );
 
     evbuffer_add_printf( buf, "This is SPEAK API" );
