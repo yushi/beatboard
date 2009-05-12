@@ -27,6 +27,10 @@ namespace BeatBoard {
     bool verifyAccountFromDB( const std::string& username, 
 							  const std::string& password,
 							  std::string& result );
+	bool updateUserInfoToDB( const std::string& username, 
+							 const std::string& password,
+							 const std::string& userinfo,
+							 std::string& result );
 	bool checkAccountExist( const std::string& username );
 	void readDrizzleRow();
 	bool getPasswordFromField(std::string& password);

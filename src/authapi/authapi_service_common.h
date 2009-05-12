@@ -9,9 +9,12 @@ namespace BeatBoard {
   extern unsigned int AUTHAPI_VERIFY_OK;
   extern unsigned int AUTHAPI_VERIFY_ERROR;
   extern unsigned int AUTHAPI_DB_ERROR;
+  extern unsigned int AUTHAPI_UPDATE_OK;
+  extern unsigned int AUTHAPI_UPDATE_ERROR;
 
   extern unsigned int AUTHAPI_ADD_USER;
   extern unsigned int AUTHAPI_VERIFY_USER;
+  extern unsigned int AUTHAPI_UPDATE_USERINFO;
 }
 
 #endif
