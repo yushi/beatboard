@@ -14,9 +14,20 @@ namespace BeatBoard{
     static void rootHandler( struct evhttp_request *req, void *arg );
     static void joinHandler( struct evhttp_request *req, void *arg );
     static void speakHandler( struct evhttp_request *req, void *arg );    
+    static void readHandler( struct evhttp_request *req, void *arg );    
     struct event_base *http_ev_base;
   private:
     struct evhttp *httpd;
+    map<string, string> parseParameter(char* uri);
+  };
 
+ class HTTPAPINotifier: public Notifier {
+  public:
+    struct evhttp_request* req;
+    struct evbuffer* buf;
+    IRCConnection* conn;
+    HTTPAPINotifier(struct evhttp_request* req, IRCConnection* conn);
+    ~HTTPAPINotifier();
+    void notify(void* arg);
   };
 }

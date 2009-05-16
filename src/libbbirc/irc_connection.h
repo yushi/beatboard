@@ -13,9 +13,16 @@
 #include <sstream>
 #include "bb_exception.h"
 #include "irc_proto.h"
+#include <map>
 
 using namespace std;
 namespace BeatBoard{
+
+  class Notifier{
+  public:
+    virtual ~Notifier();
+    virtual void notify(void* arg);
+  };
   /*
    * IRC Connection Class
    */
@@ -24,15 +31,20 @@ namespace BeatBoard{
   public:
     int sock;
     struct bufferevent *buffevent;
+    map<string, string> received;
   private:
     string nick;
     static string newline;
+    Notifier* notifier;
     // methods ////////////////////////////////////////////
   public:
     static bool bb_event_dispatch(struct event_base *ev);
     static void bb_event_finish();
     IRCConnection(string nick);
     ~IRCConnection();
+    void setNotifier(Notifier* notifier);
+    Notifier* getNotifier();
+    bool hasMessage();
     void connectIRCServer(string addr, string port) throw (Exception);
     void disconnectIRCServer(void) throw (Exception);
     void JOIN(string channel) throw (Exception);
@@ -44,5 +56,6 @@ namespace BeatBoard{
     void write(string str) throw (Exception);
     void create_socket(void) throw (Exception);
   };
+
 }
 #endif /* __IRC_CONNECTION__ */

@@ -50,6 +50,19 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
     if(hoge != NULL){
       if(*(hoge->command) == string("PING")){
         irc_conn->PONG( *(hoge->params[0]) );
+      }else if(*(hoge->command) == string("PRIVMSG")){
+        string channel = *(hoge->params[0]);
+        string message = *(hoge->params[1]);
+        irc_conn->received[channel] += message;
+        BeatBoard::Notifier* notifier = irc_conn->getNotifier();
+        if( notifier != NULL){
+          notifier->notify((void*)NULL);
+          cout << "notifier is alive" << endl;
+          irc_conn->setNotifier(NULL);
+        }else{
+          cout << "notifier is dead" << endl;
+        }
+
       }
       delete hoge;
     }else{
@@ -73,6 +86,7 @@ void irc_buffevent_error( struct bufferevent *bev, short what, void *arg ) {
 
 BeatBoard::IRCConnection::IRCConnection(string nick) {
   this->nick = nick;
+  this->notifier = NULL;
   if(NULL == ev_base){
     ev_base = event_init();
   }
@@ -176,6 +190,14 @@ void BeatBoard::IRCConnection::PRIVMSG( string channel, string text ) throw (Exc
   this->write(message);
 }
 
+BeatBoard::Notifier* BeatBoard::IRCConnection::getNotifier(){
+  return this->notifier;
+}
+
+void BeatBoard::IRCConnection::setNotifier(BeatBoard::Notifier* notifier){
+  this->notifier = notifier;
+}
+
 BeatBoard::IRCConnection::~IRCConnection(){
   close(this->sock);
   if(this->buffevent){
@@ -184,3 +206,22 @@ BeatBoard::IRCConnection::~IRCConnection(){
   }
 }
 
+bool BeatBoard::IRCConnection::hasMessage(){
+  map<string, string>::iterator it = this->received.begin();
+  while( it != this->received.end() ){
+    //cout << (*it).first << ":" << (*it).second << endl;
+    if((*it).second.size() != 0){
+      return true;
+    }
+    ++it;
+  }
+  return false;
+}
+
+BeatBoard::Notifier::~Notifier(){
+  cout << "Thisis parent dest" << endl;
+}
+
+void BeatBoard::Notifier::notify(void *){
+  cout << "Thisis parent notify" << endl;
+}
