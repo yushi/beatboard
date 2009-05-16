@@ -62,7 +62,6 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
     if(hogehoge.size() != 0 ){
       evbuffer_add_printf( buf, (get_parameters["hogehoge"].c_str()));
       evbuffer_add_printf( buf, "<br />\n" );
-
       //POST???
       //      evbuffer_add_printf( buf, req->input_buffer);
       //evbuffer_add_printf( buf, "<br />\n" );
@@ -78,14 +77,11 @@ map<string, string> BeatBoard::HTTPAPIServer::parseParameter(char* uri){
   map<string, string> ret;
 
   struct evkeyvalq* params = (evkeyvalq *)calloc(1, sizeof(struct evkeyvalq));
-  fprintf(stderr,"encoded uri: %s\n", uri);
-  fprintf(stderr,"decoded uri: %s\n", evhttp_decode_uri(uri));
   evhttp_parse_query(evhttp_decode_uri(uri), params);
 
   struct evkeyval *header;
   TAILQ_FOREACH(header, params, next) {
     ret[string(header->key)] = string(header->value);
-    fprintf(stderr,"KEY: %s, VAL: %s\n", header->key, header->value );
   }
   free(params);
   return ret;
@@ -164,10 +160,14 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
       fprintf( stderr, "failed to create response buffer\n" );
       return;
     }
-    cout << "in not comet" << endl;
+    map<string,string> messages = conn->getMessage();
     evbuffer_add_printf( buf, "This is READ API" );
-    evbuffer_add_printf( buf, (conn->received["#yushi"]).c_str() );
-    conn->received["#yushi"] = "";
+    map<string, string>::iterator it = messages.begin();
+    while( it != messages.end() ){
+      evbuffer_add_printf( buf, (*it).first.c_str() );
+      evbuffer_add_printf( buf, (*it).second.c_str() );
+      ++it;
+    }
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
   }else{
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
@@ -190,10 +190,14 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
     fprintf( stderr, "failed to create response buffer\n" );
     return;
   }
-  cout << "in comet" << endl;
+  map<string,string> messages = conn->getMessage();
   evbuffer_add_printf( buf, "This is READ API" );
-  evbuffer_add_printf( buf, (this->conn->received["#yushi"]).c_str() );
-  conn->received["#yushi"] = "";
+  map<string, string>::iterator it = messages.begin();
+  while( it != messages.end() ){
+    evbuffer_add_printf( buf, (*it).first.c_str() );
+    evbuffer_add_printf( buf, (*it).second.c_str() );
+    ++it;
+  }
   evhttp_send_reply( this->req, HTTP_OK, "OK", buf );
   this->req = NULL;
   this->conn = NULL;

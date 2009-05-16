@@ -43,8 +43,6 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
     buf[read_size] = 0;
     str_stream << string(buf);
   }
-  //debug
-  //cout << str_stream.str() << endl;
   while(str_stream.getline(buf, 1024)){
     BeatBoard::IRCEvent *hoge = BeatBoard::parse_irc_message(buf);
     if(hoge != NULL){
@@ -57,16 +55,13 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         BeatBoard::Notifier* notifier = irc_conn->getNotifier();
         if( notifier != NULL){
           notifier->notify((void*)NULL);
-          cout << "notifier is alive" << endl;
           irc_conn->setNotifier(NULL);
-        }else{
-          cout << "notifier is dead" << endl;
         }
 
       }
       delete hoge;
     }else{
-      cout << "event not found" << endl;
+      //event not found
     }
   }
 }
@@ -160,8 +155,6 @@ void BeatBoard::IRCConnection::write(string str) throw (Exception){
   if ( 0 != result ) {
     throw Exception( "bufferevent_write: failed" );
   }
-  //debug
-  cout << str << endl;
 }
 
 void BeatBoard::IRCConnection::NICK(string name) throw (Exception){
@@ -209,7 +202,6 @@ BeatBoard::IRCConnection::~IRCConnection(){
 bool BeatBoard::IRCConnection::hasMessage(){
   map<string, string>::iterator it = this->received.begin();
   while( it != this->received.end() ){
-    //cout << (*it).first << ":" << (*it).second << endl;
     if((*it).second.size() != 0){
       return true;
     }
@@ -218,10 +210,14 @@ bool BeatBoard::IRCConnection::hasMessage(){
   return false;
 }
 
+map<string, string> BeatBoard::IRCConnection::getMessage(){
+  map<string,string> ret =  map<string,string>(this->received);
+  this->received.clear();
+  return ret;
+}
+
 BeatBoard::Notifier::~Notifier(){
-  cout << "Thisis parent dest" << endl;
 }
 
 void BeatBoard::Notifier::notify(void *){
-  cout << "Thisis parent notify" << endl;
 }

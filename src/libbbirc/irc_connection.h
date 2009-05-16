@@ -45,6 +45,7 @@ namespace BeatBoard{
     void setNotifier(Notifier* notifier);
     Notifier* getNotifier();
     bool hasMessage();
+    map<string, string> getMessage();
     void connectIRCServer(string addr, string port) throw (Exception);
     void disconnectIRCServer(void) throw (Exception);
     void JOIN(string channel) throw (Exception);
