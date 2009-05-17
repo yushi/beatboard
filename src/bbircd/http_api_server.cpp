@@ -164,8 +164,8 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
     evbuffer_add_printf( buf, "This is READ API" );
     map<string, string>::iterator it = messages.begin();
     while( it != messages.end() ){
-      evbuffer_add_printf( buf, (*it).first.c_str() );
-      evbuffer_add_printf( buf, (*it).second.c_str() );
+      evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );
+      evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
       ++it;
     }
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
@@ -194,8 +194,8 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   evbuffer_add_printf( buf, "This is READ API" );
   map<string, string>::iterator it = messages.begin();
   while( it != messages.end() ){
-    evbuffer_add_printf( buf, (*it).first.c_str() );
-    evbuffer_add_printf( buf, (*it).second.c_str() );
+    evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );
+    evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
     ++it;
   }
   evhttp_send_reply( this->req, HTTP_OK, "OK", buf );
