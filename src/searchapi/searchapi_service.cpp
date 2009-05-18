@@ -179,6 +179,7 @@ BeatBoard::SearchApiService::drizzleResultToJson( std::string& result )
   }
 
   result = std::string(json_object_to_json_string(my_object));
+  json_object_put(my_object);
   return ret;
 }
 
