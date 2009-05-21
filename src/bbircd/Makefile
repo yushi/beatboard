@@ -2,7 +2,7 @@ BB_HOME=/usr/bb
 CC=g++ -g -Wall -Werror
 CC_INC_DIR=-I$(BB_HOME)/local/include -I../libbbirc
 CC_LIB_DIR=-L$(BB_HOME)/local/lib -L../libbbirc
-CC_LIBS=-levent -lbbirc -lprotobuf -lmemcached
+CC_LIBS=-levent -lbbirc -lprotobuf -ljson
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
 OBJ_FILES=bblogger.o irc_client_operation.o http_api_server.o
 

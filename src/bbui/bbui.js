@@ -77,7 +77,11 @@ function privmsg(target, message, nick){
 function readMessage(nick){
     var url = "/api/READ?nick=" + nick;
     $.get(url, function(data){
-        $("#messages").append(data + "<br />");
+        //alert(data);
+        eval("received=" + data);
+        //alert(received);
+        //$("#messages").append(data + "<br />");
+        $("#messages").append(received["#yushi"] + "<br />");
         loading = 0;
     });
 }
