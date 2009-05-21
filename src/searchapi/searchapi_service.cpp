@@ -63,10 +63,12 @@ BeatBoard::SearchApiService::RpcFunc(google::protobuf::RpcController* controller
   {
     response->set_result(result);
     std::cout << "OK: " << response->result() << std::endl;
+    response->set_result_code(SEARCHAPI_RESULT_OK);
   }
   else 
   {
     response->set_result(result);
+    response->set_result_code(SEARCHAPI_RESULT_ERROR);
     response->set_error("message wasn't set");
     std::cout << "NG: " << response->result() << std::endl;
   }
@@ -82,6 +84,7 @@ BeatBoard::SearchApiService::searchDB( std::string& query, std::string& result )
   {
     ret = getMemcachedData(query, result);
   }
+
   if (!ret)
   {
     std::cerr << "select drizzle " << std::endl;
@@ -117,6 +120,7 @@ BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& r
   else
   {
     std::cerr << "select failure" << std::endl;
+    ret = false;
   }
 
   return ret;
