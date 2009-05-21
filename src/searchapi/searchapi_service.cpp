@@ -67,9 +67,10 @@ BeatBoard::SearchApiService::RpcFunc(google::protobuf::RpcController* controller
   }
   else 
   {
+    result = " "; // "" does not work at protobuf serialize
     response->set_result(result);
     response->set_result_code(SEARCHAPI_RESULT_ERROR);
-    response->set_error("message wasn't set");
+//    response->set_error("message wasn't set");
     std::cout << "NG: " << response->result() << std::endl;
   }
   done->Run();

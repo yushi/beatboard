@@ -60,6 +60,10 @@ const char* DoSearch(char *query) {
   {
     result = "Search Faild";
   }
+  else
+  {
+    result = "Unknow ret code";
+  }
   return result.c_str();
 }
 

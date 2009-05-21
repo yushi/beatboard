@@ -79,8 +79,9 @@ BeatBoard::BBRpcChannel::CallMethod( const google::protobuf::MethodDescriptor* m
   } while (len < 0 && errno == EINTR );
 
   if ( !response->ParseFromString( recv_data ) ) {
-    std::cout << "Failed to parse response." << std::endl;
+    std::cout << "Failed to parse response." << std::endl;    
     close(sockfd);
+    done->Run();
     return;
   }
   close(sockfd);
