@@ -196,13 +196,8 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
       fprintf( stderr, "failed to create response buffer\n" );
       return;
     }
-    map<string,string> messages = conn->getMessage();
-    map<string, string>::iterator it = messages.begin();
-    while( it != messages.end() ){
-      //evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );  // channnel
-      evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
-      ++it;
-    }
+    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
+    notifier->notify((void*)NULL);
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
   }else{
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
@@ -228,7 +223,6 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   map<string,string> messages = conn->getMessage();
   string resp = string("{");
   map<string, string>::iterator it = messages.begin();
-  /* struct json_object *obj = json_object_new_object(); */
   while( it != messages.end() ){
     string key = "\"" + (*it).first + "\"";
     string val = "\"" + (*it).second + "\"";
