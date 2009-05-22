@@ -226,35 +226,18 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
     return;
   }
   map<string,string> messages = conn->getMessage();
+  string resp = string("{");
   map<string, string>::iterator it = messages.begin();
-  struct json_object *obj = json_object_new_object();
+  /* struct json_object *obj = json_object_new_object(); */
   while( it != messages.end() ){
-    int message_size = (*it).second.size() + 1;
-    int channel_size = (*it).first.size() + 1;
-    char* message_str = (char*)calloc(1, sizeof(message_size));
-    char* channel_str = (char*)calloc(1, sizeof(channel_size));
+    string key = "\"" + (*it).first + "\"";
+    string val = "\"" + (*it).second + "\"";
 
-    //strncpy(message_str, (*it).second);
-    memcpy(message_str, (*it).second.c_str(), message_size);
-    //strncpy(channel_str, (*it).first);
-    memcpy(channel_str, (*it).first.c_str(), channel_size);
-    cout << "\""<< (*it).first.c_str() << "\"" << endl;
-    cout << "\""<< channel_size << "\"" << endl;
-    json_object *message = json_object_new_string(message_str);
-    json_object_object_add(obj,
-                           channel_str,
-                           message);
-    //free(message_str);
-    //free(channel_str);
-    //evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );  // channnel
-    //evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
-
+    resp += key + ":" + val + ",";
     ++it;
   }
-  char *json_str = json_object_to_json_string (obj);
-  evbuffer_add( buf, json_str, strlen(json_str) );  
-  //free(json_str);
-  //json_object_put(obj);
+  resp += "}";
+  evbuffer_add( buf, resp.c_str(), resp.size() );
   
   evhttp_send_reply( this->req, HTTP_OK, "OK", buf );
   this->req = NULL;

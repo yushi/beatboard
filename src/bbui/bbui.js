@@ -56,6 +56,7 @@ function checkLoader(){
 function connect(server, nickname, port){
     nick = nickname;
     $.get("/api/CONNECT?server=" + server + "&nick=" + nick + "&port=" + port, function(data){
+        //alert(data);
         setInterval(checkLoader, 1000);
     });
     
@@ -64,6 +65,7 @@ function connect(server, nickname, port){
 function join(channel, nick){
     var url = '/api/JOIN?channel=' + escape(channel) + "&nick=" + nick;
     $.get(url, function(data){
+        //alert(data);
     });
 }
 
