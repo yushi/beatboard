@@ -28,6 +28,7 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
   evhttp_set_cb( httpd, "/CONNECT", HTTPAPIServer::connectHandler, this );
   evhttp_set_cb( httpd, "/JOIN", HTTPAPIServer::joinHandler, this );
   evhttp_set_cb( httpd, "/SPEAK", HTTPAPIServer::speakHandler, this );
+  evhttp_set_cb( httpd, "/EXIT", HTTPAPIServer::exitHandler, this );
   evhttp_set_cb( httpd, "/READ", HTTPAPIServer::readHandler, this );
 }
 
@@ -120,6 +121,26 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   evbuffer_add_printf( buf, "This is CONNECT API" );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
   return;
+}
+
+void BeatBoard::HTTPAPIServer::exitHandler( struct evhttp_request *req, void *arg ) {
+  struct evbuffer *buf;
+  buf = evbuffer_new();
+
+  if ( buf == NULL ) {
+    fprintf( stderr, "failed to create response buffer\n" );
+    return;
+  }
+  
+  try{
+    evbuffer_add_printf( buf, "This is EXIT API" );
+    evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  } catch ( BeatBoard::Exception& error ) {
+    BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+    logger.debug( error.message.data() );
+    cerr << "irc coonection error\n";
+  }
+  exit(0);
 }
 
 void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *arg ) {

@@ -16,6 +16,7 @@ namespace BeatBoard{
     static void rootHandler( struct evhttp_request *req, void *arg );
     static void connectHandler( struct evhttp_request *req, void *arg );
     static void joinHandler( struct evhttp_request *req, void *arg );
+    static void exitHandler( struct evhttp_request *req, void *arg );    
     static void speakHandler( struct evhttp_request *req, void *arg );    
     static void readHandler( struct evhttp_request *req, void *arg );    
     struct event_base *http_ev_base;
