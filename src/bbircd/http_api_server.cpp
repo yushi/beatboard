@@ -1,4 +1,3 @@
-#include <sys/queue.h>
 #include "http_api_server.h"
 
 using namespace std;
@@ -26,6 +25,7 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
   if ( evhttp_bind_socket( this->httpd, addr, port ) != 0 ) {};
   evhttp_set_cb( httpd, "/", HTTPAPIServer::rootHandler, NULL );
 
+  evhttp_set_cb( httpd, "/CONNECT", HTTPAPIServer::connectHandler, this );
   evhttp_set_cb( httpd, "/JOIN", HTTPAPIServer::joinHandler, this );
   evhttp_set_cb( httpd, "/SPEAK", HTTPAPIServer::speakHandler, this );
   evhttp_set_cb( httpd, "/READ", HTTPAPIServer::readHandler, this );
@@ -78,7 +78,6 @@ map<string, string> BeatBoard::HTTPAPIServer::parseParameter(char* uri){
 
   struct evkeyvalq* params = (evkeyvalq *)calloc(1, sizeof(struct evkeyvalq));
   evhttp_parse_query(evhttp_decode_uri(uri), params);
-
   struct evkeyval *header;
   TAILQ_FOREACH(header, params, next) {
     ret[string(header->key)] = string(header->value);
@@ -88,7 +87,7 @@ map<string, string> BeatBoard::HTTPAPIServer::parseParameter(char* uri){
 }
 
 
-void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *arg ) {
+void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void *arg ) {
   HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
 
   struct evbuffer *buf;
@@ -102,13 +101,44 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
   const string nick = params[string("nick")];
   const string server = params["server"];
   const string port = params["port"];
+
+  IRCConnection *conn = NULL;
+  conn = instance->getIRCConnection( nick );
+  if(conn == NULL ){
+    try{
+      IRCConnection *newConnection = new IRCConnection(nick);
+      instance->setIRCConnection( nick, newConnection );
+      newConnection->connectIRCServer(server, port);
+      
+    }catch ( BeatBoard::Exception& error ) {
+      BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+      logger.debug( error.message.data() );
+      cerr << "irc coonection error\n";
+    }
+    
+  }
+  evbuffer_add_printf( buf, "This is CONNECT API" );
+  evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  return;
+}
+
+void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *arg ) {
+  HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
+
+  struct evbuffer *buf;
+  buf = evbuffer_new();
+
+  if ( buf == NULL ) {
+    fprintf( stderr, "failed to create response buffer\n" );
+    return;
+  }
+  map<string, string> params = instance->parseParameter(req->uri);
+  const string nick = params[string("nick")];
   const string channel = params["channel"];
   
   try{
-    IRCConnection *newConnection = new IRCConnection(nick);
-    instance->setIRCConnection( nick, newConnection );
-    newConnection->connectIRCServer(server, port);
-    newConnection->JOIN(channel);
+    IRCConnection *conn = instance->getIRCConnection( nick );
+    conn->JOIN(channel);
     
     evbuffer_add_printf( buf, "This is JOIN API" );
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
@@ -152,19 +182,24 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
   map<string, string> params = instance->parseParameter(req->uri);
   const string nick = params[string("nick")];
 
-  IRCConnection *conn = instance->getIRCConnection( nick );
+  IRCConnection *conn = NULL;
+  struct evbuffer *buf;
+  conn = instance->getIRCConnection( nick );
+  buf = evbuffer_new();
+
+  if(conn == NULL){
+    evhttp_send_reply( req, HTTP_OK, "OK",  buf);
+    return;
+  }
   if(conn->hasMessage()){
-    struct evbuffer *buf;
-    buf = evbuffer_new();
     if ( buf == NULL ) {
       fprintf( stderr, "failed to create response buffer\n" );
       return;
     }
     map<string,string> messages = conn->getMessage();
-    evbuffer_add_printf( buf, "This is READ API" );
     map<string, string>::iterator it = messages.begin();
     while( it != messages.end() ){
-      evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );
+      //evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );  // channnel
       evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
       ++it;
     }
@@ -191,13 +226,36 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
     return;
   }
   map<string,string> messages = conn->getMessage();
-  evbuffer_add_printf( buf, "This is READ API" );
   map<string, string>::iterator it = messages.begin();
+  struct json_object *obj = json_object_new_object();
   while( it != messages.end() ){
-    evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );
-    evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
+    int message_size = (*it).second.size() + 1;
+    int channel_size = (*it).first.size() + 1;
+    char* message_str = (char*)calloc(1, sizeof(message_size));
+    char* channel_str = (char*)calloc(1, sizeof(channel_size));
+
+    //strncpy(message_str, (*it).second);
+    memcpy(message_str, (*it).second.c_str(), message_size);
+    //strncpy(channel_str, (*it).first);
+    memcpy(channel_str, (*it).first.c_str(), channel_size);
+    cout << "\""<< (*it).first.c_str() << "\"" << endl;
+    cout << "\""<< channel_size << "\"" << endl;
+    json_object *message = json_object_new_string(message_str);
+    json_object_object_add(obj,
+                           channel_str,
+                           message);
+    //free(message_str);
+    //free(channel_str);
+    //evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );  // channnel
+    //evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
+
     ++it;
   }
+  char *json_str = json_object_to_json_string (obj);
+  evbuffer_add( buf, json_str, strlen(json_str) );  
+  //free(json_str);
+  //json_object_put(obj);
+  
   evhttp_send_reply( this->req, HTTP_OK, "OK", buf );
   this->req = NULL;
   this->conn = NULL;

@@ -51,7 +51,8 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
       }else if(*(hoge->command) == string("PRIVMSG")){
         string channel = *(hoge->params[0]);
         string message = *(hoge->params[1]);
-        irc_conn->received[channel] += message;
+        string prefix = *(hoge->prefix);
+        irc_conn->received[channel] += (prefix + ": " + message);
         BeatBoard::Notifier* notifier = irc_conn->getNotifier();
         if( notifier != NULL){
           notifier->notify((void*)NULL);
