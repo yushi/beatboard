@@ -5,7 +5,6 @@
 #include <iostream>
 #include "irc_client_operation.h"
 #include "bblogger.h"
-#include <json/json.h>
 namespace BeatBoard{
   class HTTPAPIServer  : public IRCClientOperation {
     //class HTTPAPIServer{
