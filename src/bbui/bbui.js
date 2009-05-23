@@ -57,7 +57,6 @@ function checkLoader(){
 function connect(server, nickname, port){
     nick = nickname;
     $.get("/api/CONNECT?server=" + server + "&nick=" + nick + "&port=" + port, function(data){
-        //alert(data);
         setInterval(checkLoader, 1000);
     });
     
@@ -67,7 +66,6 @@ function join(channel, nick){
     var url = '/api/JOIN?channel=' + escape(channel) + "&nick=" + nick;
     active_channel = channel;
     $.get(url, function(data){
-        //alert(data);
     });
 }
 
@@ -82,10 +80,7 @@ function privmsg(target, message, nick){
 function readMessage(nick){
     var url = "/api/READ?nick=" + nick;
     $.get(url, function(data){
-        //alert(data);
         eval("received=" + data);
-        //alert(received);
-        //$("#messages").append(data + "<br />");
         $("#messages").append(received[active_channel] + "<br />");
         loading = 0;
         window.scrollBy( 0, screen.height );
