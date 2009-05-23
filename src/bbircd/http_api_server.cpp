@@ -271,7 +271,7 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   }
   resp += "}";
 
-  evhttp_add_header(req->output_headers, "Content-type","text/javascript+json; charset=utf-8");
+  evhttp_add_header(req->output_headers, "Content-type","application/x-javascript; charset=utf-8");
 
   ostringstream csize;
   csize << resp.size();
