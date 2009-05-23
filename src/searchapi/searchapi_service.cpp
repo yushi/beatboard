@@ -211,7 +211,7 @@ BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_object )
     }
     else if ( drizzle_response.ret != DRIZZLE_RETURN_OK)
     {
-      std::cerr << "drizzle_field_read: " << client->drizzle_client_error() << std::endl;
+      std::cerr << "drizzle_field_read: " << client->client_error() << std::endl;
       return false;
     }
 

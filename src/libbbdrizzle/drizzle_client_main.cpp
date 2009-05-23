@@ -64,7 +64,7 @@ int main( int argc, char** argv ) {
         else if ( response.ret != DRIZZLE_RETURN_OK)
         {
           std::cout << "row ng" << std::endl;
-          std::cout << "drizzle_field_read: " << client->drizzle_client_error() << std::endl;
+          std::cout << "drizzle_field_read: " << client->client_error() << std::endl;
           return 1;
         }
 

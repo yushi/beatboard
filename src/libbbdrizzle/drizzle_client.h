@@ -27,7 +27,7 @@ namespace BeatBoard {
     bool insert( const std::string& table_name, const std::string& insert_columns_and_source, BeatBoard::DrizzleResponse& response );
     bool select( const std::string& select_list, const std::string& from_clause, const std::string& where_clause, BeatBoard::DrizzleResponse& response );
 	bool update(  const std::string& target_table, const std::string& set_clause_list, const std::string& where_clause, BeatBoard::DrizzleResponse& response );
-	std::string drizzle_client_error();
+	std::string client_error();
 
   private:
     void connect();

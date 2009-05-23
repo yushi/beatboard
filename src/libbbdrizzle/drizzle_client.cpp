@@ -56,7 +56,7 @@ BeatBoard::DrizzleClient::update(  const std::string& target_table, const std::s
 }
 
 std::string
-BeatBoard::DrizzleClient::drizzle_client_error()
+BeatBoard::DrizzleClient::client_error()
 {
   return drizzle_error(&drizzle);
 }
@@ -73,7 +73,7 @@ BeatBoard::DrizzleClient::check_drizzle_response( BeatBoard::DrizzleResponse& re
 {
   if (response.ret != DRIZZLE_RETURN_OK)
   {
-    std::cout << "drizzle_query:" << drizzle_client_error() << std::endl;
+    std::cout << "drizzle_query:" << client_error() << std::endl;
     return false;
   }
 
@@ -89,7 +89,7 @@ BeatBoard::DrizzleClient::check_drizzle_response( BeatBoard::DrizzleResponse& re
     response.ret = drizzle_column_skip(&response.result);
     if (response.ret != DRIZZLE_RETURN_OK)
     {
-      std::cout << "drizzle_column_skip:" <<  drizzle_client_error() << std::endl;
+      std::cout << "drizzle_column_skip:" << client_error() << std::endl;
       return false;
     }
   }
