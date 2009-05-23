@@ -48,8 +48,9 @@ function sendMessage(elem){
 
 function checkLoader(){
     if(loading == 0){
-        readMessage(nick);
         loading = 1;
+        readMessage(nick);
+
     }
 }
 
@@ -79,11 +80,23 @@ function privmsg(target, message, nick){
 
 function readMessage(nick){
     var url = "/api/READ?nick=" + nick;
-    $.get(url, function(data){
-        eval("received=" + data);
-        $("#messages").append(received[active_channel] + "<br />");
-        loading = 0;
-        window.scrollBy( 0, screen.height );
+    $.ajax({
+        'url': url,
+        cache: false,
+        success: function(data){
+            //$("#debug").append(data + "<br />");
+            try{
+                eval("received=" + data);
+                $("#messages").append(received[active_channel] + "<br />");
+            }catch(e){
+
+            }
+            loading = 0;
+            window.scrollBy( 0, screen.height );
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+            loading = 0;
+        }
     });
 }
 

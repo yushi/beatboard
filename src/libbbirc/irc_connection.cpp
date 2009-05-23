@@ -56,9 +56,9 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         BeatBoard::Notifier* notifier = irc_conn->getNotifier();
         if( notifier != NULL){
           notifier->notify((void*)NULL);
+          delete(notifier);
           irc_conn->setNotifier(NULL);
         }
-
       }
       delete hoge;
     }else{

@@ -72,7 +72,7 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
     
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
   }
-
+  evbuffer_free(buf);
 }
 
 
@@ -123,6 +123,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   }
   evbuffer_add_printf( buf, "This is CONNECT API" );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  evbuffer_free(buf);  
   return;
 }
 
@@ -143,6 +144,7 @@ void BeatBoard::HTTPAPIServer::exitHandler( struct evhttp_request *req, void *ar
     logger.debug( error.message.data() );
     cerr << "irc coonection error\n";
   }
+  evbuffer_free(buf);
   exit(0);
 }
 
@@ -171,7 +173,7 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
     logger.debug( error.message.data() );
     cerr << "irc coonection error\n";
   }
-
+  evbuffer_free(buf);
 }
 
 void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *arg ) {
@@ -198,7 +200,7 @@ void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *a
 
   evbuffer_add_printf( buf, "This is SPEAK API" );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
-
+  evbuffer_free(buf);
 }
 
 void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *arg ) {
@@ -227,10 +229,12 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
     notifier->notify((void*)NULL);
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
+    delete(notifier);
   }else{
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
     conn->setNotifier(notifier);
   }
+  evbuffer_free(buf);
 }
 
 BeatBoard::HTTPAPINotifier::HTTPAPINotifier(struct evhttp_request *req,  IRCConnection* conn){
@@ -244,6 +248,10 @@ BeatBoard::HTTPAPINotifier::~HTTPAPINotifier(){
 void BeatBoard::HTTPAPINotifier::notify(void* arg){
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("NOTIFY");
+  evhttp_request* req = this->req;
+  this->req = NULL;
+  IRCConnection* conn = this->conn;
+  this->conn = NULL;
 
   struct evbuffer *buf;
   buf = evbuffer_new();
@@ -263,11 +271,13 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   }
   resp += "}";
 
-  logger.debug("json:" + resp);
+  evhttp_add_header(req->output_headers, "Content-type","text/javascript+json; charset=utf-8");
+
+  ostringstream csize;
+  csize << resp.size();
+  evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
 
   evbuffer_add( buf, resp.c_str(), resp.size() );
-  evhttp_add_header(this->req->output_headers, "Content-type","text/javascript+json; charset=utf-8");
-  evhttp_send_reply( this->req, HTTP_OK, "OK", buf );
-  this->req = NULL;
-  this->conn = NULL;
+  evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  evbuffer_free(buf);
 }
