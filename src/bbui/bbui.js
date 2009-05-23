@@ -1,5 +1,6 @@
 var loading = 0;
 var nick = null;
+var active_channel = null;
 
 function connectServer(){
     var server = $("#server").val();
@@ -64,6 +65,7 @@ function connect(server, nickname, port){
 
 function join(channel, nick){
     var url = '/api/JOIN?channel=' + escape(channel) + "&nick=" + nick;
+    active_channel = channel;
     $.get(url, function(data){
         //alert(data);
     });
@@ -84,7 +86,7 @@ function readMessage(nick){
         eval("received=" + data);
         //alert(received);
         //$("#messages").append(data + "<br />");
-        $("#messages").append(received["#yushi"] + "<br />");
+        $("#messages").append(received[active_channel] + "<br />");
         loading = 0;
         window.scrollBy( 0, screen.height );
     });
