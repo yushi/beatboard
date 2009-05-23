@@ -73,6 +73,7 @@ function privmsg(target, message, nick){
     var url = "/api/SPEAK?message=" + message + "&channel=" + escape(target) + "&nick=" + nick;
     $.get(url, function(data){
         $("#messages").append(nick + ":" + message + "<br />");
+        window.scrollBy( 0, screen.height );
     });
 }
 
@@ -85,6 +86,7 @@ function readMessage(nick){
         //$("#messages").append(data + "<br />");
         $("#messages").append(received["#yushi"] + "<br />");
         loading = 0;
+        window.scrollBy( 0, screen.height );
     });
 }
 

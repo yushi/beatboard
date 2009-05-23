@@ -253,7 +253,7 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   }
   resp += "}";
   evbuffer_add( buf, resp.c_str(), resp.size() );
-  
+  evhttp_add_header(this->req->output_headers, "Content-type","text/javascript+json; charset=utf-8");
   evhttp_send_reply( this->req, HTTP_OK, "OK", buf );
   this->req = NULL;
   this->conn = NULL;
