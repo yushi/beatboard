@@ -11,6 +11,7 @@
 #include <event.h>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include "bb_exception.h"
 #include "irc_proto.h"
 #include <map>
@@ -31,7 +32,7 @@ namespace BeatBoard{
   public:
     int sock;
     struct bufferevent *buffevent;
-    map<string, string> received;
+    map<string, vector<string> > received;
   private:
     string nick;
     static string newline;
@@ -45,7 +46,7 @@ namespace BeatBoard{
     void setNotifier(Notifier* notifier);
     Notifier* getNotifier();
     bool hasMessage();
-    map<string, string> getMessage();
+    map<string, vector<string> > getMessage();
     void connectIRCServer(string addr, string port) throw (Exception);
     void disconnectIRCServer(void) throw (Exception);
     void JOIN(string channel) throw (Exception);

@@ -58,7 +58,6 @@ function checkLoader(){
 function connect(server, nickname, port){
     nick = nickname;
     $.get("/api/CONNECT?server=" + server + "&nick=" + nick + "&port=" + port, function(data){
-        setInterval(checkLoader, 1000);
     });
     
 }
@@ -67,6 +66,7 @@ function join(channel, nick){
     var url = '/api/JOIN?channel=' + escape(channel) + "&nick=" + nick;
     active_channel = channel;
     $.get(url, function(data){
+        setInterval(checkLoader, 1000);
     });
 }
 
@@ -87,7 +87,12 @@ function readMessage(nick){
             //$("#debug").append(data + "<br />");
             try{
                 eval("received=" + data);
-                $("#messages").append(received[active_channel] + "<br />");
+                var messages = received[active_channel];
+                for(var i = 0; i < messages.length; i+=2){
+                    var displayName = messages[i].match("(.+)!.*")[1];
+                    $("#messages").append(displayName + ": ");
+                    $("#messages").append(messages[i+1] + "<br />");
+                }
             }catch(e){
 
             }

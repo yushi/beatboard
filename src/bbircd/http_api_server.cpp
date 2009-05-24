@@ -259,13 +259,21 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
     fprintf( stderr, "failed to create response buffer\n" );
     return;
   }
-  map<string,string> messages = conn->getMessage();
+  //map<string,string> messages = conn->getMessage();
+  map<string, vector<string> > messages = conn->getMessage();
   string resp = string("{");
-  map<string, string>::iterator it = messages.begin();
+  //map<string, string>::iterator it = messages.begin();
+  map<string, vector<string> >::iterator it = messages.begin();
   while( it != messages.end() ){
     string key = "\"" + (*it).first + "\"";
-    string val = "\"" + (*it).second + "\"";
 
+    
+    string val = "[";
+    for( unsigned int i = 0; i < (*it).second.size(); i+=2){
+      val += "\"" + (*it).second[i] + "\",";
+      val += "\"" + (*it).second[i+1] + "\",";
+    }
+    val += "]";
     resp += key + ":" + val + ",";
     ++it;
   }
