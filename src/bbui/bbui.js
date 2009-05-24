@@ -1,5 +1,6 @@
 var loading = 0;
 var nick = null;
+var active_channel = null;
 
 function connectServer(){
     var server = $("#server").val();
@@ -47,8 +48,9 @@ function sendMessage(elem){
 
 function checkLoader(){
     if(loading == 0){
-        readMessage(nick);
         loading = 1;
+        readMessage(nick);
+
     }
 }
 
@@ -63,6 +65,7 @@ function connect(server, nickname, port){
 
 function join(channel, nick){
     var url = '/api/JOIN?channel=' + escape(channel) + "&nick=" + nick;
+    active_channel = channel;
     $.get(url, function(data){
     });
 }
@@ -71,18 +74,29 @@ function privmsg(target, message, nick){
     var url = "/api/SPEAK?message=" + message + "&channel=" + escape(target) + "&nick=" + nick;
     $.get(url, function(data){
         $("#messages").append(nick + ":" + message + "<br />");
+        window.scrollBy( 0, screen.height );
     });
 }
 
 function readMessage(nick){
     var url = "/api/READ?nick=" + nick;
-    $.get(url, function(data){
-        //alert(data);
-        eval("received=" + data);
-        //alert(received);
-        //$("#messages").append(data + "<br />");
-        $("#messages").append(received["#yushi"] + "<br />");
-        loading = 0;
+    $.ajax({
+        'url': url,
+        cache: false,
+        success: function(data){
+            //$("#debug").append(data + "<br />");
+            try{
+                eval("received=" + data);
+                $("#messages").append(received[active_channel] + "<br />");
+            }catch(e){
+
+            }
+            loading = 0;
+            window.scrollBy( 0, screen.height );
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+            loading = 0;
+        }
     });
 }
 

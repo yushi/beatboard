@@ -9,7 +9,7 @@ CLIBFLAGS = -dynamiclib
 endif
 
 BB_HOME=/usr/bb
-CC=g++ -g -Wall -Werror -fprofile-arcs -ftest-coverage 
+CC=g++ -g -Wall -Werror -fprofile-arcs -ftest-coverage -fPIC
 CC_INC_DIR=-I$(BB_HOME)/local/include
 CC_LIB_DIR=-L$(BB_HOME)/local/lib
 CC_LIBS=-levent

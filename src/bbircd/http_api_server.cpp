@@ -18,6 +18,7 @@ BeatBoard::HTTPAPIServer::~HTTPAPIServer() {
 }
 
 void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   this->http_ev_base = event_init();
 
   httpd = evhttp_new( this->http_ev_base );
@@ -28,7 +29,9 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
   evhttp_set_cb( httpd, "/CONNECT", HTTPAPIServer::connectHandler, this );
   evhttp_set_cb( httpd, "/JOIN", HTTPAPIServer::joinHandler, this );
   evhttp_set_cb( httpd, "/SPEAK", HTTPAPIServer::speakHandler, this );
+  evhttp_set_cb( httpd, "/EXIT", HTTPAPIServer::exitHandler, this );
   evhttp_set_cb( httpd, "/READ", HTTPAPIServer::readHandler, this );
+  logger.debug("setup finished");
 }
 
 void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *arg ) {
@@ -69,7 +72,7 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
     
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
   }
-
+  evbuffer_free(buf);
 }
 
 
@@ -89,7 +92,8 @@ map<string, string> BeatBoard::HTTPAPIServer::parseParameter(char* uri){
 
 void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void *arg ) {
   HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
-
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("CONNECT request");
   struct evbuffer *buf;
   buf = evbuffer_new();
 
@@ -101,6 +105,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   const string nick = params[string("nick")];
   const string server = params["server"];
   const string port = params["port"];
+  logger.debug("nick:" + nick + " server:" + server + " port:" + port);
 
   IRCConnection *conn = NULL;
   conn = instance->getIRCConnection( nick );
@@ -111,7 +116,6 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
       newConnection->connectIRCServer(server, port);
       
     }catch ( BeatBoard::Exception& error ) {
-      BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
       logger.debug( error.message.data() );
       cerr << "irc coonection error\n";
     }
@@ -119,12 +123,35 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   }
   evbuffer_add_printf( buf, "This is CONNECT API" );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  evbuffer_free(buf);  
   return;
+}
+
+void BeatBoard::HTTPAPIServer::exitHandler( struct evhttp_request *req, void *arg ) {
+  struct evbuffer *buf;
+  buf = evbuffer_new();
+
+  if ( buf == NULL ) {
+    fprintf( stderr, "failed to create response buffer\n" );
+    return;
+  }
+  
+  try{
+    evbuffer_add_printf( buf, "This is EXIT API" );
+    evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  } catch ( BeatBoard::Exception& error ) {
+    BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+    logger.debug( error.message.data() );
+    cerr << "irc coonection error\n";
+  }
+  evbuffer_free(buf);
+  exit(0);
 }
 
 void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *arg ) {
   HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
-
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("JOIN request");
   struct evbuffer *buf;
   buf = evbuffer_new();
 
@@ -135,7 +162,7 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
   map<string, string> params = instance->parseParameter(req->uri);
   const string nick = params[string("nick")];
   const string channel = params["channel"];
-  
+  logger.debug("nick:" + nick + " channel:" + channel);  
   try{
     IRCConnection *conn = instance->getIRCConnection( nick );
     conn->JOIN(channel);
@@ -143,15 +170,16 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
     evbuffer_add_printf( buf, "This is JOIN API" );
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
   } catch ( BeatBoard::Exception& error ) {
-    BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
     logger.debug( error.message.data() );
     cerr << "irc coonection error\n";
   }
-
+  evbuffer_free(buf);
 }
 
 void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *arg ) {
   HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("SPEAK request");
 
   struct evbuffer *buf;
   buf = evbuffer_new();
@@ -165,22 +193,24 @@ void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *a
   const string nick = params[string("nick")];
   const string channel = params["channel"];
   const string message = params["message"];
-
+  logger.debug("nick:" + nick + " channel:" + channel + " message:" + message);
+  
   IRCConnection *conn = instance->getIRCConnection( nick );
   conn->PRIVMSG( channel, message );
 
   evbuffer_add_printf( buf, "This is SPEAK API" );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
-
+  evbuffer_free(buf);
 }
 
 void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *arg ) {
   HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
-
-
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("READ request");
 
   map<string, string> params = instance->parseParameter(req->uri);
   const string nick = params[string("nick")];
+  logger.debug("nick:" + nick);
 
   IRCConnection *conn = NULL;
   struct evbuffer *buf;
@@ -196,18 +226,15 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
       fprintf( stderr, "failed to create response buffer\n" );
       return;
     }
-    map<string,string> messages = conn->getMessage();
-    map<string, string>::iterator it = messages.begin();
-    while( it != messages.end() ){
-      //evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );  // channnel
-      evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
-      ++it;
-    }
+    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
+    notifier->notify((void*)NULL);
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
+    delete(notifier);
   }else{
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
     conn->setNotifier(notifier);
   }
+  evbuffer_free(buf);
 }
 
 BeatBoard::HTTPAPINotifier::HTTPAPINotifier(struct evhttp_request *req,  IRCConnection* conn){
@@ -219,6 +246,13 @@ BeatBoard::HTTPAPINotifier::~HTTPAPINotifier(){
 }
 
 void BeatBoard::HTTPAPINotifier::notify(void* arg){
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("NOTIFY");
+  evhttp_request* req = this->req;
+  this->req = NULL;
+  IRCConnection* conn = this->conn;
+  this->conn = NULL;
+
   struct evbuffer *buf;
   buf = evbuffer_new();
   if ( buf == NULL ) {
@@ -226,37 +260,24 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
     return;
   }
   map<string,string> messages = conn->getMessage();
+  string resp = string("{");
   map<string, string>::iterator it = messages.begin();
-  struct json_object *obj = json_object_new_object();
   while( it != messages.end() ){
-    int message_size = (*it).second.size() + 1;
-    int channel_size = (*it).first.size() + 1;
-    char* message_str = (char*)calloc(1, sizeof(message_size));
-    char* channel_str = (char*)calloc(1, sizeof(channel_size));
+    string key = "\"" + (*it).first + "\"";
+    string val = "\"" + (*it).second + "\"";
 
-    //strncpy(message_str, (*it).second);
-    memcpy(message_str, (*it).second.c_str(), message_size);
-    //strncpy(channel_str, (*it).first);
-    memcpy(channel_str, (*it).first.c_str(), channel_size);
-    cout << "\""<< (*it).first.c_str() << "\"" << endl;
-    cout << "\""<< channel_size << "\"" << endl;
-    json_object *message = json_object_new_string(message_str);
-    json_object_object_add(obj,
-                           channel_str,
-                           message);
-    //free(message_str);
-    //free(channel_str);
-    //evbuffer_add( buf, (*it).first.c_str(), strlen((*it).first.c_str()) );  // channnel
-    //evbuffer_add( buf, (*it).second.c_str(), strlen((*it).second.c_str()) );
-
+    resp += key + ":" + val + ",";
     ++it;
   }
-  char *json_str = json_object_to_json_string (obj);
-  evbuffer_add( buf, json_str, strlen(json_str) );  
-  //free(json_str);
-  //json_object_put(obj);
-  
-  evhttp_send_reply( this->req, HTTP_OK, "OK", buf );
-  this->req = NULL;
-  this->conn = NULL;
+  resp += "}";
+
+  evhttp_add_header(req->output_headers, "Content-type","application/x-javascript; charset=utf-8");
+
+  ostringstream csize;
+  csize << resp.size();
+  evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
+
+  evbuffer_add( buf, resp.c_str(), resp.size() );
+  evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  evbuffer_free(buf);
 }

@@ -30,7 +30,8 @@
   irc_user = irc_nonwhite irc_nonwhite*;
   irc_chstring = ^(0x20| 0x07 | 0x0 | 0xd | 0xa | ',');
   irc_mask = ('#' | '$') irc_chstring;
-  irc_nick = irc_letter (irc_letter | irc_number| irc_special)*;
+#  irc_nick = irc_letter (irc_letter | irc_number| irc_special)*;
+  irc_nick = (irc_letter | irc_special) (irc_letter | irc_number| irc_special)*;
   hostname_name = irc_letter (irc_letter | irc_number | '-')* (irc_letter | irc_number);
   irc_hostname = hostname_name ('.' hostname_name)*;
   irc_servername = irc_hostname;

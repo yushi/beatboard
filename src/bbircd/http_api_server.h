@@ -3,12 +3,11 @@
 #include <event.h>
 #include <evhttp.h>
 #include <iostream>
+#include <sstream>
 #include "irc_client_operation.h"
 #include "bblogger.h"
-#include <json/json.h>
 namespace BeatBoard{
   class HTTPAPIServer  : public IRCClientOperation {
-    //class HTTPAPIServer{
   public:
     HTTPAPIServer();
     ~HTTPAPIServer();
@@ -16,6 +15,7 @@ namespace BeatBoard{
     static void rootHandler( struct evhttp_request *req, void *arg );
     static void connectHandler( struct evhttp_request *req, void *arg );
     static void joinHandler( struct evhttp_request *req, void *arg );
+    static void exitHandler( struct evhttp_request *req, void *arg );    
     static void speakHandler( struct evhttp_request *req, void *arg );    
     static void readHandler( struct evhttp_request *req, void *arg );    
     struct event_base *http_ev_base;

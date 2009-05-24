@@ -5,8 +5,6 @@
 #include "irc_client_operation.h"
 #include "http_api_server.h"
 
-//#include <event.h>
-
 char *http_api_server_addr = "0.0.0.0";
 int http_api_server_port = 8000;
 
