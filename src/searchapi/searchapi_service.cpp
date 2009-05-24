@@ -63,11 +63,14 @@ BeatBoard::SearchApiService::RpcFunc(google::protobuf::RpcController* controller
   {
     response->set_result(result);
     std::cout << "OK: " << response->result() << std::endl;
+    response->set_result_code(SEARCHAPI_RESULT_OK);
   }
   else 
   {
+    result = " "; // "" does not work at protobuf serialize
     response->set_result(result);
-    response->set_error("message wasn't set");
+    response->set_result_code(SEARCHAPI_RESULT_ERROR);
+//    response->set_error("message wasn't set");
     std::cout << "NG: " << response->result() << std::endl;
   }
   done->Run();
@@ -82,6 +85,7 @@ BeatBoard::SearchApiService::searchDB( std::string& query, std::string& result )
   {
     ret = getMemcachedData(query, result);
   }
+
   if (!ret)
   {
     std::cerr << "select drizzle " << std::endl;
@@ -117,6 +121,7 @@ BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& r
   else
   {
     std::cerr << "select failure" << std::endl;
+    ret = false;
   }
 
   return ret;
@@ -179,6 +184,7 @@ BeatBoard::SearchApiService::drizzleResultToJson( std::string& result )
   }
 
   result = std::string(json_object_to_json_string(my_object));
+  json_object_put(my_object);
   return ret;
 }
 
@@ -205,7 +211,7 @@ BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_object )
     }
     else if ( drizzle_response.ret != DRIZZLE_RETURN_OK)
     {
-      std::cerr << "drizzle_field_read: " << client->drizzle_client_error() << std::endl;
+      std::cerr << "drizzle_field_read: " << client->client_error() << std::endl;
       return false;
     }
 

@@ -12,7 +12,6 @@ CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
 endif
 
-
 LIBLDFLAGS = -levent -lprotobuf
 LIBS = -L/usr/local/lib -L.
 INCLUDES = -I.
@@ -44,12 +43,17 @@ CLIENT_MAIN = sample_rpc_client.cpp
 CLIENT_SRCS = $(COMMON_SRCS)
 CLIENT_OBJS = $(CLIENT_SRCS:.cc=.o)
 
+EVHTTP_TARGET = evhttp_client
+EVHTTP_SRCS = sample_rpc_client_evhttp.cpp\
+			sample_rpc_client_evhttp_main.cpp
+EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
+
 all: $(TARGET)
 
 $(TARGET): $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(CLIBFLAGS) $(LIB_OBJS) $(LIBLDFLAGS) -o $(TARGET)
 
-sample: $(PROTOC_TARGET) $(SERVER_TARGET) $(CLIENT_TARGET)
+sample: $(PROTOC_TARGET) $(SERVER_TARGET) $(CLIENT_TARGET) $(EVHTTP_TARGET)
 
 $(PROTOC_TARGET):
 	$(PROTOC) $(PROTOFLAGS) $(PROTOSRC)
@@ -59,6 +63,9 @@ $(SERVER_TARGET): $(SERVER_OBJS)
 
 $(CLIENT_TARGET): $(CLIENT_OBJS)
 	$(CC) $(SAMPLECFLAGS) $(CLIENT_MAIN) $(CLIENT_OBJS) $(LIBS) $(LDFLAGS) -o $(CLIENT_TARGET)
+
+$(EVHTTP_TARGET): $(EVHTTP_OBJS)
+	$(CC) $(SAMPLECFLAGS) $(EVHTTP_OBJS) -o $(EVHTTP_TARGET) -levent
 
 .cpp.o:
 	$(CC) -c $(CFLAGS) $<
