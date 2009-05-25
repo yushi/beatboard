@@ -96,7 +96,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   logger.debug("CONNECT request");
   struct evbuffer *buf;
   buf = evbuffer_new();
-
+  evhttp_add_header(req->output_headers, "Content-Length","2");
   if ( buf == NULL ) {
     fprintf( stderr, "failed to create response buffer\n" );
     return;
@@ -106,6 +106,10 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   const string server = params["server"];
   const string port = params["port"];
   logger.debug("nick:" + nick + " server:" + server + " port:" + port);
+  if(NULL != instance->getIRCConnection( nick)){
+      evbuffer_add_printf( buf, "OK" );      
+      evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  }
 
   IRCConnection *conn = NULL;
   conn = instance->getIRCConnection( nick );
@@ -114,14 +118,14 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
       IRCConnection *newConnection = new IRCConnection(nick);
       instance->setIRCConnection( nick, newConnection );
       newConnection->connectIRCServer(server, port);
-      
+      evbuffer_add_printf( buf, "OK" );      
     }catch ( BeatBoard::Exception& error ) {
       logger.debug( error.message.data() );
       cerr << "irc coonection error\n";
+      evbuffer_add_printf( buf, "NG" );
     }
-    
   }
-  evbuffer_add_printf( buf, "This is CONNECT API" );
+
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
   evbuffer_free(buf);  
   return;

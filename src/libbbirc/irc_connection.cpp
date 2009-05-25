@@ -118,11 +118,10 @@ void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw 
   if ( 0 != result  ) {
     throw Exception( "error: invalid address" );
   }
-  
-  if ( -1 == connect( this->sock, addrinfo->ai_addr, addrinfo->ai_addrlen ) ) {
-    // TODO error handling
-    printf( "connect failed\n" );
-    exit( -1 );
+
+  if ( 0 != connect( this->sock, addrinfo->ai_addr, addrinfo->ai_addrlen ) ) {
+    // TODO error handling, addrinfo free
+    throw Exception( "connect: failed" );
   }
   freeaddrinfo(addrinfo);
 
