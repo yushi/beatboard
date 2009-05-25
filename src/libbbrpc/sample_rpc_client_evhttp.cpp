@@ -13,6 +13,24 @@ SampleRpcClientEvhttp::~SampleRpcClientEvhttp()
 }
 
 bool
+SampleRpcClientEvhttp::find_header( const struct evkeyvalq* headers,
+                                    const std::string& key,
+                                    std::string& val )
+{
+  bool ret = false;
+
+  const char *query_val = evhttp_find_header(headers, key.c_str());
+
+  if (query_val != NULL)
+  {
+    std::cerr << query_val << std::endl;
+    val = std::string(query_val);
+    ret = true;
+  }
+  return ret;
+}
+
+bool
 SampleRpcClientEvhttp::start( const std::string& uri,
                               void (*cb)(struct evhttp_request *, void *))
 {

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sys/queue.h>
 
 #include "searchapi.pb.h"
 
@@ -75,9 +76,27 @@ void searchHandler( struct evhttp_request *req, void *arg )
 
   buf = evbuffer_new();
   if (buf) {
-    result = DoSearch("e");
-    //evbuffer_add_printf(buf, "Hello Search Handler");
-    evbuffer_add_printf(buf, result);
+    struct evkeyvalq headers;
+    TAILQ_INIT(&headers);
+    std::cerr << std::string(req->uri) << std::endl;
+    evhttp_parse_query(req->uri, &headers);
+
+    std::string key = "q";
+    std::string val = "";
+
+    if (SampleRpcClientEvhttp::find_header(&headers, key, val))
+    {
+      char *escaped_val = evhttp_htmlescape(val.c_str());
+      std::cerr << escaped_val << std::endl;
+      result = DoSearch(escaped_val);
+      evbuffer_add_printf(buf, result);
+      free(escaped_val);
+    }
+    else
+    {
+      std::cerr << "not find" << std::endl;
+    }
+    evhttp_clear_headers(&headers);
     evhttp_send_reply(req, HTTP_OK, "OK", buf);
   }
   else
