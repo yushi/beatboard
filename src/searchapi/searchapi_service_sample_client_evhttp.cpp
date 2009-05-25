@@ -20,7 +20,7 @@ searchapi::Response response;
 const std::string host = "127.0.0.1";
 const int port = 1235;
 
-void Done2( searchapi::Response* response_ ) {
+void debug( searchapi::Response* response_ ) {
   std::cout << "Done2" << std::endl;
   std::cout << "result code: " << response_->result_code() << std::endl;
   std::cout << "result: " << response_->result() << std::endl;
@@ -29,10 +29,9 @@ void Done2( searchapi::Response* response_ ) {
   delete controller;
 }
 
-void Done()
+void callback()
 {
-  std::cout << "Done1" << std::endl;
-  Done2( &response );
+  debug( &response );
 }
 
 void Search( std::string query ) {
@@ -44,8 +43,8 @@ void Search( std::string query ) {
   request.set_query(query);
   std::cout << "query: " << request.query() << std::endl;
 
-  google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
-  service->RpcFunc(controller, &request, &response, callback);
+  google::protobuf::Closure* cb = google::protobuf::NewCallback(&callback);
+  service->RpcFunc(controller, &request, &response, cb);
 }
 
 const char* DoSearch(char *query) {
@@ -58,11 +57,13 @@ const char* DoSearch(char *query) {
   }
   else if (response.result_code() == BeatBoard::SEARCHAPI_RESULT_ERROR)
   {
-    result = "Search Faild";
+    // Search Failed
+    result = "{}";
   }
   else
   {
-    result = "Unknow ret code";
+    // Unknown ret code
+    result = "{}";
   }
   return result.c_str();
 }
@@ -75,7 +76,7 @@ void searchHandler( struct evhttp_request *req, void *arg )
   buf = evbuffer_new();
   if (buf) {
     result = DoSearch("e");
-    evbuffer_add_printf(buf, "Hello Search Handler");
+    //evbuffer_add_printf(buf, "Hello Search Handler");
     evbuffer_add_printf(buf, result);
     evhttp_send_reply(req, HTTP_OK, "OK", buf);
   }
@@ -87,7 +88,7 @@ void searchHandler( struct evhttp_request *req, void *arg )
 
 int main() {
   std::string host = "127.0.0.1";
-  int port = 8080;
+  int port = 8081;
   std::string uri = "/search";
   SampleRpcClientEvhttp* server =  new SampleRpcClientEvhttp(host, port);
   

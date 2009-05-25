@@ -27,8 +27,8 @@ namespace BeatBoard {
 
     bool searchDB( std::string& query, std::string& result );
     bool drizzleResultToJson( std::string& result );
-    bool readDrizzleField( struct json_object* my_object );
-    void fieldToJsonArray( struct json_object* my_object,
+    bool readDrizzleField( struct json_object* my_array );
+    void fieldToJsonArray( struct json_object* my_array,
                            std::vector<std::string>& field_data );
 	bool searchDrizzleDB( std::string& query, std::string& result );
 	bool setMemcachedData( std::string& query, std::string& result );

@@ -8,7 +8,7 @@ LIBLDFLAGS = -lprotobuf -lbbrpc
 LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon
 
-SAMPLECFLAGS = $(COMMON_CFLAGS)
+SAMPLECFLAGS = $(CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc
 PROTOC = protoc
 PROTOFLAGS = --cpp_out=.
@@ -42,7 +42,14 @@ SWIG_LDFLAGS = -lprotobuf -lbbrpc -lpython
 SWIG_SRCS = searchapi_service_sample_client.cpp\
 			searchapi_service_sample_client_wrap.cxx\
 			searchapi.pb.cc
-SWIG_OBJS = $(SWIG_SRCS:.cpp=.o) 
+SWIG_OBJS = $(SWIG_SRCS:.cpp=.o)
+
+EVHTTP_TARGET = evhttp_search_client
+EVHTTP_SRCS = ../libbbrpc/sample_rpc_client_evhttp.cpp\
+			searchapi_service_sample_client_evhttp.cpp\
+			searchapi.pb.cc\
+			searchapi_service_common.cpp
+EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
 
 all: $(PROTOBUF_SRC) $(SERVER_TARGET) 
 
@@ -55,7 +62,10 @@ $(SERVER_TARGET): $(SERVER_OBJS)
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $<
 
-sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET) $(PYTHON_WRRAPER_TARGET)
+sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET) $(EVHTTP_TARGET)
+
+$(EVHTTP_TARGET):
+	$(CC) $(CFLAGS) $(EVHTTP_SRCS) -o $(EVHTTP_TARGET) $(LIBS) $(INCLUDES) $(LDFLAGS) -levent
 
 $(PROTOBUF_SRC):
 	$(PROTOC) $(PROTOFLAGS) $(PROTOSRC)

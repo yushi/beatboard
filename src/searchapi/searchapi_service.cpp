@@ -177,12 +177,15 @@ BeatBoard::SearchApiService::drizzleResultToJson( std::string& result )
 {
   bool ret = false;
   struct json_object *my_object = json_object_new_object();
+  struct json_object *my_array = json_object_new_array();
+  char *label = "messages";
 
   while ( drizzle_row_read(&drizzle_response.result, &drizzle_response.ret) != 0 && drizzle_response.ret == DRIZZLE_RETURN_OK )
   {
-    ret = readDrizzleField( my_object );
+    //ret = readDrizzleField( my_object );
+    ret = readDrizzleField( my_array );
   }
-
+  json_object_object_add(my_object, label, my_array);
   result = std::string(json_object_to_json_string(my_object));
   json_object_put(my_object);
   return ret;
@@ -190,7 +193,7 @@ BeatBoard::SearchApiService::drizzleResultToJson( std::string& result )
 
 
 bool
-BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_object )
+BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_array )
 {
   drizzle_field_t field;
   size_t offset;
@@ -205,7 +208,7 @@ BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_object )
     if ( drizzle_response.ret == DRIZZLE_RETURN_ROW_END)
     {
       std::cerr << "row end" << std::endl;
-      fieldToJsonArray( my_object, field_data );
+      fieldToJsonArray( my_array, field_data );
       field_data.clear();
       break;
     }
@@ -225,11 +228,11 @@ BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_object )
 }
 
 void
-BeatBoard::SearchApiService::fieldToJsonArray( struct json_object* my_object,
+BeatBoard::SearchApiService::fieldToJsonArray( struct json_object* my_array,
                                                std::vector<std::string>& field_data )
 {
-  struct json_object *my_array;
-  my_array = json_object_new_array();
+  struct json_object *array;
+  array = json_object_new_array();
 
   std::vector<std::string>::iterator it = field_data.begin();
   it += 2; // skip added_id, id
@@ -240,6 +243,7 @@ BeatBoard::SearchApiService::fieldToJsonArray( struct json_object* my_object,
   char *c_ts;
   c_ts = (char *)malloc(sizeof(char) * ts.size() + 1);
   std::strncpy(c_ts, ts.c_str(), ts.size() + 1);
+  json_object_array_add(array, json_object_new_string(c_ts));
   
   for( ; it != field_data.end(); ++it )
   {
@@ -247,9 +251,11 @@ BeatBoard::SearchApiService::fieldToJsonArray( struct json_object* my_object,
     char *c_char;
     c_char = (char *)malloc(sizeof(char) * it->size() + 1);
     std::strncpy(c_char, it->c_str(), it->size() + 1);
-    json_object_array_add(my_array, json_object_new_string(c_char));
+    //json_object_array_add(my_array, json_object_new_string(c_char));
+    json_object_array_add(array, json_object_new_string(c_char));
     free(c_char);
   }
-  json_object_object_add(my_object, c_ts, my_array);
+//  json_object_object_add(my_object, c_ts, my_array);
+  json_object_array_add(my_array, array);
   free(c_ts);
 }
