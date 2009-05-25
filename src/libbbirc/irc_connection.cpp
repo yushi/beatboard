@@ -52,7 +52,10 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         string channel = *(hoge->params[0]);
         string message = *(hoge->params[1]);
         string prefix = *(hoge->prefix);
-        irc_conn->received[channel] += (prefix + ": " + message);
+
+        irc_conn->received[channel].push_back(prefix);
+        irc_conn->received[channel].push_back(message);
+
         BeatBoard::Notifier* notifier = irc_conn->getNotifier();
         if( notifier != NULL){
           notifier->notify((void*)NULL);
@@ -201,7 +204,7 @@ BeatBoard::IRCConnection::~IRCConnection(){
 }
 
 bool BeatBoard::IRCConnection::hasMessage(){
-  map<string, string>::iterator it = this->received.begin();
+  map<string, vector<string>  >::iterator it = this->received.begin();
   while( it != this->received.end() ){
     if((*it).second.size() != 0){
       return true;
@@ -211,11 +214,12 @@ bool BeatBoard::IRCConnection::hasMessage(){
   return false;
 }
 
-map<string, string> BeatBoard::IRCConnection::getMessage(){
-  map<string,string> ret =  map<string,string>(this->received);
+map<string, vector<string> > BeatBoard::IRCConnection::getMessage(){
+  map<string, vector<string> > ret =  map<string, vector<string> >(this->received);
   this->received.clear();
   return ret;
 }
+
 
 BeatBoard::Notifier::~Notifier(){
 }
