@@ -10,7 +10,7 @@
 #include "bb_rpc_controller.h"
 #include "searchapi_service_common.h"
 
-#include "sample_rpc_client_evhttp.h"
+#include "bb_rpc_client_evhttp.h"
 
 google::protobuf::RpcChannel* channel;
 google::protobuf::RpcController* controller;
@@ -84,7 +84,7 @@ void searchHandler( struct evhttp_request *req, void *arg )
     std::string key = "q";
     std::string val = "";
 
-    if (SampleRpcClientEvhttp::find_header(&headers, key, val))
+    if (BBRpcClientEvhttp::find_header(&headers, key, val))
     {
       char *escaped_val = evhttp_htmlescape(val.c_str());
       std::cerr << escaped_val << std::endl;
@@ -109,7 +109,7 @@ int main() {
   std::string host = "127.0.0.1";
   int port = 8081;
   std::string uri = "/search";
-  SampleRpcClientEvhttp* server =  new SampleRpcClientEvhttp(host, port);
+  BBRpcClientEvhttp* server =  new BBRpcClientEvhttp(host, port);
   
   server->start(uri, &searchHandler);
   return 0;
