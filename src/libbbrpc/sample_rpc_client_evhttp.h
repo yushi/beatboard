@@ -20,6 +20,10 @@ public:
   ~SampleRpcClientEvhttp();
   bool start( const std::string& uri,
               void (*cb)(struct evhttp_request *, void *) );
+  static bool find_header( const struct evkeyvalq* headers,
+						   const std::string& key,
+						   std::string& val );
+
 };
 
 #endif
