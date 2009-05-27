@@ -31,7 +31,8 @@ BBRpcClientEvhttp::find_header( const struct evkeyvalq* headers,
 
 bool
 BBRpcClientEvhttp::start( const std::string& uri,
-                              void (*cb)(struct evhttp_request *, void *))
+                          void (*cb)(struct evhttp_request *, void *),
+                          void *arg)
 {
   http_ev_base = event_init();
   httpd = evhttp_new( http_ev_base );
@@ -40,7 +41,7 @@ BBRpcClientEvhttp::start( const std::string& uri,
   if ( httpd )
   {
     evhttp_set_cb(httpd, "/", BBRpcClientEvhttp::rootHandler, NULL);
-    evhttp_set_cb(httpd, uri.c_str(), cb, NULL);
+    evhttp_set_cb(httpd, uri.c_str(), cb, arg);
 
     event_dispatch();
     evhttp_free(httpd);

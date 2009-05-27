@@ -19,7 +19,8 @@ public:
   BBRpcClientEvhttp( const std::string& host, const int port );
   ~BBRpcClientEvhttp();
   bool start( const std::string& uri,
-              void (*cb)(struct evhttp_request *, void *) );
+              void (*cb)(struct evhttp_request *, void *),
+              void *arg);
   static bool find_header( const struct evkeyvalq* headers,
 						   const std::string& key,
 						   std::string& val );
