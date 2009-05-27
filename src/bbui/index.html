@@ -7,7 +7,7 @@
     <script type="text/javascript" src="./jquery-1.3.2.min.js"></script>
     <form  id="connect" onsubmit="javascript:return connectServer();"> 
 
-      server<input id="server" type="text" value="irc.freenode.net" />
+      server<input id="server" type="text" value="127.0.0.1" />
       name<input id="nick" type="text" value="yushi_bbdev" />
       port<input id="port" type="text" value="6667" />
       <input type="submit" value="connect">
@@ -17,6 +17,7 @@
     <div id="join_channel"></div>
     <div id="send_message"></div>
 
+    <div id="joiners"></div>
     <div id="status"></div>
     <div id="debug"></div>    
     <script type="text/javascript" src="./bbui.js"></script>

@@ -44,14 +44,14 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
     str_stream << string(buf);
   }
   while(str_stream.getline(buf, 1024)){
-    BeatBoard::IRCEvent *hoge = BeatBoard::parse_irc_message(buf);
-    if(hoge != NULL){
-      if(*(hoge->command) == string("PING")){
-        irc_conn->PONG( *(hoge->params[0]) );
-      }else if(*(hoge->command) == string("PRIVMSG")){
-        string channel = *(hoge->params[0]);
-        string message = *(hoge->params[1]);
-        string prefix = *(hoge->prefix);
+    BeatBoard::IRCEvent *event = BeatBoard::parse_irc_message(buf);
+    if(event != NULL){
+      if(*(event->command) == string("PING")){
+        irc_conn->PONG( *(event->params[0]) );
+      }else if(*(event->command) == string("PRIVMSG")){
+        string channel = *(event->params[0]);
+        string message = *(event->params[1]);
+        string prefix = *(event->prefix);
 
         irc_conn->received[channel].push_back(prefix);
         irc_conn->received[channel].push_back(message);
@@ -62,8 +62,17 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
           delete(notifier);
           irc_conn->setNotifier(NULL);
         }
+      }else if(*(event->command) == string("353")){
+        irc_conn->received[*(event->params[2])].push_back(string("__JOINERS__"));
+        irc_conn->received[*(event->params[2])].push_back(*(event->params[3]));
+        BeatBoard::Notifier* notifier = irc_conn->getNotifier();
+        if( notifier != NULL){
+          notifier->notify((void*)NULL);
+          delete(notifier);
+          irc_conn->setNotifier(NULL);
+        }
       }
-      delete hoge;
+      delete event;
     }else{
       //event not found
     }
@@ -179,7 +188,6 @@ void BeatBoard::IRCConnection::JOIN(string channel) throw (Exception){
   string message("JOIN :" + channel);
   this->write(message);
 }
-
 
 void BeatBoard::IRCConnection::PRIVMSG( string channel, string text ) throw (Exception){
   string message("PRIVMSG " + channel + " :" + text);

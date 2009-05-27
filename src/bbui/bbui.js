@@ -96,9 +96,13 @@ function readMessage(nick){
                 eval("received=" + data);
                 var messages = received[active_channel];
                 for(var i = 0; i < messages.length; i+=2){
-                    var displayName = messages[i].match("(.+)!.*")[1];
-                    $("#messages").append(displayName + ": ");
-                    $("#messages").append(messages[i+1] + "<br />");
+                    var match_result = messages[i].match("(.+)!.*");
+                    if(match_result){
+                        $("#messages").append(match_result[1] + ": ");
+                        $("#messages").append(messages[i+1] + "<br />");
+                    }else{
+                        $("#status").html("JOINERS: " + messages[i+1]);
+                    }
                 }
             }catch(e){
 
