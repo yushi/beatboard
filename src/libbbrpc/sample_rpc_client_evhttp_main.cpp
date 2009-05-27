@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sys/queue.h>
 
-#include "sample_rpc_client_evhttp.h"
+#include "bb_rpc_client_evhttp.h"
 
 void testHandler( struct evhttp_request *req, void *arg )
 {
@@ -17,7 +17,7 @@ void testHandler( struct evhttp_request *req, void *arg )
 
     std::string key = "test";
     std::string val = "";
-    if (SampleRpcClientEvhttp::find_header(&headers, key, val))
+    if (BBRpcClientEvhttp::find_header(&headers, key, val))
     {
       char *escaped_val = evhttp_htmlescape(val.c_str());
       std::cerr << escaped_val << std::endl;
@@ -43,7 +43,7 @@ int main (int argc, char *argv[])
   std::string host = "127.0.0.1";
   int port = 8080;
   std::string uri = "/test";
-  SampleRpcClientEvhttp* server =  new SampleRpcClientEvhttp(host, port);
+  BBRpcClientEvhttp* server =  new BBRpcClientEvhttp(host, port);
   
   server->start(uri, &testHandler);
   return 0;

@@ -1,21 +1,20 @@
 #include <sys/queue.h>
-#include "sample_rpc_client_evhttp.h"
+#include "bb_rpc_client_evhttp.h"
 
-
-SampleRpcClientEvhttp::SampleRpcClientEvhttp( const std::string& host, const int port )
+BBRpcClientEvhttp::BBRpcClientEvhttp( const std::string& host, const int port )
 {
   this->host = host;
   this->port = port;
 }
 
-SampleRpcClientEvhttp::~SampleRpcClientEvhttp()
+BBRpcClientEvhttp::~BBRpcClientEvhttp()
 {
 }
 
 bool
-SampleRpcClientEvhttp::find_header( const struct evkeyvalq* headers,
-                                    const std::string& key,
-                                    std::string& val )
+BBRpcClientEvhttp::find_header( const struct evkeyvalq* headers,
+                                const std::string& key,
+                                std::string& val )
 {
   bool ret = false;
 
@@ -31,8 +30,9 @@ SampleRpcClientEvhttp::find_header( const struct evkeyvalq* headers,
 }
 
 bool
-SampleRpcClientEvhttp::start( const std::string& uri,
-                              void (*cb)(struct evhttp_request *, void *))
+BBRpcClientEvhttp::start( const std::string& uri,
+                          void (*cb)(struct evhttp_request *, void *),
+                          void *arg)
 {
   http_ev_base = event_init();
   httpd = evhttp_new( http_ev_base );
@@ -40,8 +40,8 @@ SampleRpcClientEvhttp::start( const std::string& uri,
   httpd = evhttp_start( host.c_str(), port );
   if ( httpd )
   {
-    evhttp_set_cb(httpd, "/", SampleRpcClientEvhttp::rootHandler, NULL);
-    evhttp_set_cb(httpd, uri.c_str(), cb, NULL);
+    evhttp_set_cb(httpd, "/", BBRpcClientEvhttp::rootHandler, NULL);
+    evhttp_set_cb(httpd, uri.c_str(), cb, arg);
 
     event_dispatch();
     evhttp_free(httpd);
@@ -53,7 +53,7 @@ SampleRpcClientEvhttp::start( const std::string& uri,
 }
 
 void
-SampleRpcClientEvhttp::rootHandler(struct evhttp_request *req, void *arg)
+BBRpcClientEvhttp::rootHandler(struct evhttp_request *req, void *arg)
 {
   struct evbuffer *buf;
   buf = evbuffer_new();

@@ -44,7 +44,7 @@ CLIENT_SRCS = $(COMMON_SRCS)
 CLIENT_OBJS = $(CLIENT_SRCS:.cc=.o)
 
 EVHTTP_TARGET = evhttp_client
-EVHTTP_SRCS = sample_rpc_client_evhttp.cpp\
+EVHTTP_SRCS = bb_rpc_client_evhttp.cpp\
 			sample_rpc_client_evhttp_main.cpp
 EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
 
