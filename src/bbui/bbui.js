@@ -41,7 +41,9 @@ function checkLoader(){
 function connect(server, nickname, port){
     nick = nickname;
     $.get("/api/CONNECT?server=" + server + "&nick=" + nick + "&port=" + port, function(data){
-        if(data.match('^OK$')){
+        eval("obj=" + data);
+        $("#status").html(obj["reason"]);
+        if(obj["status"].match('^OK$')){
             $("#connect").toggle();
             $("#join_channel").append(
                 '<form  id="join_form" onsubmit="javascript:return joinChannel();">' +
@@ -58,16 +60,20 @@ function join(channel, nick){
     var url = '/api/JOIN?channel=' + escape(channel) + "&nick=" + nick;
     active_channel = channel;
     $.get(url, function(data){
-        $("#send_message").append(
-            '<form id="message_form" onsubmit="javascript:return sendMessage(this);">' +
-                '<input id="nick" type="hidden" value="' + nick + '"></input>' +
-                '<input id="target" type="hidden" value="' + channel + '"></input>' +
-                'message<input id="message" type="text" ></input>' +
-                '</form>'
-        );
-        $("#join_channel").toggle();
-        $("#head").append(channel);
-        setInterval(checkLoader, 1000);
+        eval("obj=" + data);
+        $("#status").html(obj["reason"]);
+        if(obj["status"].match('^OK$')){
+            $("#send_message").append(
+                '<form id="message_form" onsubmit="javascript:return sendMessage(this);">' +
+                    '<input id="nick" type="hidden" value="' + nick + '"></input>' +
+                    '<input id="target" type="hidden" value="' + channel + '"></input>' +
+                    'message<input id="message" type="text" ></input>' +
+                    '</form>'
+            );
+            $("#join_channel").toggle();
+            $("#head").append(channel);
+            setInterval(checkLoader, 1000);
+        }
     });
 }
 

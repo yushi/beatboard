@@ -89,6 +89,12 @@ map<string, string> BeatBoard::HTTPAPIServer::parseParameter(char* uri){
   return ret;
 }
 
+string create_simple_response(bool status, char* reason){
+  string res = "{'status': ";
+  res += (status ? string("'OK'") : string("'NG'")) + string(", ");
+  res += "'reason' : '" + string(reason) + "'}";
+  return res;
+}
 
 void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void *arg ) {
   HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
@@ -96,37 +102,47 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   logger.debug("CONNECT request");
   struct evbuffer *buf;
   buf = evbuffer_new();
-  evhttp_add_header(req->output_headers, "Content-Length","2");
+
   if ( buf == NULL ) {
     fprintf( stderr, "failed to create response buffer\n" );
     return;
   }
+
   map<string, string> params = instance->parseParameter(req->uri);
   const string nick = params[string("nick")];
   const string server = params["server"];
   const string port = params["port"];
   logger.debug("nick:" + nick + " server:" + server + " port:" + port);
-  if(NULL != instance->getIRCConnection( nick)){
-      evbuffer_add_printf( buf, "OK" );      
-      evhttp_send_reply( req, HTTP_OK, "OK", buf );
-  }
-
+  
   IRCConnection *conn = NULL;
   conn = instance->getIRCConnection( nick );
-  if(conn == NULL ){
-    try{
+  string res;
+  try{
+    if(NULL == conn){
       IRCConnection *newConnection = new IRCConnection(nick);
       instance->setIRCConnection( nick, newConnection );
       newConnection->connectIRCServer(server, port);
-      evbuffer_add_printf( buf, "OK" );      
-    }catch ( BeatBoard::Exception& error ) {
-      logger.debug( error.message.data() );
-      cerr << "irc coonection error\n";
-      evbuffer_add_printf( buf, "NG" );
+      res = create_simple_response(true, "connection created");
+      evbuffer_add_printf( buf,  res.c_str());
+    }else{
+      res = create_simple_response(true, "connection found");
+      evbuffer_add_printf( buf,  res.c_str());
     }
-  }
+    ostringstream csize;
+    csize << res.size();
+    evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
+    evhttp_send_reply( req, HTTP_OK, "OK", buf );
 
-  evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  }catch ( BeatBoard::Exception& error ) {
+    logger.debug( error.message.data() );
+    cerr << "irc coonection error\n";
+    res = create_simple_response(true, "connection create failed");
+    evbuffer_add_printf( buf,  res.c_str());
+    ostringstream csize;
+    csize << res.size();
+    evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
+    evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  }
   evbuffer_free(buf);  
   return;
 }
@@ -167,16 +183,25 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
   const string nick = params[string("nick")];
   const string channel = params["channel"];
   logger.debug("nick:" + nick + " channel:" + channel);  
+  string res;
   try{
     IRCConnection *conn = instance->getIRCConnection( nick );
     conn->JOIN(channel);
     
-    evbuffer_add_printf( buf, "This is JOIN API" );
-    evhttp_send_reply( req, HTTP_OK, "OK", buf );
+    //evbuffer_add_printf( buf, "This is JOIN API" );
+    //evhttp_send_reply( req, HTTP_OK, "OK", buf );
+    res = create_simple_response(true, "joined");
+    evbuffer_add_printf( buf,  res.c_str());
   } catch ( BeatBoard::Exception& error ) {
     logger.debug( error.message.data() );
     cerr << "irc coonection error\n";
+    res = create_simple_response(true, "join failed");
+    evbuffer_add_printf( buf,  res.c_str());
   }
+  ostringstream csize;
+  csize << res.size();
+  evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
+  evhttp_send_reply( req, HTTP_OK, "OK", buf );
   evbuffer_free(buf);
 }
 
