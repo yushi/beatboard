@@ -31,6 +31,14 @@ CLIENT_SRCS = $(COMMON_SRCS)\
 	      		authapi_service_common.cpp
 CLIENT_OBJS = $(CLIENT_SRCS:.cpp=.o)
 
+EVHTTP_TARGET = evhttp_auth_client
+EVHTTP_SRCS = ../libbbrpc/bb_rpc_client_evhttp.cpp\
+			authapi.pb.cc\
+			authapi_service_common.cpp\
+			authapi_service_sample_client_evhttp.cpp
+EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
+
+
 all: $(PROTOBUF_SRC) $(SERVER_TARGET) 
 
 $(SERVER_TARGET): $(SERVER_OBJS)
@@ -42,7 +50,10 @@ $(SERVER_TARGET): $(SERVER_OBJS)
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $<
 
-sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET)
+sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET) $(EVHTTP_TARGET)
+
+$(EVHTTP_TARGET):
+	$(CC) $(CFLAGS) $(EVHTTP_SRCS) -o $(EVHTTP_TARGET) $(LIBS) $(INCLUDES) $(LDFLAGS) -levent
 
 $(PROTOBUF_SRC):
 	$(PROTOC) $(PROTOFLAGS) $(PROTOSRC)

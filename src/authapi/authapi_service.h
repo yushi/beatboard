@@ -22,7 +22,8 @@ namespace BeatBoard {
     std::string table_name;
 
     bool insertAccountToDB( const std::string& username, 
-							const std::string& password, 
+							const std::string& password,
+							const std::string& userinfo,
 							std::string& result );
     bool verifyAccountFromDB( const std::string& username, 
 							  const std::string& password,

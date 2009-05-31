@@ -28,6 +28,7 @@ BeatBoard::AuthApiService::RpcFunc(google::protobuf::RpcController* controller,
   unsigned int type = request->type();
   std::string username = ApiCommon::escape(request->username());
   std::string password = ApiCommon::escape(request->password());
+  std::string userinfo = ApiCommon::escape(request->userinfo());
   std::string result;
   
   std::cout << "type: " << type << std::endl;
@@ -37,7 +38,7 @@ BeatBoard::AuthApiService::RpcFunc(google::protobuf::RpcController* controller,
   if (type == AUTHAPI_ADD_USER)
   {
       std::cout << "add user" << std::endl;
-      bool ret = insertAccountToDB( username, password, result );
+      bool ret = insertAccountToDB( username, password, userinfo, result );
       if (ret)
       {
         response->set_result(AUTHAPI_ACCOUNT_INSERT_OK);
@@ -65,7 +66,6 @@ BeatBoard::AuthApiService::RpcFunc(google::protobuf::RpcController* controller,
   else if (type == AUTHAPI_UPDATE_USERINFO)
   {
       std::cout << "update user info" << std::endl;
-      std::string userinfo = ApiCommon::escape(request->userinfo());
 
       bool ret = updateUserInfoToDB( username, password, userinfo, result );
       if (ret)
@@ -207,6 +207,7 @@ BeatBoard::AuthApiService::getPasswordFromField(std::string& password)
 bool
 BeatBoard::AuthApiService::insertAccountToDB( const std::string& username, 
                                               const std::string& password,
+                                              const std::string& userinfo,
                                               std::string& result )
 {
   bool ret = false;
@@ -222,7 +223,7 @@ BeatBoard::AuthApiService::insertAccountToDB( const std::string& username,
     std::string insert_columns_and_source;
 
     insert_columns_and_source = "values (0,\'" + std::string(uuidstr) +
-      "\', null, \'" + username + "\', \'" + password + "\', null )";
+      "\', null, \'" + username + "\', \'" + password + "\', \'" + userinfo + "\' )";
     std::cout << insert_columns_and_source << std::endl;
     ret = client->insert(table_name, insert_columns_and_source, response);
     if (!ret)
