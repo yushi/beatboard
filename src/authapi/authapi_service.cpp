@@ -177,30 +177,32 @@ BeatBoard::AuthApiService::getPasswordFromField(std::string& password)
   size_t size;
   size_t total;
 
-  while ( drizzle_row_read(&response.result, &response.ret) != 0 && response.ret == DRIZZLE_RETURN_OK )
+//  while ( drizzle_row_read(&response.result, &response.ret) != 0 && response.ret == DRIZZLE_RETURN_OK )
+//  {
+  while (1)
   {
-    while (1)
+    field= drizzle_field_read(&response.result, &offset, &size, &total, &response.ret);
+    if (response.ret == DRIZZLE_RETURN_ROW_END)
     {
-      field= drizzle_field_read(&response.result, &offset, &size, &total, &response.ret);
-      if (response.ret == DRIZZLE_RETURN_ROW_END)
-      {
-        std::cout << "row end" << std::endl;
-        break;
-      }
-      else if (response.ret != DRIZZLE_RETURN_OK)
-      {
-        std::cout << "row ng" << std::endl;
-        std::cout << "drizzle_field_read: " << client->client_error() << std::endl;
-        return false;
-      }
+      std::cout << "row end" << std::endl;
+      break;
+    }
+    else if (response.ret != DRIZZLE_RETURN_OK)
+    {
+      std::cout << "row ng" << std::endl;
+      std::cout << "drizzle_field_read: " << client->client_error() << std::endl;
+      return false;
+    }
 
-      if (field != NULL)
-      {
-        password = std::string(field);
-        password.erase(password.size() - 1, 1); // chop!
-      }
+    if (field != NULL)
+    {
+      std::cerr << "field: " << field << std::endl;
+      password = std::string(field);
+      password.erase(password.size() - 1, 1); // chop!
     }
   }
+//}
+  readDrizzleRow();
   return true;
 }
 

@@ -38,8 +38,10 @@ void DoSearch() {
   request.set_type(BeatBoard::AUTHAPI_ADD_USER);
   request.set_username("hoge7");
   request.set_password("hoge");
+  request.set_userinfo("12345");
   std::cout << "username: " << request.username() << std::endl;
   std::cout << "password: " << request.password() << std::endl;
+  std::cout << "userinfo: " << request.userinfo() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback);
@@ -47,8 +49,10 @@ void DoSearch() {
   request.set_type(BeatBoard::AUTHAPI_VERIFY_USER);
   request.set_username("hoge7");
   request.set_password("hoge");
+  request.set_userinfo("12345");
   std::cout << "username: " << request.username() << std::endl;
   std::cout << "password: " << request.password() << std::endl;
+  std::cout << "userinfo: " << request.userinfo() << std::endl;
 
   google::protobuf::Closure* callback2 = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback2);

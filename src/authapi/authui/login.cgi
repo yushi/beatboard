@@ -18,7 +18,8 @@ def fieldstorage_to_dict(form):
 def redirect_api(form):
     url = 'http://localhost:8082/auth'
     field = fieldstorage_to_dict(form)
-    field['mode'] = 'ADD_USER' # CREATE NEW USER ACCOUNT
+    field['m'] = '' # dummy
+    field['mode'] = 'VERIFY_USER' # CREATE NEW USER ACCOUNT
     params = urlencode(field)
     f = urlopen(url + '?' + params)
     data = f.read()
@@ -29,7 +30,7 @@ def validate_field(form, keys):
 
 def main():
     header()
-    keys = ["n", "p", "m"]
+    keys = ["n", "p"]
     form = cgi.FieldStorage()
     if (validate_field(form, keys)):
         #print("correct query %s" % [form[key].value for key in keys])

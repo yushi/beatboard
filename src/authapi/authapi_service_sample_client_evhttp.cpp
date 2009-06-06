@@ -48,20 +48,23 @@ void updateUserInfo()
   service->RpcFunc(controller, &request, &response, callback);
 }
 
-void verifyUser()
+unsigned int
+verifyUser( std::map<std::string, std::string> params )
 {
   request.set_type(BeatBoard::AUTHAPI_VERIFY_USER);
-  request.set_username("hoge7");
-  request.set_password("hoge");
+  request.set_username(params["name"]);
+  request.set_password(params["pass"]);
   std::cout << "username: " << request.username() << std::endl;
   std::cout << "password: " << request.password() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback);
+
+  return response.result();
 }
 
 unsigned int
-addUser(  std::map<std::string, std::string> params )
+addUser( std::map<std::string, std::string> params )
 {
   request.set_type(BeatBoard::AUTHAPI_ADD_USER);
   request.set_username(params["name"]);
@@ -86,14 +89,18 @@ parseHeaders( struct evkeyvalq& headers )
   std::string pass = "";
   std::string mail_key = "m";
   std::string mail = "";
+  std::string name_mode = "mode";
+  std::string mode = "";
 
   BBRpcClientEvhttp::find_header(&headers, name_key, name);
   BBRpcClientEvhttp::find_header(&headers, pass_key, pass);
   BBRpcClientEvhttp::find_header(&headers, mail_key, mail);
+  BBRpcClientEvhttp::find_header(&headers, name_mode, mode);
 
   char *escaped_name = evhttp_htmlescape(name.c_str());
   char *escaped_pass = evhttp_htmlescape(pass.c_str());
   char *escaped_mail = evhttp_htmlescape(mail.c_str());
+  char *escaped_mode = evhttp_htmlescape(mode.c_str());
 
   params.insert(std::pair<std::string, std::string>("name", 
                                                     std::string(escaped_name)));
@@ -101,9 +108,13 @@ parseHeaders( struct evkeyvalq& headers )
                                                     std::string(escaped_pass)));
   params.insert(std::pair<std::string, std::string>("mail", 
                                                     std::string(escaped_mail)));
+  params.insert(std::pair<std::string, std::string>("mode", 
+                                                    std::string(escaped_mode)));
+
   free(escaped_name);
   free(escaped_pass);
   free(escaped_mail);
+  free(escaped_mode);
 
   return params;
 }
@@ -126,11 +137,20 @@ void authHandler( struct evhttp_request *req, void *arg )
 
     std::map<std::string, std::string> params = parseHeaders(headers);
 
-    if (params["name"] != "" && params["pass"] != "" && params["mail"] != "")
+    if (params["name"] != "" && params["pass"] != "")
     {
       std::cerr << "query correct" << std::endl;
       std::stringstream result;
-      result << addUser(params);
+
+      if (params["mode"] == "ADD_USER" && params["mail"] != "")
+      {
+        result << addUser(params);
+      }
+      else if (params["mode"] == "VERIFY_USER")
+      {
+        result << verifyUser(params);
+      }
+
       std::string result_json = "{result:" + result.str() + "}";
       evbuffer_add_printf(buf, result_json.c_str());
     }

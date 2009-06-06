@@ -45,6 +45,6 @@ int main (int argc, char *argv[])
   std::string uri = "/test";
   BBRpcClientEvhttp* server =  new BBRpcClientEvhttp(host, port);
   
-  server->start(uri, &testHandler);
+  server->start(uri, &testHandler, NULL);
   return 0;
 }
