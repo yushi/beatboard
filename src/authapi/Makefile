@@ -35,7 +35,9 @@ EVHTTP_TARGET = evhttp_auth_client
 EVHTTP_SRCS = ../libbbrpc/bb_rpc_client_evhttp.cpp\
 			authapi.pb.cc\
 			authapi_service_common.cpp\
-			authapi_service_sample_client_evhttp.cpp
+			authapi_service_client_evhttp.cpp\
+			authapi_service_client_evhttp_main.cpp
+#			authapi_service_sample_client_evhttp.cpp
 EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
 
 

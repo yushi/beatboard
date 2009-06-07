@@ -1,42 +1,52 @@
-#include <google/protobuf/stubs/common.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <map>
 #include <sys/queue.h>
+#include <evhttp.h>
+#include "authapi_service_client_evhttp.h"
 
-#include "authapi.pb.h"
-
-//#include "sample_rpc_channel.h"
-
-#include "bb_rpc_channel.h"
-#include "bb_rpc_controller.h"
-#include "authapi_service_common.h"
-
-#include "bb_rpc_client_evhttp.h"
-
-google::protobuf::RpcChannel* channel;
-google::protobuf::RpcController* controller;
-authapi::RpcService* service;
-authapi::Request request;
-authapi::Response response;
-
-void Done2( authapi::Response* response_ ) {
-  std::cout << "Done2" << std::endl;
-  std::cout << "result: " << response_->result() << std::endl;
-  std::cout << "error: " << response_->error() << std::endl;
+AuthapiServiceClientEvhttp::AuthapiServiceClientEvhttp( 
+  const std::string& evhttp_host,
+  const int evhttp_port,
+  const std::string& rpcserver_host,
+  const int rpcserver_port
+  )
+{
+  this->evhttp_host = evhttp_host;
+  this->evhttp_port = evhttp_port;
+  this->rpcserver_host = rpcserver_host;
+  this->rpcserver_port = rpcserver_port;
+  uri = "/auth";
 }
 
-void Done()
+AuthapiServiceClientEvhttp::~AuthapiServiceClientEvhttp()
 {
-  std::cout << "Done1" << std::endl;
-  Done2( &response );
 }
 
-unsignedint
-updateUserInfo( std::map<std::string, std::string> params )
+void
+AuthapiServiceClientEvhttp::callback()
 {
+}
+
+void
+AuthapiServiceClientEvhttp::setUpRpc()
+{
+  channel = new BeatBoard::BBRpcChannel("127.0.0.1", 1236);
+  controller = new BeatBoard::BBRpcController();
+  service = new authapi::RpcService::Stub(channel);
+}
+
+void
+AuthapiServiceClientEvhttp::deleteRpc()
+{
+  delete service;
+  delete channel;
+  delete controller;
+}
+
+unsigned int
+AuthapiServiceClientEvhttp::updateUserInfo( 
+  std::map<std::string, std::string> params 
+  )
+{
+  setUpRpc();
   request.set_type(BeatBoard::AUTHAPI_UPDATE_USERINFO);
   request.set_username("hoge7");
   request.set_password("hoge");
@@ -45,28 +55,36 @@ updateUserInfo( std::map<std::string, std::string> params )
   std::cout << "password: " << request.password() << std::endl;
   std::cout << "userinfo: " << request.userinfo() << std::endl;
 
-  google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
+  google::protobuf::Closure* callback = google::protobuf::NewCallback(&AuthapiServiceClientEvhttp::callback);
   service->RpcFunc(controller, &request, &response, callback);
+  deleteRpc();
 }
-
-unsigned int
-verifyUser( std::map<std::string, std::string> params )
+ 
+unsigned int 
+AuthapiServiceClientEvhttp::verifyUser( 
+  std::map<std::string, std::string> params 
+)
 {
+  setUpRpc();
   request.set_type(BeatBoard::AUTHAPI_VERIFY_USER);
   request.set_username(params["name"]);
   request.set_password(params["pass"]);
   std::cout << "username: " << request.username() << std::endl;
   std::cout << "password: " << request.password() << std::endl;
 
-  google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
+  google::protobuf::Closure* callback = google::protobuf::NewCallback(&AuthapiServiceClientEvhttp::callback);
   service->RpcFunc(controller, &request, &response, callback);
 
+  deleteRpc();
   return response.result();
 }
-
+ 
 unsigned int
-addUser( std::map<std::string, std::string> params )
+AuthapiServiceClientEvhttp::addUser(
+  std::map<std::string, std::string> params
+)
 {
+  setUpRpc();
   request.set_type(BeatBoard::AUTHAPI_ADD_USER);
   request.set_username(params["name"]);
   request.set_password(params["pass"]);
@@ -74,14 +92,15 @@ addUser( std::map<std::string, std::string> params )
   std::cout << "username: " << request.username() << std::endl;
   std::cout << "password: " << request.password() << std::endl;
 
-  google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
+  google::protobuf::Closure* callback = google::protobuf::NewCallback(&AuthapiServiceClientEvhttp::callback);
   service->RpcFunc(controller, &request, &response, callback);
 
+  deleteRpc();
   return response.result();
 }
 
 std::map<std::string, std::string>
-parseHeaders( struct evkeyvalq& headers )
+AuthapiServiceClientEvhttp::parseHeaders( struct evkeyvalq& headers )
 {
   std::map<std::string, std::string> params;
   std::string name_key = "n";
@@ -120,14 +139,10 @@ parseHeaders( struct evkeyvalq& headers )
   return params;
 }
 
-void authHandler( struct evhttp_request *req, void *arg )
+void
+AuthapiServiceClientEvhttp::authHandler( struct evhttp_request *req, void *arg )
 {
-  channel = new BeatBoard::BBRpcChannel("127.0.0.1", 1236);
-  controller = new BeatBoard::BBRpcController();
-  service = new authapi::RpcService::Stub(channel);
-
-  //verifyUser();
-  //updateUserInfo();
+  AuthapiServiceClientEvhttp *instance = static_cast<AuthapiServiceClientEvhttp*>( arg );
 
   struct evbuffer *buf = evbuffer_new();
   if (buf) {
@@ -136,7 +151,7 @@ void authHandler( struct evhttp_request *req, void *arg )
     std::cerr << std::string(req->uri) << std::endl;
     evhttp_parse_query(req->uri, &headers);
 
-    std::map<std::string, std::string> params = parseHeaders(headers);
+    std::map<std::string, std::string> params = instance->parseHeaders(headers);
 
     if (params["name"] != "" && params["pass"] != "")
     {
@@ -145,11 +160,11 @@ void authHandler( struct evhttp_request *req, void *arg )
 
       if (params["mode"] == "ADD_USER" && params["mail"] != "")
       {
-        result << addUser(params);
+        result << instance->addUser(params);
       }
       else if (params["mode"] == "VERIFY_USER")
       {
-        result << verifyUser(params);
+        result << instance->verifyUser(params);
       }
 
       std::string result_json = "{result:" + result.str() + "}";
@@ -159,7 +174,6 @@ void authHandler( struct evhttp_request *req, void *arg )
     {
       std::cerr << "not find" << std::endl;
     }
-    //evbuffer_add_printf(buf, "query received");
     evhttp_clear_headers(&headers);
     evhttp_send_reply(req, HTTP_OK, "OK", buf);
   }
@@ -167,20 +181,12 @@ void authHandler( struct evhttp_request *req, void *arg )
   {
     std::cerr << "failed to create response buffer" << std::endl;
   }
-
-  delete service;
-  delete channel;
-  delete controller;
+}
+ 
+void
+AuthapiServiceClientEvhttp::start()
+{
+  BBRpcClientEvhttp* server =  new BBRpcClientEvhttp(evhttp_host, evhttp_port);
+  server->start(uri, &AuthapiServiceClientEvhttp::authHandler, this);
 }
 
-
-int main() {
-  std::string host = "127.0.0.1";
-  int port = 8082;
-  std::string uri = "/auth";
-  BBRpcClientEvhttp* server =  new BBRpcClientEvhttp(host, port);
-  
-  server->start(uri, &authHandler, NULL);
-
-  return 0;
-}
