@@ -1,3 +1,5 @@
+var COOKIE_SID = 'SID';
+
 function update_status(data) {
     $("p.ret").remove();
     $("div.status").find("p.s").append("<p class=ret style=\"display:none;\">" + data + "</p>");
@@ -14,9 +16,9 @@ function append_signup_result(data) {
             $("#login").toggle();
             update_status("Login Successful<br>" +
                          "publish cookie here.");
-            setTimeout( function () {
-                window.location.replace("./login.html");
-            }, 5000)
+            var date = new Date();
+            date.setTime(date.getTime() + (1 * 24 * 60 * 60 * 1000)); // 1 day
+            $.cookie(COOKIE_SID, jsondata["sid"], date);
         }
         else if (jsondata["result"] == 4)
         {
@@ -63,8 +65,37 @@ function send_query() {
     });
 }
 
+function check_cookie() {
+    var sid = $.cookie(COOKIE_SID);
+
+    if (sid != null )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+function display_page()
+{
+    $("#login").toggle();
+    update_status("Login Successful<br>" +
+                  "you already have bb cookie.");
+}
+
 function main() {
-    addbutton_event()
+    if (check_cookie())
+    {
+        display_page();
+    }
+    else
+    {
+        alert("cookie does not set");
+    }
+    addbutton_event();
+    // get csrf id from cgi here
 }
 
 main();

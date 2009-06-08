@@ -29,6 +29,22 @@ BBRpcClientEvhttp::find_header( const struct evkeyvalq* headers,
   return ret;
 }
 
+std::string
+BBRpcClientEvhttp::uniq_id()
+{
+  std::string alpha_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  int len = alpha_chars.size();
+  std::string id = "";
+
+  int index = 0;
+  for (int i = 0 ; i <= len / 2; i++)
+  {
+    index = (rand() % len);
+    id += alpha_chars[index];
+  }
+  return id;
+}
+
 bool
 BBRpcClientEvhttp::start( const std::string& uri,
                           void (*cb)(struct evhttp_request *, void *),

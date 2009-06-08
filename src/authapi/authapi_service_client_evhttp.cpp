@@ -14,6 +14,7 @@ AuthapiServiceClientEvhttp::AuthapiServiceClientEvhttp(
   this->rpcserver_host = rpcserver_host;
   this->rpcserver_port = rpcserver_port;
   uri = "/auth";
+  srand(time(0));
 }
 
 AuthapiServiceClientEvhttp::~AuthapiServiceClientEvhttp()
@@ -156,18 +157,23 @@ AuthapiServiceClientEvhttp::authHandler( struct evhttp_request *req, void *arg )
     if (params["name"] != "" && params["pass"] != "")
     {
       std::cerr << "query correct" << std::endl;
+      std::string result_json;
       std::stringstream result;
 
       if (params["mode"] == "ADD_USER" && params["mail"] != "")
       {
         result << instance->addUser(params);
+        result_json = "{result:" + result.str() + "}";
       }
       else if (params["mode"] == "VERIFY_USER")
       {
+        std::string sid = "";
+        sid = BBRpcClientEvhttp::uniq_id();
         result << instance->verifyUser(params);
+        result_json = "{result:" + result.str() + ", sid:" + sid + "}";
+        std::cerr << result_json << std::endl;
+        // push sid to memcached
       }
-
-      std::string result_json = "{result:" + result.str() + "}";
       evbuffer_add_printf(buf, result_json.c_str());
     }
     else
@@ -181,6 +187,7 @@ AuthapiServiceClientEvhttp::authHandler( struct evhttp_request *req, void *arg )
   {
     std::cerr << "failed to create response buffer" << std::endl;
   }
+  evbuffer_free(buf);
 }
  
 void

@@ -9,6 +9,7 @@
 #include <event.h>
 #include <string>
 #include <map>
+#include <ctime>
 
 #include "authapi.pb.h"
 #include "bb_rpc_channel.h"

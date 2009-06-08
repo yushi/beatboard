@@ -5,6 +5,7 @@
 #include <evhttp.h>
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 class BBRpcClientEvhttp {
 private:
@@ -24,7 +25,7 @@ public:
   static bool find_header( const struct evkeyvalq* headers,
 						   const std::string& key,
 						   std::string& val );
-
+  static std::string uniq_id();
 };
 
 #endif
