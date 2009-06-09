@@ -40,6 +40,8 @@ private:
   std::map<std::string, std::string> parseHeaders( struct evkeyvalq& headers );
   static void authHandler( struct evhttp_request *req, void *arg );
 
+  std::string checkVerifyResultAndPublishSID( unsigned int result );
+
   void setUpRpc();
   void deleteRpc();
  

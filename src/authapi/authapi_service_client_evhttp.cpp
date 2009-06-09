@@ -140,6 +140,31 @@ AuthapiServiceClientEvhttp::parseHeaders( struct evkeyvalq& headers )
   return params;
 }
 
+std::string
+AuthapiServiceClientEvhttp::checkVerifyResultAndPublishSID( 
+  unsigned int result 
+  )
+{
+  std::string result_json;
+  std::stringstream result_ss;
+
+  result_ss << result;
+  if (result == BeatBoard::AUTHAPI_VERIFY_OK)
+  {
+    std::string sid;
+    sid = BBRpcClientEvhttp::uniq_id();
+    // push sid to memcached
+    result_json = "{result:" + result_ss.str() + ", sid:" + sid + "}";
+  }
+  else
+  {
+    result_json = "{result:" + result_ss.str() + "}";
+  }
+  std::cerr << result_json << std::endl;
+
+  return result_json;
+}
+
 void
 AuthapiServiceClientEvhttp::authHandler( struct evhttp_request *req, void *arg )
 {
@@ -158,21 +183,16 @@ AuthapiServiceClientEvhttp::authHandler( struct evhttp_request *req, void *arg )
     {
       std::cerr << "query correct" << std::endl;
       std::string result_json;
-      std::stringstream result;
 
       if (params["mode"] == "ADD_USER" && params["mail"] != "")
       {
+        std::stringstream result;
         result << instance->addUser(params);
         result_json = "{result:" + result.str() + "}";
       }
       else if (params["mode"] == "VERIFY_USER")
       {
-        std::string sid = "";
-        sid = BBRpcClientEvhttp::uniq_id();
-        result << instance->verifyUser(params);
-        result_json = "{result:" + result.str() + ", sid:" + sid + "}";
-        std::cerr << result_json << std::endl;
-        // push sid to memcached
+        result_json = instance->checkVerifyResultAndPublishSID(instance->verifyUser(params));
       }
       evbuffer_add_printf(buf, result_json.c_str());
     }
