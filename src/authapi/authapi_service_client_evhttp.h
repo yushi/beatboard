@@ -16,6 +16,8 @@
 #include "bb_rpc_controller.h"
 #include "bb_rpc_client_evhttp.h"
 
+#include "api_memcached.h"
+
 #include "authapi_service_common.h"
 
 class AuthapiServiceClientEvhttp {
@@ -25,6 +27,7 @@ private:
   authapi::RpcService* service;
   authapi::Request request;
   authapi::Response response;
+  BeatBoard::ApiMemcached* memcached;
 
   std::string uri;
   std::string evhttp_host;
@@ -41,6 +44,7 @@ private:
   static void authHandler( struct evhttp_request *req, void *arg );
 
   std::string checkVerifyResultAndPublishSID( unsigned int result );
+  void setSidToMemcached( std::string& sid );
 
   void setUpRpc();
   void deleteRpc();
@@ -49,7 +53,9 @@ public:
   AuthapiServiceClientEvhttp( const std::string& evhttp_host,
                               const int evhttp_port,
                               const std::string& rpcserver_host,
-                              const int rpcserver_port );
+                              const int rpcserver_port,
+                              const std::string& memcached_host,
+                              const int memcached_port );
   ~AuthapiServiceClientEvhttp();
   void start();
 };

@@ -6,7 +6,9 @@ AuthapiServiceClientEvhttp::AuthapiServiceClientEvhttp(
   const std::string& evhttp_host,
   const int evhttp_port,
   const std::string& rpcserver_host,
-  const int rpcserver_port
+  const int rpcserver_port,
+  const std::string& memcached_host,
+  const int memcached_port
   )
 {
   this->evhttp_host = evhttp_host;
@@ -15,10 +17,15 @@ AuthapiServiceClientEvhttp::AuthapiServiceClientEvhttp(
   this->rpcserver_port = rpcserver_port;
   uri = "/auth";
   srand(time(0));
+  memcached = new BeatBoard::ApiMemcached(memcached_host, memcached_port);
 }
 
 AuthapiServiceClientEvhttp::~AuthapiServiceClientEvhttp()
 {
+  delete service;
+  delete channel;
+  delete controller;
+  delete memcached;
 }
 
 void
@@ -140,6 +147,20 @@ AuthapiServiceClientEvhttp::parseHeaders( struct evkeyvalq& headers )
   return params;
 }
 
+void
+AuthapiServiceClientEvhttp::setSidToMemcached( std::string& sid )
+{
+  if (memcached->memcachedStatus())
+  {
+    std::string dummy = "dummy";
+    memcached->setMemcachedData(sid,  dummy);
+  }
+  else
+  {
+    std::cerr << "does not use memcached" << std::endl;
+  }
+}
+
 std::string
 AuthapiServiceClientEvhttp::checkVerifyResultAndPublishSID( 
   unsigned int result 
@@ -153,8 +174,9 @@ AuthapiServiceClientEvhttp::checkVerifyResultAndPublishSID(
   {
     std::string sid;
     sid = BBRpcClientEvhttp::uniq_id();
-    // push sid to memcached
     result_json = "{result:" + result_ss.str() + ", sid:" + sid + "}";
+    // set sid to memcached
+    setSidToMemcached(sid);
   }
   else
   {
@@ -193,6 +215,10 @@ AuthapiServiceClientEvhttp::authHandler( struct evhttp_request *req, void *arg )
       else if (params["mode"] == "VERIFY_USER")
       {
         result_json = instance->checkVerifyResultAndPublishSID(instance->verifyUser(params));
+      }
+      else
+      {
+        std::cerr << "no reach here" << std::endl;
       }
       evbuffer_add_printf(buf, result_json.c_str());
     }

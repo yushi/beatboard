@@ -13,11 +13,13 @@ CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
 endif
 
-LDFLAGS = 
+LDFLAGS = -lmemcached
 LIBS = -L/usr/local/lib -L.
 INCLUDES = -I.
 TARGET = libapicommon.so
-OBJS = api_common.o
+SRCS = api_common.cpp\
+		api_memcached.cpp
+OBJS = $(SRCS:.cpp=.o)
 MAINTARGET = api_common_main
 MAINOBJS = api_common_main.o
 MAINLDFLAGS = $(LDFLAGS) -lapicommon
