@@ -1,5 +1,7 @@
-all:
-	g++ privmsg.cpp -I ../libbbevqueue/ -I ~/local/include/ -L ../libbbevqueue -L ~/local/lib -lcgicc -o privmsg.cgi -lbbevqueue -lprotobuf -lmemcached
-	g++ connect.cpp -I ../libbbevqueue/ -I ~/local/include/ -L ../libbbevqueue -L ~/local/lib -lcgicc -o connect.cgi -lbbevqueue -lprotobuf -lmemcached
-	g++ join.cpp -I ../libbbevqueue/ -I ~/local/include/ -L ../libbbevqueue -L ~/local/lib -lcgicc -o join.cgi -lbbevqueue -lprotobuf -lmemcached
+BB_UI_HOME=/usr/bb/htdocs
+install:
+	mkdir -p $(BB_UI_HOME)
+	install -m644 index.html $(BB_UI_HOME)
+	install -m644 jquery-1.3.2.min.js $(BB_UI_HOME)
+	install -m644 bbui.js $(BB_UI_HOME)
 
