@@ -40,55 +40,74 @@ function checkLoader(){
 
 function connect(server, nickname, port){
     nick = nickname;
-    $.get("/api/CONNECT?server=" + server + "&nick=" + nick + "&port=" + port, function(data){
-        eval("obj=" + data);
-        $("#status").html(obj["reason"]);
-        if(obj["status"].match('^OK$')){
-            $("#connect").toggle();
-            $("#join_channel").append(
-                '<form  id="join_form" onsubmit="javascript:return joinChannel();">' +
-                    '<input id="nick" type="hidden" value="' + nick + '"></input>' +
-                    'channel<input id="channel" type="text" value="#yushi"></input>' + 
-                    '</form>'
-            );
-        }
-    });
+    $.post("/api/CONNECT",
+           {
+               'server': server,
+               "nick" : nick ,
+               "port" : port
+           },
+           function(data){
+               eval("obj=" + data);
+               $("#status").html(obj["reason"]);
+               if(obj["status"].match('^OK$')){
+                   $("#connect").toggle();
+                   $("#join_channel").append(
+                       '<form  id="join_form" onsubmit="javascript:return joinChannel();">' +
+                           '<input id="nick" type="hidden" value="' + nick + '"></input>' +
+                           'channel<input id="channel" type="text" value="#yushi"></input>' + 
+                           '</form>'
+                   );
+               }
+           });
     
 }
 
 function join(channel, nick){
-    var url = '/api/JOIN?channel=' + escape(channel) + "&nick=" + nick;
+    var url = '/api/JOIN';
     active_channel = channel;
-    $.get(url, function(data){
-        eval("obj=" + data);
-        $("#status").html(obj["reason"]);
-        if(obj["status"].match('^OK$')){
-            $("#send_message").append(
-                '<form id="message_form" onsubmit="javascript:return sendMessage(this);">' +
-                    '<input id="nick" type="hidden" value="' + nick + '"></input>' +
-                    '<input id="target" type="hidden" value="' + channel + '"></input>' +
-                    'message<input id="message" type="text" ></input>' +
-                    '</form>'
-            );
-            $("#join_channel").toggle();
-            $("#head").append(channel);
-            setInterval(checkLoader, 1000);
-        }
-    });
+    $.post(url,
+           {
+               'channel':channel, //escape(channel),
+               'nick' : nick,
+           },
+           function(data){
+               eval("obj=" + data);
+               $("#status").html(obj["reason"]);
+               if(obj["status"].match('^OK$')){
+                   $("#send_message").append(
+                       '<form id="message_form" onsubmit="javascript:return sendMessage(this);">' +
+                           '<input id="nick" type="hidden" value="' + nick + '"></input>' +
+                           '<input id="target" type="hidden" value="' + channel + '"></input>' +
+                           'message<input id="message" type="text" ></input>' +
+                           '</form>'
+                   );
+                   $("#join_channel").toggle();
+                   $("#head").append(channel);
+                   setInterval(checkLoader, 1000);
+               }
+           });
 }
-
+           
 function privmsg(target, message, nick){
-    var url = "/api/SPEAK?message=" + message + "&channel=" + escape(target) + "&nick=" + nick;
-    $.get(url, function(data){
-        $("#messages").append(nick + ":" + message + "<br />");
-        window.scrollBy( 0, screen.height );
-    });
+    var url = "/api/SPEAK";
+    $.post(url,
+           {
+               'message':message,
+               'channel':target, //escape(target),
+               'nick':nick,
+           },
+           function(data){
+               $("#messages").append(nick + ":" + message + "<br />");
+               window.scrollBy( 0, screen.height );
+           });
 }
 
 function readMessage(nick){
-    var url = "/api/READ?nick=" + nick;
+    var url = "/api/READ";
     $.ajax({
+        'type': 'POST',
         'url': url,
+        'data': {'nick':nick},
         cache: false,
         success: function(data){
             //$("#debug").append(data + "<br />");

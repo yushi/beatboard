@@ -21,7 +21,9 @@ namespace BeatBoard{
     struct event_base *http_ev_base;
   private:
     struct evhttp *httpd;
-    map<string, string> parseParameter(char* uri);
+    map<string, string> parseParameter(struct evhttp_request *req);
+    map<string, string> parseGetParameter(struct evhttp_request *req);
+    map<string, string> parsePostParameter(struct evhttp_request *req);
   };
 
  class HTTPAPINotifier: public Notifier {

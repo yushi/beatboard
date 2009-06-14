@@ -45,22 +45,24 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
     evbuffer_add_printf( buf, req->uri);
     evbuffer_add_printf( buf, "<br />\n" );
 
-    // HTTP Header Dump
+    // HTTPAPIServer Header Dump
     if(evhttp_find_header (req->input_headers, "User-Agent")){
       evbuffer_add_printf( buf, evhttp_find_header (req->input_headers, "User-Agent"));
       evbuffer_add_printf( buf, "<br />\n" );
     }
 
-    if(evhttp_find_header (req->input_headers, "Content-Length")){
-      evbuffer_add_printf( buf, "Content-Length: " );
-      evbuffer_add_printf( buf, evhttp_find_header (req->input_headers, "Content-Length"));
-      evbuffer_add_printf( buf, "<br />\n" );
-      printf("%s\n", req->input_buffer->buffer);
+    if(EVHTTP_REQ_POST == req->type){
+      evbuffer_add_printf( buf, "POST<br />\n" );
+    }else if(EVHTTP_REQ_GET == req->type){
+      evbuffer_add_printf( buf, "GET<br />\n" );
+    }else if(EVHTTP_REQ_HEAD == req->type){
+      evbuffer_add_printf( buf, "HEAD<br />\n" );
+    }else{
+      evbuffer_add_printf( buf, "Method is unknown<br />\n" );
     }
-
     HTTPAPIServer *instance = static_cast<HTTPAPIServer*>( arg );
-    map<string,string> get_parameters = instance->parseParameter(req->uri);
-
+    map<string,string> get_parameters = instance->parseParameter(req);
+    //map<string,string> post_parameters = instance->parsePostParameter(req);
     string hogehoge = get_parameters["hogehoge"];
     if(hogehoge.size() != 0 ){
       evbuffer_add_printf( buf, (get_parameters["hogehoge"].c_str()));
@@ -74,11 +76,38 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
   }
   evbuffer_free(buf);
 }
+map<string, string> BeatBoard::HTTPAPIServer::parseParameter(struct evhttp_request *req){
+  if(EVHTTP_REQ_POST == req->type){
+    return this->parsePostParameter(req);
+  }
+  //  }else if(EVHTTP_REQ_GET == req->type){
+  return this->parseGetParameter(req);
+  //  }
+}
 
-
-map<string, string> BeatBoard::HTTPAPIServer::parseParameter(char* uri){
+map<string, string> BeatBoard::HTTPAPIServer::parsePostParameter(struct evhttp_request *req){
   map<string, string> ret;
+  int content_length = atoi(evhttp_find_header (req->input_headers, "Content-Length"));
+  struct evkeyvalq* params = (evkeyvalq *)calloc(1, sizeof(struct evkeyvalq));
+  string dummy_url = string("http://localhost/?");
+  char *body = (char*)calloc(1,sizeof(char) * content_length);
+  evbuffer_remove(req->input_buffer, (void*)body, content_length);
+  dummy_url += string(body);
+  
+  evhttp_parse_query(dummy_url.c_str(), params);
+  struct evkeyval *header;
+  TAILQ_FOREACH(header, params, next) {
+    ret[string(header->key)] = string(header->value);
+  }
 
+  free(params);
+  free(body);
+  return ret;
+}
+
+map<string, string> BeatBoard::HTTPAPIServer::parseGetParameter(struct evhttp_request *req){
+  map<string, string> ret;
+  const char* uri = req->uri;
   struct evkeyvalq* params = (evkeyvalq *)calloc(1, sizeof(struct evkeyvalq));
   evhttp_parse_query(evhttp_decode_uri(uri), params);
   struct evkeyval *header;
@@ -108,7 +137,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
     return;
   }
 
-  map<string, string> params = instance->parseParameter(req->uri);
+  map<string, string> params = instance->parseParameter(req);
   const string nick = params[string("nick")];
   const string server = params["server"];
   const string port = params["port"];
@@ -179,7 +208,7 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
     fprintf( stderr, "failed to create response buffer\n" );
     return;
   }
-  map<string, string> params = instance->parseParameter(req->uri);
+  map<string, string> params = instance->parseParameter(req);
   const string nick = params[string("nick")];
   const string channel = params["channel"];
   logger.debug("nick:" + nick + " channel:" + channel);  
@@ -218,7 +247,7 @@ void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *a
     return;
   }
 
-  map<string, string> params = instance->parseParameter(req->uri);
+  map<string, string> params = instance->parseParameter(req);
   const string nick = params[string("nick")];
   const string channel = params["channel"];
   const string message = params["message"];
@@ -237,7 +266,7 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("READ request");
 
-  map<string, string> params = instance->parseParameter(req->uri);
+  map<string, string> params = instance->parseParameter(req);
   const string nick = params[string("nick")];
   logger.debug("nick:" + nick);
 
