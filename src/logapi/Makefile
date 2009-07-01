@@ -31,6 +31,15 @@ CLIENT_SRCS = $(COMMON_SRCS)\
 	      		logapi_service_common.cpp
 CLIENT_OBJS = $(CLIENT_SRCS:.cpp=.o)
 
+BBEVQUEUE_LDFLAGS = $(LDFLAGS) -lbbevqueue
+BBEVQUEUE_LIBS = $(LIBS) -L../libbbevqueue
+BBEVQUEUE_INCLUDES = $(INCLUDES) -I../libbbevqueue
+BBEVQUEUE_TARGET = logapibbevequeue
+BBEVQUEUE_SRCS = logapi_service_client_bbevqueue_main.cpp\
+				logapi_service_client_bbevqueue.cpp\
+				logapi.pb.cc 
+BBEVQUEUE_OBJS = $(BBEVQUEUE_SRCS:.cc=.o)
+
 all: $(PROTOBUF_SRC) $(SERVER_TARGET) 
 
 $(SERVER_TARGET): $(SERVER_OBJS)
@@ -42,7 +51,10 @@ $(SERVER_TARGET): $(SERVER_OBJS)
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $<
 
-sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET)
+sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET) $(BBEVQUEUE_TARGET)
+
+$(BBEVQUEUE_TARGET):
+	$(CC) $(CFLAGS) $(BBEVQUEUE_SRCS) -o $(BBEVQUEUE_TARGET) $(BBEVQUEUE_LIBS) $(BBEVQUEUE_INCLUDES) $(BBEVQUEUE_LDFLAGS)
 
 $(PROTOBUF_SRC):
 	$(PROTOC) $(PROTOFLAGS) $(PROTOSRC)
