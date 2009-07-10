@@ -13,9 +13,18 @@ CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
 endif
 
+ifeq ($(BB), 1)
+BBHOME = /usr/bb
+BBINCLUDES = -I$(BBHOME)/local/include
+BBLIBS = -L$(BBHOME)/local/lib
+else
+BBINCLUDES=
+BBLIBS=
+endif
+
 LDFLAGS = -ldrizzle
-LIBS = -L/usr/local/lib -L.
-INCLUDES = -I.
+LIBS = -L/usr/local/lib -L. $(BBLIBS)
+INCLUDES = -I. $(BBINCLUDES)
 TARGET = libbbdrizzle.so
 OBJS = drizzle_client.o
 MAINTARGET = drizzle_client_main
@@ -25,10 +34,10 @@ MAINLDFLAGS = $(LDFLAGS) -lbbdrizzle
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(CLIBFLAGS) $(OBJS) $(LDFLAGS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(CLIBFLAGS) $(OBJS) $(INCLUDES) $(LIBS) $(LDFLAGS) -o $(TARGET)
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(LIBS) $<
 
 clean:
 	rm -f $(TARGET) $(OBJS) $(MAINTARGET) $(MAINOBJS)

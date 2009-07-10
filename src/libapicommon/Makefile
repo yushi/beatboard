@@ -13,9 +13,18 @@ CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
 endif
 
+ifeq ($(BB), 1)
+BBHOME = /usr/bb
+BBINCLUDES = -I$(BBHOME)/local/include
+BBLIBS = -L$(BBHOME)/local/lib
+else
+BBINCLUDES=
+BBLIBS=
+endif
+
 LDFLAGS = -lmemcached
-LIBS = -L/usr/local/lib -L.
-INCLUDES = -I.
+LIBS = -L/usr/local/lib -L. $(BBLIBS)
+INCLUDES = -I. $(BBINCLUDES)
 TARGET = libapicommon.so
 SRCS = api_common.cpp\
 		api_memcached.cpp
@@ -27,10 +36,10 @@ MAINLDFLAGS = $(LDFLAGS) -lapicommon
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(CLIBFLAGS) $(OBJS) $(LDFLAGS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(CLIBFLAGS) $(LIBS) $(OBJS) $(INCLUDES) $(LDFLAGS) -o $(TARGET)
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $(CFLAGS) $(INCLUDES) $(LIBS) $<
 
 clean:
 	rm -f $(TARGET) $(OBJS) $(MAINTARGET) $(MAINOBJS)

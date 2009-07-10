@@ -12,9 +12,18 @@ CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
 endif
 
+ifeq ($(BB), 1)
+BBHOME = /usr/bb
+BBINCLUDES = -I$(BBHOME)/local/include
+BBLIBS = -L$(BBHOME)/local/lib
+else
+BBINCLUDES=
+BBLIBS=
+endif
+
 LIBLDFLAGS = -levent -lprotobuf
-LIBS = -L/usr/local/lib -L.
-INCLUDES = -I.
+LIBS = -L/usr/local/lib -L. $(BBLIBS)
+INCLUDES = -I. $(BBINCLUDES)
 TARGET = libbbrpc.so
 LIB_SRCS =  rpc_server.cpp\
 			event_status.cpp\
@@ -51,7 +60,7 @@ EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
 all: $(TARGET)
 
 $(TARGET): $(LIB_OBJS)
-	$(CC) $(CFLAGS) $(CLIBFLAGS) $(LIB_OBJS) $(LIBLDFLAGS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(CLIBFLAGS) $(LIB_OBJS) $(LIBS) $(LIBLDFLAGS) -o $(TARGET)
 
 sample: $(PROTOC_TARGET) $(SERVER_TARGET) $(CLIENT_TARGET) $(EVHTTP_TARGET)
 
@@ -68,7 +77,7 @@ $(EVHTTP_TARGET): $(EVHTTP_OBJS)
 	$(CC) $(SAMPLECFLAGS) $(EVHTTP_OBJS) -o $(EVHTTP_TARGET) -levent
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $(CFLAGS) $< $(LIBS) $(INCLUDES)
 
 clean:
 	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(TARGET) $(LIB_OBJS) $(PROTOSRC)
