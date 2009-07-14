@@ -15,6 +15,8 @@
 #include "bb_exception.h"
 #include "irc_proto.h"
 #include <map>
+#include "bb_protobuf_queue_memcached.h"
+#include "logapi.pb.h"
 
 using namespace std;
 namespace BeatBoard{

@@ -62,6 +62,29 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
           delete(notifier);
           irc_conn->setNotifier(NULL);
         }
+        BeatBoard::ProtobufQueueMemcached queue;
+        logapi::Request request;
+        request.set_channel(channel.c_str());
+        request.set_time("20202002");
+        request.set_identifier(prefix.c_str());
+        request.set_message(message.c_str());
+        std::string data;
+        if ( !request.SerializeToString( &data ) )
+          {
+            std::cout << "Failed to parse request." << std::endl;
+            //error...
+            //return false;
+          }
+        
+        int count = 3;
+        for (int i = 0; i < count; i++)
+          {
+            if (queue.enqueue(data) != -1)
+              {
+                // error...
+              }
+          }
+        
       }else if(*(event->command) == string("353")){
         irc_conn->received[*(event->params[2])].push_back(string("__JOINERS__"));
         irc_conn->received[*(event->params[2])].push_back(*(event->params[3]));

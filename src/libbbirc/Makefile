@@ -10,9 +10,9 @@ endif
 
 BB_HOME=/usr/bb
 CC=g++ -g -Wall -Werror -fprofile-arcs -ftest-coverage -fPIC
-CC_INC_DIR=-I$(BB_HOME)/local/include
-CC_LIB_DIR=-L$(BB_HOME)/local/lib
-CC_LIBS=-levent
+CC_INC_DIR=-I$(BB_HOME)/local/include -I../libbbevqueue -I../logapi
+CC_LIB_DIR=-L$(BB_HOME)/local/lib -L../libbbevqueue -L../libbbrpc -L../libapicommon
+CC_LIBS=-levent -lbbevqueue -lbbrpc -lapicommon -lprotobuf
 CC_LIBS_TEST=-lgtest
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
 OBJS=irc_proto.o irc_connection.o
@@ -27,7 +27,7 @@ all: $(LIBBBIRC) $(OBJS) irc_client
 	make -C tests
 
 $(LIBBBIRC): $(OBJS)
-	$(CC) $(CC_OPTS) $^ $(CLIBFLAGS) -o $@
+	$(CC) $(CC_OPTS) ../logapi/logapi.pb.cc $^ $(CLIBFLAGS) -o $@
 
 irc_proto.cpp: irc_proto.rl
 	$(RAGEL) -C $< -o $@
