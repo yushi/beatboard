@@ -1,0 +1,17 @@
+package authapi;
+
+message Request {
+  required uint64 type = 1;
+  required string username = 2;
+  required string password = 3;
+  optional string userinfo = 4;
+}
+
+message Response {
+  required uint64 result = 1;
+  optional string error = 2;
+}
+
+service RpcService {
+  rpc RpcFunc (Request) returns (Response);
+}

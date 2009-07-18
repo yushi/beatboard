@@ -63,7 +63,7 @@ BeatBoard::LogApiService::insertLogToDB( std::string& channel, std::string& time
 
 
   std::string insert_columns_and_source;
-  insert_columns_and_source = "values (0,\'" + std::string(uuidstr) +
+  insert_columns_and_source = "values (null,\'" + std::string(uuidstr) +
     "\', null, \'" + channel + "\', \'" + time + "\', \'" + identifier +
     "\', \'" + message + "\')";
 
