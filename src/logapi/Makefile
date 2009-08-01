@@ -18,7 +18,7 @@ LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon 
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 
 SAMPLECFLAGS = $(COMMON_CFLAGS)
-LDFLAGS = -lprotobuf -lbbrpc -luuid
+LDFLAGS = -lprotobuf -lbbrpc
 PROTOC = protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = logapi.proto
