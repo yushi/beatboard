@@ -267,7 +267,7 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
   logger.debug("READ request");
 
   map<string, string> params = instance->parseParameter(req);
-  const string nick = params[string("nick")];
+  const string nick = params[string("nickname")];
   logger.debug("nick:" + nick);
 
   IRCConnection *conn = NULL;
@@ -276,6 +276,7 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
   buf = evbuffer_new();
 
   if(conn == NULL){
+    logger.debug("connection not found");
     evhttp_send_reply( req, HTTP_OK, "OK",  buf);
     return;
   }
@@ -289,6 +290,7 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
     delete(notifier);
   }else{
+    logger.debug("message not found");
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
     conn->setNotifier(notifier);
   }

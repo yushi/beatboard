@@ -63,3 +63,7 @@ clean:
 	rm -rf bb_queue_index.pb.h
 	rm -rf bb_ircd_event.pb.h
 	rm -rf $(LIBBBEVQUEUE)
+
+install: $(LIBBBEVQUEUE)
+	mkdir -p /usr/bb/lib
+	install -m644 $(LIBBBEVQUEUE) /usr/bb/lib

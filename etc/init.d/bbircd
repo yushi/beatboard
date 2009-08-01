@@ -1,0 +1,27 @@
+#!/bin/sh
+ARGV="$@"
+BBIRCD='/usr/bb/sbin/bbircd'
+
+ERROR=0
+if [ "x$ARGV" = "x" ] ; then 
+    ARGV="-h"
+fi
+
+case $ARGV in
+start)
+    rm -rf /usr/bb/var/log/bbircd
+    DYLD_LIBRARY_PATH=/usr/bb/lib $BBIRCD > /usr/bb/var/log/bbircd &
+    disown
+    ERROR=$?
+    ;;
+stop)
+    kill `pgrep bbircd`
+    ERROR=$?
+    ;;
+restart)
+    stop
+    start 
+esac
+
+exit $ERROR
+

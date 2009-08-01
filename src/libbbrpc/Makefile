@@ -82,3 +82,6 @@ $(EVHTTP_TARGET): $(EVHTTP_OBJS)
 clean:
 	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(TARGET) $(LIB_OBJS) $(PROTOSRC)
 
+install: $(TARGET)
+	mkdir -p /usr/bb/lib
+	install -m644 $(TARGET) /usr/bb/lib
