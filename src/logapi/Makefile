@@ -19,7 +19,7 @@ INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 
 SAMPLECFLAGS = $(COMMON_CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc -luuid
-PROTOC = $(BBHOME)/protoc
+PROTOC = $(BBHOME)/local/bin/protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = logapi.proto
 PROTOBUF_SRC = logapi.pb.cc
