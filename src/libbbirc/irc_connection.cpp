@@ -44,6 +44,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
     str_stream << string(buf);
   }
   while(str_stream.getline(buf, 1024)){
+    printf("readed: %s\n", buf);
     BeatBoard::IRCEvent *event = BeatBoard::parse_irc_message(buf);
     if(event != NULL){
       if(*(event->command) == string("PING")){

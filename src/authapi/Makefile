@@ -19,7 +19,7 @@ INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 
 SAMPLECFLAGS = $(COMMON_CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc -luuid
-PROTOC = protoc
+PROTOC = $(BBHOME)/local/bin/protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = authapi.proto
 PROTOBUF_SRC = authapi.pb.cc

@@ -1,6 +1,7 @@
 var loading = 0;
 var nick = null;
 var active_channel = null;
+var noexec = 0;
 
 function connectServer(){
     var server = $("#server").val();
@@ -9,7 +10,7 @@ function connectServer(){
     connect(server, nick, port);
     return false;
 }
-    
+
 function joinChannel(elem){
     var channel = $("#channel").val();
     var nick = $("#nick").val();
@@ -21,7 +22,7 @@ function sendMessage(elem){
     var target = $("#target").val();
     var message = $("#message").val();
     var nick = $("#nick").val();
-
+    
     if(message.length != 0){
         privmsg(target, message, nick);
         $("#message").val("");
@@ -33,7 +34,7 @@ function checkLoader(){
     if(loading == 0){
         loading = 1;
         readMessage(nick);
-
+        
     }
 }
 
@@ -87,7 +88,7 @@ function join(channel, nick){
                }
            });
 }
-           
+
 function privmsg(target, message, nick){
     var url = "/api/SPEAK";
     $.post(url,
@@ -105,37 +106,51 @@ function privmsg(target, message, nick){
 function readMessage(nick){
     var url = "/api/READ";
     $.ajax({
-        'type': 'POST',
-        'url': url,
-        'data': {'nick':nick},
-        cache: false,
-        success: function(data){
-            //$("#debug").append(data + "<br />");
-            try{
-                eval("received=" + data);
-                var messages = received[active_channel];
-                for(var i = 0; i < messages.length; i+=2){
-                    var match_result = messages[i].match("(.+)!.*");
-                    if(match_result){
-                        $("#messages").append(match_result[1] + ": ");
-                        $("#messages").append(messages[i+1] + "<br />");
-                    }else{
-                        $("#status").html("JOINERS: " + messages[i+1]);
-                    }
-                }
-            }catch(e){
-
-            }
-            loading = 0;
-            window.scrollBy( 0, screen.height );
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown){
-            loading = 0;
-        }
-    });
+               'type': 'POST',
+               'url': url,
+               'data': {'nickname':nick},
+               cache: false,
+               success: function(data){
+                   //$("#debug").append(data + "<br />");
+                   try{
+                       eval("received=" + data);
+                       var messages = received[active_channel];
+                       for(var i = 0; i < messages.length; i+=2){
+                           var match_result = messages[i].match("(.+)!.*");
+                           if(match_result){
+                               $("#messages").append(match_result[1] + ": ");
+                               $("#messages").append(messages[i+1] + "<br />");
+                           }else{
+                               $("#status").html("JOINERS: " + messages[i+1]);
+                           }
+                       }
+                   }catch(e){
+                       
+                   }
+                   loading = 0;
+                   window.scrollBy( 0, screen.height );
+               },
+               error: function(XMLHttpRequest, textStatus, errorThrown){
+                   loading = 0;
+               }
+           });
 }
 
+function getopt(){
+    var args = new Object();
+    var args_string = location.href.split('?')[1];
+    if(!args_string){
+        return;
+    }
+    var args_array = args_string.split('&');
+    for(var i = 0; i < args_array.length; i++){
+        var arg = args_array[i].split("=");
+        args[arg[0]] = arg[1];
+    }
+    return args;
+}
 
 function init(){
+    args = getopt();
 }
 init();

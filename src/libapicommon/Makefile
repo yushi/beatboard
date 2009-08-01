@@ -48,3 +48,7 @@ main: $(MAINTARGET)
 
 $(MAINTARGET): $(MAINOBJS) $(TARGET)
 	$(CC) $(CFLAGS) $(LIBS) $(MAINLDFLAGS) $(MAINOBJS) -o $(MAINTARGET)
+
+install: $(TARGET)
+	mkdir -p /usr/bb/lib
+	install $(TARGET) /usr/bb/lib

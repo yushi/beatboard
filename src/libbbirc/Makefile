@@ -51,3 +51,7 @@ clean:
 	rm -rf *.gcno *.gcda $(COVER_INFO) $(COVER_DIR)
 	make -C ruby -f Makefile.bb clean
 	make -C tests clean
+
+install: $(LIBBBIRC)
+	mkdir -p /usr/bb/lib
+	install -m644 $(LIBBBIRC) /usr/bb/lib
