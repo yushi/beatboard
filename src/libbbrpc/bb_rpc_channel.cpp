@@ -72,13 +72,16 @@ BeatBoard::BBRpcChannel::CallMethod( const google::protobuf::MethodDescriptor* m
 
   std::string recv_data;
   char length_buf[BUFSIZE];
+  int data_length = 0;
   do {
     memset(length_buf, 0, sizeof(length_buf));
     len = read(sockfd, &length_buf, sizeof(length_buf));
-    int data_length = atoi(length_buf);
+    data_length = atoi(length_buf);
     std::cerr << "data: " << std::string(length_buf) << std::endl;
     std::cerr << "data len: " << data_length << std::endl;
+  } while (len < 0 && errno == EINTR);
     
+  do {
     char *data_buf;
     data_buf = (char *)malloc(sizeof(char) * data_length + 1);
     len = read(sockfd, data_buf, data_length);
