@@ -1,4 +1,5 @@
 BB_HOME=/usr/bb
+all:
 install:
 	mkdir -p $(BB_HOME)/etc/init.d
 	mkdir -p $(BB_HOME)/var/log
