@@ -128,7 +128,22 @@ BeatBoard::RpcServer::sendData( int sockfd )
     return false;
   }
 
-  write(sockfd, data.c_str(), data.size());
+  std::cerr << "Data: " << data << std::endl;
+  std::cerr << "Data len: " << data.length() << std::endl;
+  std::stringstream ss;
+  ss << data.length();
+  std::string data_length_str = ss.str();
+  char length_buf[BUFSIZE];
+  ssize_t len;
+  do {
+    memset(length_buf, 0, sizeof(length_buf));
+    strncpy(length_buf, data_length_str.c_str(), data_length_str.length());
+    len = write(sockfd, &length_buf, sizeof(length_buf));
+
+    len = write(sockfd, data.c_str(), data.size());
+    std::cerr << "len: " << len << std::endl;
+  } while ( len < 0 && errno == EINTR );
+
   std::cout << "send response" << std::endl;
 
   return true;

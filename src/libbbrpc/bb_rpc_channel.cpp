@@ -71,15 +71,26 @@ BeatBoard::BBRpcChannel::CallMethod( const google::protobuf::MethodDescriptor* m
   write(sockfd, data.c_str(), data.size());
 
   std::string recv_data;
-  char buf[BUFSIZE];  
+  char length_buf[BUFSIZE];
   do {
-    memset(buf, 0, sizeof(buf));
-    len = read(sockfd, &buf, sizeof(buf));
-    recv_data += std::string(buf);
-  } while (len < 0 && errno == EINTR );
+    memset(length_buf, 0, sizeof(length_buf));
+    len = read(sockfd, &length_buf, sizeof(length_buf));
+    int data_length = atoi(length_buf);
+    std::cerr << "data: " << std::string(length_buf) << std::endl;
+    std::cerr << "data len: " << data_length << std::endl;
+    
+    char *data_buf;
+    data_buf = (char *)malloc(sizeof(char) * data_length + 1);
+    len = read(sockfd, data_buf, data_length);
+    recv_data += std::string(data_buf);
+    std::cerr << "Recv: " << recv_data << std::endl;
+    std::cerr << "len: " << len << std::endl;
+    free(data_buf);
+  } while (len < 0 && errno == EINTR);
+
 
   if ( !response->ParseFromString( recv_data ) ) {
-    std::cout << "Failed to parse response." << std::endl;    
+    std::cout << "Failed to parse response." << std::endl;
     close(sockfd);
     done->Run();
     return;
