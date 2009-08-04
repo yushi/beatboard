@@ -95,13 +95,14 @@ map<string, string> BeatBoard::HTTPAPIServer::parsePostParameter(struct evhttp_r
   dummy_url += string(body);
   
   evhttp_parse_query(dummy_url.c_str(), params);
-  struct evkeyval *header;
+  struct evkeyval *header = (evkeyval*)calloc(1, sizeof(struct evkeyval));
   TAILQ_FOREACH(header, params, next) {
     ret[string(header->key)] = string(header->value);
   }
 
   free(params);
   free(body);
+  free(header);
   return ret;
 }
 
@@ -110,11 +111,12 @@ map<string, string> BeatBoard::HTTPAPIServer::parseGetParameter(struct evhttp_re
   const char* uri = req->uri;
   struct evkeyvalq* params = (evkeyvalq *)calloc(1, sizeof(struct evkeyvalq));
   evhttp_parse_query(evhttp_decode_uri(uri), params);
-  struct evkeyval *header;
+  struct evkeyval *header = (evkeyval*)calloc(1, sizeof(struct evkeyval));
   TAILQ_FOREACH(header, params, next) {
     ret[string(header->key)] = string(header->value);
   }
   free(params);
+  free(header);
   return ret;
 }
 
