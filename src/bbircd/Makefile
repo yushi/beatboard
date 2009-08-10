@@ -1,8 +1,8 @@
 BB_HOME=/usr/bb
 CC=g++ -g -Wall -Werror
 CC_INC_DIR=-I$(BB_HOME)/local/include -I../libbbirc -I../libbbevqueue -I../logapi
-CC_LIB_DIR=-L$(BB_HOME)/local/lib -L../libbbirc -L../libbbevqueue -L../logapi
-CC_LIBS=-levent -lbbirc
+CC_LIB_DIR=-L$(BB_HOME)/local/lib -L$(BB_HOME)/lib
+CC_LIBS=-levent -lbbirc -lapicommon -lbbevqueue -lbbrpc
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
 OBJ_FILES=bblogger.o irc_client_operation.o http_api_server.o
 

@@ -7,16 +7,27 @@ if [ "x$ARGV" = "x" ] ; then
     ARGV="-h"
 fi
 
-case $ARGV in
-start)
+start(){
+    ulimit -c unlimited
     rm -rf /usr/bb/var/log/bbircd
-    DYLD_LIBRARY_PATH=/usr/bb/lib $BBIRCD > /usr/bb/var/log/bbircd &
+    export DYLD_LIBRARY_PATH=/usr/bb/lib:/usr/bb/local/lib
+    export LD_LIBRARY_PATH=/usr/bb/lib:/usr/bb/local/lib
+    $BBIRCD > /usr/bb/var/log/bbircd &
     disown
     ERROR=$?
-    ;;
-stop)
+}
+
+stop(){
     kill `pgrep bbircd`
     ERROR=$?
+ }
+
+case $ARGV in
+start)
+    start
+    ;;
+stop)
+    stop
     ;;
 restart)
     stop
