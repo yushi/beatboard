@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 #include <sys/queue.h>
 #include <event.h>
 #include <evhttp.h>
@@ -17,7 +18,7 @@ namespace BeatBoard{
     static void joinHandler( struct evhttp_request *req, void *arg );
     static void exitHandler( struct evhttp_request *req, void *arg );    
     static void speakHandler( struct evhttp_request *req, void *arg );    
-    static void readHandler( struct evhttp_request *req, void *arg );    
+    static void readHandler( struct evhttp_request *req, void *arg );
     struct event_base *http_ev_base;
   private:
     struct evhttp *httpd;
@@ -30,6 +31,7 @@ namespace BeatBoard{
   public:
     struct evhttp_request* req;
     struct evbuffer* buf;
+    time_t init_time;
     IRCConnection* conn;
     HTTPAPINotifier(struct evhttp_request* req, IRCConnection* conn);
     ~HTTPAPINotifier();

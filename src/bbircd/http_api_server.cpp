@@ -302,12 +302,12 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
     }
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
     notifier->notify((void*)NULL);
-    evhttp_send_reply( req, HTTP_OK, "OK", buf );
     delete(notifier);
   }else{
     logger.debug("message not found");
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
     conn->setNotifier(notifier);
+    //delete?
   }
   evbuffer_free(buf);
 }
@@ -315,6 +315,7 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
 BeatBoard::HTTPAPINotifier::HTTPAPINotifier(struct evhttp_request *req,  IRCConnection* conn){
   this->req = req;
   this->conn = conn;
+  this->init_time = time(NULL);
 }
 
 BeatBoard::HTTPAPINotifier::~HTTPAPINotifier(){
@@ -323,6 +324,9 @@ BeatBoard::HTTPAPINotifier::~HTTPAPINotifier(){
 void BeatBoard::HTTPAPINotifier::notify(void* arg){
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("NOTIFY");
+  if(time(NULL) - this->init_time > 180){
+    return;
+  }
   evhttp_request* req = this->req;
   this->req = NULL;
   IRCConnection* conn = this->conn;
