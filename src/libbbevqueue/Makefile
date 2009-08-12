@@ -12,7 +12,7 @@ endif
 
 BB_HOME=/usr/bb
 PROTOC=$(BB_HOME)/local/bin/protoc
-CC=g++ -Wall -g
+CC=g++ -Wall -g -fPIC
 CC_OPTS=-I $(BB_HOME)/local/include/ -L$(BB_HOME)/local/lib -L./
 OBJS=bb_protobuf_queue_memcached.o bb_ircd_event_queue.o bb_queue_index.pb.o bb_ircd_event.pb.o
 SOURCES=bb_protobuf_queue_memcached.cpp bb_ircd_event_queue.cpp bb_queue_index.pb.cc bb_ircd_event.pb.cc
