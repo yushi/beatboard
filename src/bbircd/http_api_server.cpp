@@ -2,6 +2,8 @@
 
 using namespace std;
 
+const int BeatBoard::HTTPAPIServer::HTTPAPIServer::TIMEOUT = 300;
+
 BeatBoard::HTTPAPIServer::HTTPAPIServer() {
   this->httpd = NULL;
   this->http_ev_base = NULL;
@@ -38,6 +40,7 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
   struct evbuffer *buf;
   buf = evbuffer_new();
 
+  evhttp_connection_set_timeout(req->evcon, TIMEOUT);
   if ( buf == NULL ) {
     fprintf( stderr, "failed to create response buffer\n" );
   } else {
@@ -136,6 +139,7 @@ string create_simple_response(bool status, char* reason){
 }
 
 void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void *arg ) {
+  evhttp_connection_set_timeout(req->evcon, TIMEOUT);
   HTTPAPIServer *instance = (HTTPAPIServer*)( arg );
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("CONNECT request");
@@ -187,6 +191,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
 }
 
 void BeatBoard::HTTPAPIServer::exitHandler( struct evhttp_request *req, void *arg ) {
+  evhttp_connection_set_timeout(req->evcon, TIMEOUT);
   struct evbuffer *buf;
   buf = evbuffer_new();
 
@@ -208,6 +213,7 @@ void BeatBoard::HTTPAPIServer::exitHandler( struct evhttp_request *req, void *ar
 }
 
 void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *arg ) {
+  evhttp_connection_set_timeout(req->evcon, TIMEOUT);
   HTTPAPIServer *instance = (HTTPAPIServer*)( arg );
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("JOIN request");
@@ -226,7 +232,6 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
   try{
     IRCConnection *conn = instance->getIRCConnection( nick );
     if(conn == NULL){
-      logger.debug("nullnull");
       BeatBoard::Exception notfound(string("connection not found"));
       throw notfound;
     }
@@ -250,6 +255,7 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
 }
 
 void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *arg ) {
+  evhttp_connection_set_timeout(req->evcon, TIMEOUT);
   HTTPAPIServer *instance = (HTTPAPIServer*)( arg );
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("SPEAK request");
@@ -268,15 +274,21 @@ void BeatBoard::HTTPAPIServer::speakHandler( struct evhttp_request *req, void *a
   const string message = params[string("message")];
   logger.debug("nick:" + nick + " channel:" + channel + " message:" + message);
   
-  IRCConnection *conn = instance->getIRCConnection( nick );
-  conn->PRIVMSG( channel, message );
 
-  evbuffer_add_printf( buf, "This is SPEAK API" );
-  evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  IRCConnection *conn = instance->getIRCConnection( nick );
+  if(conn == NULL){
+    evbuffer_add_printf( buf, "connection not found" );
+    evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  }else{
+    conn->PRIVMSG( channel, message );
+    evbuffer_add_printf( buf, "This is SPEAK API" );
+    evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  }
   evbuffer_free(buf);
 }
 
 void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *arg ) {
+  evhttp_connection_set_timeout(req->evcon, TIMEOUT);
   HTTPAPIServer *instance = (HTTPAPIServer*)( arg );
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("READ request");

@@ -2,7 +2,7 @@ var loading = 0;
 var nick = null;
 var active_channel = null;
 var noexec = 0;
-
+$.ajaxSetup({'timeout': 300000});
 function connectServer(){
     var server = $("#server").val();
     var nick = $("#nick").val();
