@@ -41,6 +41,9 @@ function checkLoader(){
 
 function connect(server, nickname, port){
     nick = nickname;
+    $.cookie('nick',nickname);
+    $.cookie('server',server);
+    $.cookie('port',port);
     $.post("/api/CONNECT",
            {
                'server': server,
@@ -65,6 +68,7 @@ function connect(server, nickname, port){
 
 function join(channel, nick){
     var url = '/api/JOIN';
+    $.cookie('channel',channel);
     active_channel = channel;
     $.post(url,
            {
@@ -152,5 +156,11 @@ function getopt(){
 
 function init(){
     args = getopt();
+    if($.cookie('server') && $.cookie('port') && $.cookie('nick')){
+        connect($.cookie('server'), $.cookie('nick'), $.cookie('port'));
+    }
+    if($.cookie('channel')){
+        join($.cookie('channel'), $.cookie('nick'));
+    }
 }
 init();
