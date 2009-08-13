@@ -139,7 +139,9 @@ BeatBoard::RpcServer::sendData( int sockfd )
     memset(length_buf, 0, sizeof(length_buf));
     strncpy(length_buf, data_length_str.c_str(), data_length_str.length());
     len = write(sockfd, &length_buf, sizeof(length_buf));
+  } while ( len < 0 && errno == EINTR );
 
+  do {
     len = write(sockfd, data.c_str(), data.size());
     std::cerr << "len: " << len << std::endl;
   } while ( len < 0 && errno == EINTR );

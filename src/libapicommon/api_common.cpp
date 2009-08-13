@@ -12,7 +12,7 @@ BeatBoard::ApiCommon::replaceEscapeChar( std::string& data, std::string& escapec
   while (position != -1)
   {
     data.replace( position, 1, backslash + escapechar, 0, escapechar.size() + backslash.size());
-    position = data.find( ".", position + 1 );
+    position = data.find( escapechar, position + 2 );
     std::cout << "data: " << data << std::endl;
   }
 }
