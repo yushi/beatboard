@@ -2,7 +2,9 @@ var loading = 0;
 var nick = null;
 var active_channel = null;
 var noexec = 0;
+
 $.ajaxSetup({'timeout': 300000});
+
 function connectServer(){
     var server = $("#server").val();
     var nick = $("#nick").val();
@@ -102,7 +104,7 @@ function privmsg(target, message, nick){
                'nick':nick,
            },
            function(data){
-               $("#messages").append(nick + ":" + message + "<br />");
+               $("#messages").append(nick + ":" + replace_centity_ref(message) + "<br />");
                window.scrollBy( 0, screen.height );
            });
 }
@@ -123,7 +125,7 @@ function readMessage(nick){
                            var match_result = messages[i].match("(.+)!.*");
                            if(match_result){
                                $("#messages").append(match_result[1] + ": ");
-                               $("#messages").append(messages[i+1] + "<br />");
+                               $("#messages").append(replace_centity_ref(messages[i+1]) + "<br />");
                            }else{
                                $("#status").html("JOINERS: " + messages[i+1]);
                            }
@@ -152,6 +154,19 @@ function getopt(){
         args[arg[0]] = arg[1];
     }
     return args;
+}
+
+function replace_centity_ref(message) {
+    var centity_ref_array = new Array();
+    centity_ref_array.push(new Array(RegExp('&', 'g'), '&amp;'));
+    centity_ref_array.push(new Array(RegExp('"', 'g'), '&quot;'));
+    centity_ref_array.push(new Array(RegExp('<', 'g'), '&lt;'));
+    centity_ref_array.push(new Array(RegExp('>', 'g'), '&gt;'));
+    for(var i = 0; i < centity_ref_array.length; i++) {
+        message = message.replace(centity_ref_array[i][0],
+                                  centity_ref_array[i][1]);
+    }
+    return message;
 }
 
 function init(){
