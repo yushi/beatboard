@@ -56,9 +56,11 @@ namespace BeatBoard{
     void PONG(string server) throw (Exception);
     void NICK(string name) throw (Exception);
     void USER(string user, string host, string server, string real) throw (Exception);
+    void loggingMessage(string channel, string identifier, string message);
   private:
     void write(string str) throw (Exception);
     void create_socket(void) throw (Exception);
+
   };
 
 }

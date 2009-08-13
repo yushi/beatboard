@@ -63,26 +63,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
           delete(notifier);
           irc_conn->setNotifier(NULL);
         }
-        BeatBoard::ProtobufQueueMemcached queue;
-        logapi::Request request;
-        request.set_channel(channel.c_str());
-        request.set_time("20202002");
-        request.set_identifier(prefix.c_str());
-        request.set_message(message.c_str());
-        std::string data;
-        if ( !request.SerializeToString( &data ) ){
-          std::cout << "Failed to parse request." << std::endl;
-          //error...
-          //return false;
-        }
-        
-        int count = 3;
-        for (int i = 0; i < count; i++){
-          if (queue.enqueue(data) != -1)
-            {
-              break;
-            }
-        }
+        irc_conn->loggingMessage(channel, prefix, message);
         
       }else if(*(event->command) == string("353")){
         irc_conn->received[*(event->params[2])].push_back(string("__JOINERS__"));
@@ -214,7 +195,34 @@ void BeatBoard::IRCConnection::JOIN(string channel) throw (Exception){
 
 void BeatBoard::IRCConnection::PRIVMSG( string channel, string text ) throw (Exception){
   string message("PRIVMSG " + channel + " :" + text);
+  this->loggingMessage(channel, this->nick, text);
   this->write(message);
+}
+
+void BeatBoard::IRCConnection::loggingMessage( string channel, string identifier, string message ){
+  stringstream unixtime;
+  unixtime << (int)time(NULL);
+
+  BeatBoard::ProtobufQueueMemcached queue;
+  logapi::Request request;
+  request.set_channel(channel.c_str());
+  request.set_time(unixtime.str().c_str());
+  request.set_identifier(identifier.c_str());
+  request.set_message(message.c_str());
+  std::string data;
+  if ( !request.SerializeToString( &data ) ){
+    std::cout << "Failed to parse request." << std::endl;
+    //error...
+    //return false;
+  }
+  
+  int count = 3;
+  for (int i = 0; i < count; i++){
+    if (queue.enqueue(data) != -1)
+      {
+        break;
+      }
+  }
 }
 
 BeatBoard::Notifier* BeatBoard::IRCConnection::getNotifier(){
