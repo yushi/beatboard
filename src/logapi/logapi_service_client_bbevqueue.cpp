@@ -21,6 +21,22 @@ BeatBoard::LogApiServiceClientBbevqueue::callback()
 {
 }
 
+void
+BeatBoard::LogApiServiceClientBbevqueue::insert()
+{
+  channel = new BeatBoard::BBRpcChannel(rpcserver_host, rpcserver_port);
+  controller = new BeatBoard::BBRpcController();
+  service = new logapi::RpcService::Stub(channel);
+
+  std::cerr << "channel: " << request.channel() << std::endl;
+  std::cerr << "time: " << request.time() << std::endl;
+  std::cerr << "identifier: " << request.identifier() << std::endl;
+//  std::cerr << "message: " << request.message() << std::endl;
+  
+  google::protobuf::Closure* cb = google::protobuf::NewCallback(&LogApiServiceClientBbevqueue::callback);
+  service->RpcFunc(controller, &request, &response, cb);
+}
+
 bool
 BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
 {
@@ -29,21 +45,25 @@ BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
 
   if ((value = queue.dequeue_nb()) != NULL)
   {
-    channel = new BeatBoard::BBRpcChannel(rpcserver_host, rpcserver_port);
-    controller = new BeatBoard::BBRpcController();
-
-    service = new logapi::RpcService::Stub(channel);
-
     std::cerr << *value << std::endl;
     request.ParseFromString(*value);
+    insert();
 
-    std::cerr << "channel: " << request.channel() << std::endl;
-    std::cerr << "time: " << request.time() << std::endl;
-    std::cerr << "identifier: " << request.identifier() << std::endl;
-    std::cerr << "message: " << request.message() << std::endl;
-
-    google::protobuf::Closure* cb = google::protobuf::NewCallback(&LogApiServiceClientBbevqueue::callback);
-    service->RpcFunc(controller, &request, &response, cb);
+    std::cerr << "result: " << response.result() << std::endl;
+    unsigned int result = response.result();
+    if (result == LOGAPI_RESULT_OK)
+    {
+      std::cerr << "insert success" << std::endl;
+    }
+    else if (result == LOGAPI_RESULT_ERROR)  // 再度投入
+    {
+      std::cerr << "insert failed" << std::endl;
+      insert();
+    }
+    else
+    {
+      std::cerr << "unknow response" << std::endl;
+    }
 
     delete value;
     value = NULL;
@@ -63,7 +83,7 @@ BeatBoard::LogApiServiceClientBbevqueue::start()
     ret = dequeueLogData();
     if (!ret)
     {
-      std::cerr << "bbevqueue is empty" << std::endl;
+      //std::cerr << "bbevqueue is empty" << std::endl;
       usleep(20);
     }
   }

@@ -29,6 +29,7 @@ namespace BeatBoard {
 
     static void callback();
     bool dequeueLogData();
+	void insert();
     
   public:
     LogApiServiceClientBbevqueue( const std::string& rpcserver_host,

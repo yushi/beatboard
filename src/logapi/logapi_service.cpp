@@ -34,12 +34,13 @@ BeatBoard::LogApiService::RpcFunc(google::protobuf::RpcController* controller,
   if (ret)
   {
     response->set_result(LOGAPI_RESULT_OK);
+    response->set_error("logapi rpc server: insert success");
     std::cout << "OK: " << response->result() << std::endl;
   }
   else 
   {
     response->set_result(LOGAPI_RESULT_ERROR);
-    response->set_error("message wasn't set");
+    response->set_error("logapi rpc server: insert faild");
     std::cout << "NG: " << response->result() << std::endl;
   }
   done->Run();
