@@ -37,5 +37,7 @@ namespace BeatBoard{
     HTTPAPINotifier(struct evhttp_request* req, IRCConnection* conn);
     ~HTTPAPINotifier();
     void notify(void* arg);
+  private:
+    string escape(string str);
   };
 }

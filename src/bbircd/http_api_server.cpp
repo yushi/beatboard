@@ -356,13 +356,13 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   //map<string, string>::iterator it = messages.begin();
   map<string, vector<string> >::iterator it = messages.begin();
   while( it != messages.end() ){
-    string key = "\"" + (*it).first + "\"";
+    string key = "\"" + this->escape((*it).first) + "\"";
 
     
     string val = "[";
     for( unsigned int i = 0; i < (*it).second.size(); i+=2){
-      val += "\"" + (*it).second[i] + "\",";
-      val += "\"" + (*it).second[i+1] + "\",";
+      val += "\"" + this->escape((*it).second[i]) + "\",";
+      val += "\"" + this->escape((*it).second[i+1]) + "\",";
     }
     val += "]";
     resp += key + ":" + val + ",";
@@ -379,4 +379,18 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   evbuffer_add( buf, resp.c_str(), resp.size() );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
   evbuffer_free(buf);
+}
+
+string BeatBoard::HTTPAPINotifier::escape(string str){
+  stringstream ret;
+  for(unsigned int i = 0; i < str.size(); i++){
+    if(str[i] == '\\'){
+      ret << "\\\\";
+    }else if(str[i] == '"'){
+      ret << "\\\"";
+    }else{
+      ret << str[i];
+    }
+  }
+  return ret.str();
 }
