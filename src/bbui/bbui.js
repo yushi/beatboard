@@ -23,7 +23,6 @@ function joinChannel(elem){
 function sendMessage(elem){
     var target = $("#target").val();
     var message = $("#message").val();
-    var nick = $("#nick").val();
     
     if(message.length != 0){
         privmsg(target, message, nick);
@@ -171,6 +170,7 @@ function replace_centity_ref(message) {
 
 function init(){
     args = getopt();
+    nick = $.cookie('nick');
     if($.cookie('server') && $.cookie('port') && $.cookie('nick')){
         connect($.cookie('server'), $.cookie('nick'), $.cookie('port'));
     }

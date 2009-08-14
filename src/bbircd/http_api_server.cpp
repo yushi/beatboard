@@ -93,7 +93,7 @@ map<string, string> BeatBoard::HTTPAPIServer::parsePostParameter(struct evhttp_r
   int content_length = atoi(evhttp_find_header (req->input_headers, "Content-Length"));
   struct evkeyvalq* params = (evkeyvalq *)calloc(1, sizeof(struct evkeyvalq));
   string dummy_url = string("http://localhost/?");
-  char *body = (char*)calloc(1,sizeof(char) * content_length);
+  char *body = (char*)calloc(1,sizeof(char) * content_length + 1);
   evbuffer_remove(req->input_buffer, (void*)body, content_length);
 
   //replace "+" to " " for www-form-urlencoded
