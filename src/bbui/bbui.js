@@ -210,8 +210,10 @@ function update_debuginfo(from){
 }
 
 function debug_log(message){
-    var debug_text = (new Date).toLocaleString() + ":  " + message + "<br />";
-    $("#debug_log").append(debug_text);
+    if(debug){
+        var debug_text = (new Date).toLocaleString() + ":  " + message + "<br />";
+        $("#debug_log").append(debug_text);
+    }
     return;
 }
 init();
