@@ -2,9 +2,14 @@
 # #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 import cgi
+import codecs
 from urllib.request import urlopen
 from urllib.parse import urlencode
+
+CHARSET = 'utf-8'
+sys.stdout = open(sys.stdout.fileno(), 'w', encoding=CHARSET, newline='\r\n')
 
 def header():
     print("Content-type: text/html\r\n")
@@ -21,7 +26,9 @@ def redirect_api(form):
     params = urlencode(field)
     f = urlopen(url + '?' + params)
     data = f.read()
-    print(data.decode('utf-8'))
+#    print(sys.getdefaultencoding())
+#    print(sys.stdout.encoding)
+    print(data.decode())
 
 def validate_field(form, key):
     return key in form
