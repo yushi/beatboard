@@ -156,7 +156,7 @@ function getopt(){
     var args = new Object();
     var args_string = location.href.split('?')[1];
     if(!args_string){
-        return;
+        return args;
     }
     var args_array = args_string.split('&');
     for(var i = 0; i < args_array.length; i++){
@@ -180,7 +180,7 @@ function replace_centity_ref(message) {
 }
 
 function init(){
-    args = getopt();
+    var args = getopt();
     if(args['debug']){
         debug = new Object();
     }
