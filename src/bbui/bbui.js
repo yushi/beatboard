@@ -2,6 +2,7 @@ var loading = 0;
 var nick = null;
 var active_channel = null;
 var noexec = 0;
+var debug = 0;
 
 $.ajaxSetup({'timeout': 300000});
 
@@ -37,6 +38,7 @@ function checkLoader(){
         readMessage(nick);
         
     }
+    update_debuginfo("checkLoader");
 }
 
 
@@ -45,6 +47,7 @@ function connect(server, nickname, port){
     $.cookie('nick',nickname);
     $.cookie('server',server);
     $.cookie('port',port);
+    debug_log("connect req");
     $.post("/api/CONNECT",
            {
                'server': server,
@@ -52,6 +55,7 @@ function connect(server, nickname, port){
                "port" : port
            },
            function(data){
+               debug_log("connect res");
                eval("obj=" + data);
                $("#status").html(obj["reason"]);
                if(obj["status"].match('^OK$')){
@@ -71,12 +75,14 @@ function join(channel, nick){
     var url = '/api/JOIN';
     $.cookie('channel',channel);
     active_channel = channel;
+    debug_log("join req");
     $.post(url,
            {
                'channel':channel, //escape(channel),
                'nick' : nick,
            },
            function(data){
+               debug_log("join res");
                eval("obj=" + data);
                $("#status").html(obj["reason"]);
                if(obj["status"].match('^OK$')){
@@ -96,6 +102,7 @@ function join(channel, nick){
 
 function privmsg(target, message, nick){
     var url = "/api/SPEAK";
+    debug_log("privmsg req");
     $.post(url,
            {
                'message':message,
@@ -103,6 +110,7 @@ function privmsg(target, message, nick){
                'nick':nick,
            },
            function(data){
+               debug_log("privmsg res");
                $("#messages").append(nick + ":" + replace_centity_ref(message) + "<br />");
                window.scrollBy( 0, screen.height );
            });
@@ -110,13 +118,14 @@ function privmsg(target, message, nick){
 
 function readMessage(nick){
     var url = "/api/READ";
+    debug_log("read req");
     $.ajax({
                'type': 'POST',
                'url': url,
                'data': {'nickname':nick},
                cache: false,
                success: function(data){
-                   //$("#debug").append(data + "<br />");
+                   debug_log("read response succeess");
                    try{
                        eval("received=" + data);
                        var messages = received[active_channel];
@@ -130,12 +139,14 @@ function readMessage(nick){
                            }
                        }
                    }catch(e){
-                       
+                       alert("error in read received")
                    }
                    loading = 0;
                    window.scrollBy( 0, screen.height );
+                   update_debuginfo("read success");
                },
                error: function(XMLHttpRequest, textStatus, errorThrown){
+                   debug_log("read response error");
                    loading = 0;
                }
            });
@@ -170,6 +181,10 @@ function replace_centity_ref(message) {
 
 function init(){
     args = getopt();
+    if(args['debug']){
+        debug = new Object();
+    }
+
     nick = $.cookie('nick');
     if($.cookie('server') && $.cookie('port') && $.cookie('nick')){
         connect($.cookie('server'), $.cookie('nick'), $.cookie('port'));
@@ -177,5 +192,26 @@ function init(){
     if($.cookie('channel')){
         join($.cookie('channel'), $.cookie('nick'));
     }
+    update_debuginfo("init");
+    debug_log("init");
+}
+
+function update_debuginfo(from){
+    if(debug){
+        var debug_text = "";
+        debug_text += "loading = " + loading + "<br />";
+        debug_text += "last updated = " + (new Date).toLocaleString() + "<br />";
+        if(from){
+            debug_text += "updated by " + from + "<br />";
+        }
+        $("#debug").html(debug_text);
+    }
+    return;
+}
+
+function debug_log(message){
+    var debug_text = (new Date).toLocaleString() + ":  " + message + "<br />";
+    $("#debug_log").append(debug_text);
+    return;
 }
 init();
