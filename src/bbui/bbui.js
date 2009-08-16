@@ -82,12 +82,13 @@ function join(channel, nick){
                eval('obj=' + data);
                $('#status').html(obj['reason']);
                if(obj['status'].match('^OK$')){
-                   $('#send_message').load('send_message.html');
-                   $('#nick').val(nick);
-                   $('#target').val(channel);
-                   $('#join_channel').hide();
-                   $('#head').append(channel);
-                   setInterval(checkLoader, 1000);
+                   $('#send_message').load('send_message.html', null, function(){
+                                               $('#nick').val(nick);
+                                               $('#target').val(active_channel);
+                                               $('#join_channel').hide();
+                                               $('#head').append(channel);
+                                               setInterval(checkLoader, 1000);
+                                           });
                }
            });
 }
@@ -200,7 +201,7 @@ function update_debuginfo(from){
         if(from){
             debug_text += 'updated by ' + from + '<br />';
         }
-        $('#debug').html(debug_text);
+        $('#debug_info').html(debug_text);
     }
     return;
 }
