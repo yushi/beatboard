@@ -312,28 +312,28 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
       fprintf( stderr, "failed to create response buffer\n" );
       return;
     }
-    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
-    notifier->notify((void*)NULL);
+    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req);
+    map<string, vector<string> > messages = conn->getMessage();
+    conn->setNotifier(notifier);
+    conn->notify();
     delete(notifier);
   }else{
     logger.debug("message not found");
-    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req,  conn);
+    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req);
     conn->setNotifier(notifier);
-    //delete?
   }
   evbuffer_free(buf);
 }
 
-BeatBoard::HTTPAPINotifier::HTTPAPINotifier(struct evhttp_request *req,  IRCConnection* conn){
+BeatBoard::HTTPAPINotifier::HTTPAPINotifier(struct evhttp_request *req){
   this->req = req;
-  this->conn = conn;
   this->init_time = time(NULL);
 }
 
 BeatBoard::HTTPAPINotifier::~HTTPAPINotifier(){
 }
 
-void BeatBoard::HTTPAPINotifier::notify(void* arg){
+void BeatBoard::HTTPAPINotifier::notify(map<string, vector<string> >* messages){
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("NOTIFY");
   if(time(NULL) - this->init_time > 180){
@@ -341,8 +341,6 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
   }
   evhttp_request* req = this->req;
   this->req = NULL;
-  IRCConnection* conn = this->conn;
-  this->conn = NULL;
 
   struct evbuffer *buf;
   buf = evbuffer_new();
@@ -350,12 +348,10 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
     fprintf( stderr, "failed to create response buffer\n" );
     return;
   }
-  //map<string,string> messages = conn->getMessage();
-  map<string, vector<string> > messages = conn->getMessage();
+
   string resp = string("{");
-  //map<string, string>::iterator it = messages.begin();
-  map<string, vector<string> >::iterator it = messages.begin();
-  while( it != messages.end() ){
+  map<string, vector<string> >::iterator it = (*messages).begin();
+  while( it != (*messages).end() ){
     string key = "\"" + this->escape((*it).first) + "\"";
 
     
@@ -378,6 +374,7 @@ void BeatBoard::HTTPAPINotifier::notify(void* arg){
 
   evbuffer_add( buf, resp.c_str(), resp.size() );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
+  logger.debug("NOTIFY END");
   evbuffer_free(buf);
 }
 

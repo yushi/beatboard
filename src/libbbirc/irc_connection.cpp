@@ -57,23 +57,13 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         irc_conn->received[channel].push_back(prefix);
         irc_conn->received[channel].push_back(message);
 
-        BeatBoard::Notifier* notifier = irc_conn->getNotifier();
-        if( notifier != NULL){
-          notifier->notify((void*)NULL);
-          delete(notifier);
-          irc_conn->setNotifier(NULL);
-        }
+        irc_conn->notify();
         irc_conn->loggingMessage(channel, prefix, message);
         
       }else if(*(event->command) == string("353")){
         irc_conn->received[*(event->params[2])].push_back(string("__JOINERS__"));
         irc_conn->received[*(event->params[2])].push_back(*(event->params[3]));
-        BeatBoard::Notifier* notifier = irc_conn->getNotifier();
-        if( notifier != NULL){
-          notifier->notify((void*)NULL);
-          delete(notifier);
-          irc_conn->setNotifier(NULL);
-        }
+        irc_conn->notify();
       }
       delete event;
     }else{
@@ -97,7 +87,6 @@ void irc_buffevent_error( struct bufferevent *bev, short what, void *arg ) {
 
 BeatBoard::IRCConnection::IRCConnection(string nick) {
   this->nick = nick;
-  this->notifier = NULL;
   if(NULL == ev_base){
     ev_base = event_init();
   }
@@ -225,12 +214,20 @@ void BeatBoard::IRCConnection::loggingMessage( string channel, string identifier
   }
 }
 
-BeatBoard::Notifier* BeatBoard::IRCConnection::getNotifier(){
-  return this->notifier;
+void BeatBoard::IRCConnection::setNotifier(BeatBoard::Notifier* notifier){
+  this->notifier.push_back(notifier);
 }
 
-void BeatBoard::IRCConnection::setNotifier(BeatBoard::Notifier* notifier){
-  this->notifier = notifier;
+void BeatBoard::IRCConnection::notify(){
+  map<string, vector<string> > messages = this->getMessage();
+  vector<Notifier*>::iterator it = this->notifier.begin();
+  while(it != this->notifier.end()){
+    (*it)->notify(&messages);
+    delete((*it));
+    ++it;
+  }
+  this->notifier.clear();
+  return;
 }
 
 BeatBoard::IRCConnection::~IRCConnection(){
@@ -262,5 +259,5 @@ map<string, vector<string> > BeatBoard::IRCConnection::getMessage(){
 BeatBoard::Notifier::~Notifier(){
 }
 
-void BeatBoard::Notifier::notify(void *){
+void BeatBoard::Notifier::notify(map<string, vector<string> >*){
 }

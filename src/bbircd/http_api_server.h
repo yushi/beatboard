@@ -34,9 +34,9 @@ namespace BeatBoard{
     struct evbuffer* buf;
     time_t init_time;
     IRCConnection* conn;
-    HTTPAPINotifier(struct evhttp_request* req, IRCConnection* conn);
+    HTTPAPINotifier(struct evhttp_request* req);
     ~HTTPAPINotifier();
-    void notify(void* arg);
+    void notify(map<string, vector<string> >* arg);
   private:
     string escape(string str);
   };

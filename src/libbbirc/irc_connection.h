@@ -24,7 +24,7 @@ namespace BeatBoard{
   class Notifier{
   public:
     virtual ~Notifier();
-    virtual void notify(void* arg);
+    virtual void notify(map<string, vector<string> >* arg);
   };
   /*
    * IRC Connection Class
@@ -38,7 +38,7 @@ namespace BeatBoard{
   private:
     string nick;
     static string newline;
-    Notifier* notifier;
+    vector<Notifier*> notifier;
     // methods ////////////////////////////////////////////
   public:
     static bool bb_event_dispatch(struct event_base *ev);
@@ -46,7 +46,7 @@ namespace BeatBoard{
     IRCConnection(string nick);
     ~IRCConnection();
     void setNotifier(Notifier* notifier);
-    Notifier* getNotifier();
+    void notify();
     bool hasMessage();
     map<string, vector<string> > getMessage();
     void connectIRCServer(string addr, string port) throw (Exception);
