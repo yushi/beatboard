@@ -221,12 +221,23 @@ void BeatBoard::IRCConnection::setNotifier(BeatBoard::Notifier* notifier){
 void BeatBoard::IRCConnection::notify(){
   map<string, vector<string> > messages = this->getMessage();
   vector<Notifier*>::iterator it = this->notifier.begin();
+  bool notify_success = false;
   while(it != this->notifier.end()){
-    (*it)->notify(&messages);
+    bool result = (*it)->notify(&messages);
     delete((*it));
+
+    if(result){
+      notify_success = true;
+    }
+
     ++it;
   }
   this->notifier.clear();
+
+  if(!notify_success){
+    this->received = messages;
+  }
+
   return;
 }
 
@@ -259,5 +270,6 @@ map<string, vector<string> > BeatBoard::IRCConnection::getMessage(){
 BeatBoard::Notifier::~Notifier(){
 }
 
-void BeatBoard::Notifier::notify(map<string, vector<string> >*){
+bool BeatBoard::Notifier::notify(map<string, vector<string> >*){
+  return false;
 }

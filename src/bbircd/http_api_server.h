@@ -20,8 +20,8 @@ namespace BeatBoard{
     static void speakHandler( struct evhttp_request *req, void *arg );    
     static void readHandler( struct evhttp_request *req, void *arg );
     struct event_base *http_ev_base;
-  private:
     static const int TIMEOUT;
+  private:
     struct evhttp *httpd;
     map<string, string> parseParameter(struct evhttp_request *req);
     map<string, string> parseGetParameter(struct evhttp_request *req);
@@ -36,7 +36,7 @@ namespace BeatBoard{
     IRCConnection* conn;
     HTTPAPINotifier(struct evhttp_request* req);
     ~HTTPAPINotifier();
-    void notify(map<string, vector<string> >* arg);
+    bool notify(map<string, vector<string> >* arg);
   private:
     string escape(string str);
   };

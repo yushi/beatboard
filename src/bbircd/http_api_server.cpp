@@ -313,10 +313,8 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
       return;
     }
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req);
-    map<string, vector<string> > messages = conn->getMessage();
     conn->setNotifier(notifier);
     conn->notify();
-    delete(notifier);
   }else{
     logger.debug("message not found");
     HTTPAPINotifier* notifier =   new HTTPAPINotifier(req);
@@ -333,11 +331,12 @@ BeatBoard::HTTPAPINotifier::HTTPAPINotifier(struct evhttp_request *req){
 BeatBoard::HTTPAPINotifier::~HTTPAPINotifier(){
 }
 
-void BeatBoard::HTTPAPINotifier::notify(map<string, vector<string> >* messages){
+bool BeatBoard::HTTPAPINotifier::notify(map<string, vector<string> >* messages){
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("NOTIFY");
-  if(time(NULL) - this->init_time > 180){
-    return;
+  if(time(NULL) - this->init_time > BeatBoard::HTTPAPIServer::HTTPAPIServer::TIMEOUT){
+    logger.debug("NOTIFY TIMEOUT");
+    return false;
   }
   evhttp_request* req = this->req;
   this->req = NULL;
@@ -346,7 +345,7 @@ void BeatBoard::HTTPAPINotifier::notify(map<string, vector<string> >* messages){
   buf = evbuffer_new();
   if ( buf == NULL ) {
     fprintf( stderr, "failed to create response buffer\n" );
-    return;
+    return false;
   }
 
   string resp = string("{");
@@ -376,6 +375,7 @@ void BeatBoard::HTTPAPINotifier::notify(map<string, vector<string> >* messages){
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
   logger.debug("NOTIFY END");
   evbuffer_free(buf);
+  return true;
 }
 
 string BeatBoard::HTTPAPINotifier::escape(string str){

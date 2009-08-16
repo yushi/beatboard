@@ -24,7 +24,7 @@ namespace BeatBoard{
   class Notifier{
   public:
     virtual ~Notifier();
-    virtual void notify(map<string, vector<string> >* arg);
+    virtual bool notify(map<string, vector<string> >* arg);
   };
   /*
    * IRC Connection Class
