@@ -20,7 +20,6 @@ namespace BeatBoard{
     static void speakHandler( struct evhttp_request *req, void *arg );    
     static void readHandler( struct evhttp_request *req, void *arg );
     struct event_base *http_ev_base;
-    static const int TIMEOUT;
   private:
     struct evhttp *httpd;
     map<string, string> parseParameter(struct evhttp_request *req);

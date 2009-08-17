@@ -3,8 +3,9 @@ var nick = null;
 var active_channel = null;
 var noexec = 0;
 var debug = 0;
+var no_refferer = 1;
 
-$.ajaxSetup({'timeout': 300000});
+$.ajaxSetup({'timeout': 0});
 
 function connectServer(){
     var server = $('#server').val();
@@ -104,7 +105,7 @@ function privmsg(target, message, nick){
            },
            function(data){
                debug_log('privmsg res');
-               $('#messages').append(nick + ':' + replace_centity_ref(message) + '<br />');
+               addMessage(nick, message);
                window.scrollBy( 0, screen.height );
            });
 }
@@ -125,14 +126,13 @@ function readMessage(nick){
                        for(var i = 0; i < messages.length; i+=2){
                            var match_result = messages[i].match('(.+)!.*');
                            if(match_result){
-                               $('#messages').append(match_result[1] + ': ');
-                               $('#messages').append(replace_centity_ref(messages[i+1]) + '<br />');
+                               addMessage(match_result[1], messages[i+1]);
                            }else{
                                $('#status').html('JOINERS: ' + messages[i+1]);
                            }
                        }
                    }catch(e){
-                       alert('error in read received')
+                       //alert('error in read received')
                    }
                    loading = 0;
                    window.scrollBy( 0, screen.height );
@@ -143,6 +143,32 @@ function readMessage(nick){
                    loading = 0;
                }
            });
+}
+
+function extractLink(str){
+    var re = new RegExp("");
+    re.compile(/https?:\/\/.*/);
+    var match_result = str.match(re);
+    if(match_result){
+        if(no_refferer){
+            //IE not supported
+	    var html = '<html><head><script type="text/javascript"><!--\n'
+	        + 'document.write(\'<meta http-equiv="refresh" content="0;url='+match_result[0]+'">\');'
+	        + '// --><'+'/script></head><body></body></html>';
+            str = str.replace(re, "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" +encodeURIComponent(html) + "\" >" + match_result[0] + "</a>");
+        }else{
+            str = str.replace(re, "<a target=\"_blank\" href=\"" + match_result[0] + "\" >" + match_result[0] + "</a>");
+        }
+    }
+    return str;
+}
+
+function addMessage(speaker, message){
+    var escaped_nick = replace_centity_ref(speaker);
+    var escaped_message = replace_centity_ref(message);
+    $('#messages').append( escaped_nick + ': ');
+    $('#messages').append( extractLink(escaped_message) + '<br />');
+    
 }
 
 function getopt(){

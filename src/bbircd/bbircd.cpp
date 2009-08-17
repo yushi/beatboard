@@ -1,5 +1,10 @@
 #include "bbircd.h"
 
+void sig_handler_SIGPIPE(int sig){
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug( "SIGPIPE received" );
+}
+
 void BeatBoard::BBIRCD::Daemon::setUp() {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
 
@@ -34,6 +39,7 @@ int main( int argc, char** argv ) {
   logger.info( "bbircd started" );
   std::set_unexpected( unexpected_exception_handler );
 
+  signal(SIGPIPE , sig_handler_SIGPIPE);
   BeatBoard::BBIRCD::Daemon bbircd;
     bbircd.setUp();
     bbircd.startService();
