@@ -12,6 +12,9 @@
     height: 10%;
 }
 
+span{
+    margin: 10px 10px 10px 10px;
+}
 #messages
 {
     width: 80%;

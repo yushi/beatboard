@@ -3,11 +3,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   </head>
   <body>
-    <div id="head"></div>
     <link href="bb.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="./jquery-1.3.2.min.js"></script>
     <script type="text/javascript" src="./jquery.cookie.js"></script>
-    <div id="status"></div>
+    <div id="join_channel"></div>
     <form  id="connect" onsubmit="javascript:return connectServer();"> 
 
       server<input id="server" type="text" value="127.0.0.1" />
@@ -16,18 +15,16 @@
       <input type="submit" value="connect">
     </form>
 
+    <div id="channels">
+    </div>
     <div id="messagebox">
-    <div id="messages">
+      <div id="yohaku"> </div>
     </div>
-    <br />
-    <div id="yohaku"> </div>
-
+    <div id="send_message">
     </div>
-    <div id="join_channel"></div>
-    <div id="send_message"></div>
-
     <div id="joiners"></div>
     <div id="debug">
+      <div id="status"></div>
       <div id="debug_info"></div>
       <div id="debug_menu">
         <input type="button" value="delete cookie" onclick="javascript:delete_cookie()"></input>

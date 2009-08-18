@@ -17,17 +17,15 @@ function connectServer(){
 
 function joinChannel(elem){
     var channel = $('#channel').val();
-    var nick = $('#nick').val();
     join(channel, nick);
     return false;
 }
 
 function sendMessage(elem){
-    var target = $('#target').val();
     var message = $('#message').val();
     
     if(message.length != 0){
-        privmsg(target, message, nick);
+        privmsg(active_channel, message, nick);
         $('#message').val('');
     }
     return false;
@@ -64,6 +62,7 @@ function connect(server, nickname, port){
                    $('#join_channel').load('join_channel.html');
                    $('#nick').val(nick);
                }
+               setInterval(checkLoader, 1000);
            });
     
 }
@@ -85,12 +84,11 @@ function join(channel, nick){
                if(obj['status'].match('^OK$')){
                    $('#send_message').load('send_message.html', null, function(){
                                                $('#nick').val(nick);
-                                               $('#target').val(active_channel);
-                                               $('#join_channel').hide();
-                                               $('#head').append(channel);
-                                               setInterval(checkLoader, 1000);
+                                               //$('#join_channel').hide();
+
                                            });
                }
+               createChannelUI(active_channel, 1);
            });
 }
 
@@ -105,7 +103,7 @@ function privmsg(target, message, nick){
            },
            function(data){
                debug_log('privmsg res');
-               addMessage(nick, message);
+               addMessage(nick, active_channel,message);
                window.scrollBy( 0, screen.height );
            });
 }
@@ -122,13 +120,15 @@ function readMessage(nick){
                    debug_log('read response succeess');
                    try{
                        eval('received=' + data);
-                       var messages = received[active_channel];
-                       for(var i = 0; i < messages.length; i+=2){
-                           var match_result = messages[i].match('(.+)!.*');
-                           if(match_result){
-                               addMessage(match_result[1], messages[i+1]);
-                           }else{
-                               $('#status').html('JOINERS: ' + messages[i+1]);
+                       for(channel in received){
+                           var messages = received[channel];
+                           for(var i = 0; i < messages.length; i+=2){
+                               var match_result = messages[i].match('(.+)!.*');
+                               if(match_result){
+                                   addMessage(match_result[1], channel, messages[i+1]);
+                               }else{
+                                   $('#status').html('JOINERS: ' + messages[i+1]);
+                               }
                            }
                        }
                    }catch(e){
@@ -163,12 +163,48 @@ function extractLink(str){
     return str;
 }
 
-function addMessage(speaker, message){
+function addChannel(channel){
+    
+}
+
+function selectChannel(channel){
+    active_channel = channel;
+    var channel_divs = $('#messagebox > *');
+    for( var i = 0; i < channel_divs.length; i++){
+        if( channel_divs[i].id != channel ){
+            $(channel_divs[i]).hide();
+            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color','white');
+        }else{
+            $(channel_divs[i]).show();
+            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color','gray');
+        }
+    }
+}
+
+function createChannelUI(channel, active){
+    if(!$('#messagebox > #\\' + channel)[0]){
+        $('#messagebox').prepend('<div id="' + channel + '" ></div>');
+        $('#channels').prepend('<span id="' + 
+                               channel + 
+                               '" onclick="javascript:selectChannel(\'' + 
+                               channel + 
+                               '\')" >' + 
+                               channel + 
+                               '</span>');
+        if(!active){
+            $('#messagebox > #\\' + channel).hide();
+        }else{
+            selectChannel(channel);
+        }
+    }
+}
+
+function addMessage(speaker, channel, message){
     var escaped_nick = replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
-    $('#messages').append( escaped_nick + ': ');
-    $('#messages').append( extractLink(escaped_message) + '<br />');
-    
+    createChannelUI(channel);
+    $('#messagebox > #\\' + channel).append( escaped_nick + ': ');
+    $('#messagebox > #\\' + channel).append( extractLink(escaped_message) + '<br />');
 }
 
 function getopt(){
