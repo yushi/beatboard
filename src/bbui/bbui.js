@@ -199,12 +199,15 @@ function createChannelUI(channel, active){
     }
 }
 
+function getCurrentTime(){
+    var now = new Date();
+    return (1900 + now.getYear()) + '/' + (now.getMonth()  + 1 ) + '/' + now.getDate()  + ' ' + now.getHours() + ':' + now.getMinutes();
+}
 function addMessage(speaker, channel, message){
     var escaped_nick = replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
-    $('#messagebox > #\\' + channel).append( escaped_nick + ': ');
-    $('#messagebox > #\\' + channel).append( extractLink(escaped_message) + '<br />');
+    $('#messagebox > #\\' + channel).append( '<div id="line"><div id="usermessage">' + escaped_nick + ': ' + extractLink(escaped_message) + '</div><div id="time">' + getCurrentTime() + '</div></p>');
 }
 
 function getopt(){

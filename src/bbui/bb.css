@@ -12,6 +12,23 @@
     height: 10%;
 }
 
+#line{
+    margin: 0px;
+    padding: 0px;
+    line-height: 5px;
+}
+
+#usermessage{
+    margin: 0px;
+    padding: 0px;
+    text-align: left;
+    float: left;
+}
+#time{
+    padding: 0px;
+    margin: 0px;
+    text-align: right;
+}
 span{
     margin: 10px 10px 10px 10px;
 }
