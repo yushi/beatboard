@@ -11,7 +11,7 @@ int main(int argc, char** argv)
   //google::protobuf::Service* service = new ExampleService;
   std::string db = "test";
   std::string table = "test3";
-  std::string drizzle_host = "localhost";
+  std::string drizzle_host = "127.0.0.1";
   in_port_t drizzle_port = 8888;
 
   authapi::RpcService* service = new BeatBoard::AuthApiService( db, table, drizzle_host, drizzle_port );
