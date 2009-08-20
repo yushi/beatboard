@@ -231,6 +231,9 @@ function addMessage(speaker, channel, message){
             extractLink(escaped_message) + 
             '</div><div id="time">' + 
             getCurrentTime() + '</div></p>');
+    if(channel != active_channel){
+        $($('#channels > #\\' + channel)[0]).css('background-color','red');        
+    }
 }
 
 function getopt(){
