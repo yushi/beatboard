@@ -60,8 +60,8 @@ function connect(server, nickname, port){
                if(obj['status'].match('^OK$')){
                    $('#connect').toggle();
                    $('#join_channel').load('join_channel.html');
-                   $('#nick').val(nick);
                }
+               $('#send_message').load('send_message.html');
                setInterval(checkLoader, 1000);
            });
     
@@ -82,11 +82,6 @@ function join(channel, nick){
                eval('obj=' + data);
                $('#status').html(obj['reason']);
                if(obj['status'].match('^OK$')){
-                   $('#send_message').load('send_message.html', null, function(){
-                                               $('#nick').val(nick);
-                                               //$('#join_channel').hide();
-
-                                           });
                }
                createChannelUI(active_channel, 1);
            });
