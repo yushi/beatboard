@@ -4,7 +4,9 @@ var active_channel = null;
 var noexec = 0;
 var debug = 0;
 var no_refferer = 1;
-
+var focused = 1;
+var new_message = 0;
+var notify_index = 0;
 $.ajaxSetup({'timeout': 0});
 
 function connectServer(){
@@ -31,11 +33,21 @@ function sendMessage(elem){
     return false;
 }
 
+function updateNotifyTitle(){
+    var notify_message = ['new', 'n e w'];
+    $("title").text(notify_message[notify_index]);
+    notify_index = notify_index ? 0 : 1;
+}
 function checkLoader(){
     if(loading == 0){
         loading = 1;
         readMessage(nick);
         
+    }
+    if(new_message){
+        updateNotifyTitle();
+    }else{
+        $("title").text("BeatBoard");
     }
     update_debuginfo('checkLoader');
 }
@@ -231,8 +243,13 @@ function addMessage(speaker, channel, message){
             extractLink(escaped_message) + 
             '</div><div id="time">' + 
             getCurrentTime() + '</div></p>');
+    
     if(channel != active_channel){
-        $($('#channels > #\\' + channel)[0]).css('background-color','red');        
+        $($('#channels > #\\' + channel)[0]).css('background-color','red');
+    }
+
+    if(!focused){
+        new_message = 1;
     }
 }
 
@@ -265,6 +282,8 @@ function replace_centity_ref(message) {
 
 function init(){
     var args = getopt();
+    $(window).blur(function(){ focused = 0 });
+    $(window).focus(function(){ focused = 1; new_message = 0; });
     if(args['debug']){
         debug = new Object();
     }else{
