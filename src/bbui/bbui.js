@@ -194,15 +194,43 @@ function createChannelUI(channel, active){
     }
 }
 
+function zeroPadding(num){
+    var ret = '';
+    if(num < 10){
+        ret += '0' + num;
+    }else{
+        ret += num;
+    }
+    return ret;
+}
 function getCurrentTime(){
     var now = new Date();
-    return (1900 + now.getYear()) + '/' + (now.getMonth()  + 1 ) + '/' + now.getDate()  + ' ' + now.getHours() + ':' + now.getMinutes();
+    return (1900 + now.getYear()) + 
+        '/' + 
+        zeroPadding(now.getMonth()  + 1 ) + 
+        '/' + 
+        zeroPadding(now.getDate())  + 
+        ' ' + 
+        zeroPadding(now.getHours()) + 
+        ':' + 
+        zeroPadding(now.getMinutes());
+}
+
+function toggleTime(elem, flag){
+    var color = flag ? 'black' : 'white';
+    $(elem.childNodes[1]).css('color', color);
 }
 function addMessage(speaker, channel, message){
     var escaped_nick = replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
-    $('#messagebox > #\\' + channel).append( '<div id="line"><div id="usermessage">' + escaped_nick + ': ' + extractLink(escaped_message) + '</div><div id="time">' + getCurrentTime() + '</div></p>');
+    $('#messagebox > #\\' + channel).append( 
+        '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
+            '<div id="usermessage">' + 
+            escaped_nick + ': ' + 
+            extractLink(escaped_message) + 
+            '</div><div id="time">' + 
+            getCurrentTime() + '</div></p>');
 }
 
 function getopt(){
