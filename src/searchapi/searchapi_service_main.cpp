@@ -11,10 +11,10 @@ int main(int argc, char** argv)
   //google::protobuf::Service* service = new ExampleService;
   std::string db = "test";
   std::string table = "test2";
-  std::string drizzle_host = "localhost";
+  std::string drizzle_host = "127.0.0.1";
   in_port_t drizzle_port = 8888;
 
-  std::string memcached_host = "localhost";
+  std::string memcached_host = "127.0.0.1";
   in_port_t memcached_port = 11211;
 
   searchapi::RpcService* service = new BeatBoard::SearchApiService( db, table, drizzle_host, drizzle_port, memcached_host, memcached_port );
