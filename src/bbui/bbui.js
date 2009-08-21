@@ -27,8 +27,9 @@ function sendMessage(elem){
     var message = $('#message').val();
     
     if(message.length != 0){
-        privmsg(active_channel, message, nick);
-        $('#message').val('');
+        if(privmsg(active_channel, message, nick)){
+            $('#message').val('');
+        }
     }
     return false;
 }
@@ -101,6 +102,9 @@ function join(channel, nick){
 
 function privmsg(target, message, nick){
     var url = '/api/SPEAK';
+    if(target == null){
+        return;
+    }
     debug_log('privmsg req');
     $.post(url,
            {
@@ -113,6 +117,7 @@ function privmsg(target, message, nick){
                addMessage(nick, active_channel,message);
                window.scrollBy( 0, screen.height );
            });
+    return true;
 }
 
 function readMessage(nick){

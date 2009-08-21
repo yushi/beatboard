@@ -2,6 +2,7 @@ BB_HOME=/usr/bb
 all:
 install:
 	mkdir -p $(BB_HOME)/etc/init.d
+	mkdir -p $(BB_HOME)/etc/httpd.conf.d
 	mkdir -p $(BB_HOME)/var/log
 	mkdir -p $(BB_HOME)/var/run
 	install -m644 httpd.conf $(BB_HOME)/etc
