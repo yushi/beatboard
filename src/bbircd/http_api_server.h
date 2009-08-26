@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include "bblogger.h"
-#include "http_api_notifier.h"1
+#include "http_api_notifier.h"
 namespace BeatBoard{
   class HTTPAPIServer  : public IRCClientOperation {
   public:
