@@ -178,7 +178,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
         ++it;
       }
       res += "}";
-      //res = create_simple_response(true, "connection found");
+      res = create_simple_response(true, "connection found");
       evbuffer_add_printf( buf,  res.c_str());
     }
     ostringstream csize;
