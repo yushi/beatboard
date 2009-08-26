@@ -17,10 +17,9 @@
 #include <map>
 #include "bb_protobuf_queue_memcached.h"
 #include "logapi.pb.h"
-
+#include "irc_channel.h"
 using namespace std;
 namespace BeatBoard{
-
   class Notifier{
   public:
     virtual ~Notifier();
@@ -34,19 +33,25 @@ namespace BeatBoard{
   public:
     int sock;
     struct bufferevent *buffevent;
-    map<string, vector<string> > received;
+    map<string, IRCChannel> received;
+    static const string RPL_NAMREPLY;
+    static const string RPL_ENDOFNAMES;
   private:
     string nick;
-    static string newline;
-    vector<Notifier*> notifier;
+    vector<Notifier*> readNotifier;
+    vector<Notifier*> joinNotifier;
+    static const string newline;
+
     // methods ////////////////////////////////////////////
   public:
     static bool bb_event_dispatch(struct event_base *ev);
     static void bb_event_finish();
     IRCConnection(string nick);
     ~IRCConnection();
-    void setNotifier(Notifier* notifier);
-    void notify();
+    void setReadNotifier(Notifier* notifier);
+    void setJoinNotifier(Notifier* notifier);
+    void notifyRead();
+    void notifyJoin();
     bool hasMessage();
     map<string, vector<string> > getMessage();
     void connectIRCServer(string addr, string port) throw (Exception);
@@ -60,7 +65,8 @@ namespace BeatBoard{
   private:
     void write(string str) throw (Exception);
     void create_socket(void) throw (Exception);
-
+    bool notify(map<string, vector<string> > messages,
+                vector<Notifier*>* notifiers);
   };
 
 }

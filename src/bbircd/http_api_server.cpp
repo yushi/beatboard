@@ -128,7 +128,7 @@ map<string, string> BeatBoard::HTTPAPIServer::parseGetParameter(struct evhttp_re
   return ret;
 }
 
-string create_simple_response(bool status, char* reason){
+string create_simple_response(bool status, const char* reason){
   string res = "{'status': ";
   res += (status ? string("'OK'") : string("'NG'")) + string(", ");
   res += "'reason' : '" + string(reason) + "'}";
@@ -164,7 +164,21 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
       res = create_simple_response(true, "connection created");
       evbuffer_add_printf( buf,  res.c_str());
     }else{
-      res = create_simple_response(true, "connection found");
+      map<string, IRCChannel>::iterator it = (conn->received).begin();
+      res += "{'status': 'OK', 'users': {";
+      while(it != (conn->received).end()){
+        res +=  "'" + it->first + "': [";
+        vector<string> users = (it->second).getUsers();
+        vector<string>::iterator user = users.begin();
+        while(user != users.end()){
+          res += "'" + *user + "'";
+          ++user;
+        }
+        res += "]}";
+        ++it;
+      }
+      res += "}";
+      //res = create_simple_response(true, "connection found");
       evbuffer_add_printf( buf,  res.c_str());
     }
     ostringstream csize;
@@ -234,13 +248,12 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
     //evbuffer_add_printf( buf, "This is JOIN API" );
     //evhttp_send_reply( req, HTTP_OK, "OK", buf );
     res = create_simple_response(true, "joined");
-    evbuffer_add_printf( buf,  res.c_str());
   } catch ( BeatBoard::Exception& error ) {
     logger.debug( error.message.data() );
     cerr << "irc coonection error\n";
     res = create_simple_response(true, "join failed");
-    evbuffer_add_printf( buf,  res.c_str());
   }
+  evbuffer_add_printf( buf,  res.c_str());
   ostringstream csize;
   csize << res.size();
   evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
@@ -304,78 +317,14 @@ void BeatBoard::HTTPAPIServer::readHandler( struct evhttp_request *req, void *ar
       fprintf( stderr, "failed to create response buffer\n" );
       return;
     }
-    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req);
-    conn->setNotifier(notifier);
-    conn->notify();
+    HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req);
+    conn->setReadNotifier(notifier);
+    conn->notifyRead();
   }else{
     logger.debug("message not found");
-    HTTPAPINotifier* notifier =   new HTTPAPINotifier(req);
-    conn->setNotifier(notifier);
+    HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req);
+    conn->setReadNotifier(notifier);
   }
   evbuffer_free(buf);
 }
 
-BeatBoard::HTTPAPINotifier::HTTPAPINotifier(struct evhttp_request *req){
-  this->req = req;
-  this->init_time = time(NULL);
-}
-
-BeatBoard::HTTPAPINotifier::~HTTPAPINotifier(){
-}
-
-bool BeatBoard::HTTPAPINotifier::notify(map<string, vector<string> >* messages){
-  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-  logger.debug("NOTIFY");
-  evhttp_request* req = this->req;
-  this->req = NULL;
-
-  struct evbuffer *buf;
-  buf = evbuffer_new();
-  if ( buf == NULL ) {
-    fprintf( stderr, "failed to create response buffer\n" );
-    return false;
-  }
-
-  string resp = string("{");
-  map<string, vector<string> >::iterator it = (*messages).begin();
-  while( it != (*messages).end() ){
-    string key = "\"" + this->escape((*it).first) + "\"";
-
-    
-    string val = "[";
-    for( unsigned int i = 0; i < (*it).second.size(); i+=2){
-      val += "\"" + this->escape((*it).second[i]) + "\",";
-      val += "\"" + this->escape((*it).second[i+1]) + "\",";
-    }
-    val += "]";
-    resp += key + ":" + val + ",";
-    ++it;
-  }
-  resp += "}";
-
-  evhttp_add_header(req->output_headers, "Content-type","application/x-javascript; charset=utf-8");
-
-  ostringstream csize;
-  csize << resp.size();
-  evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
-
-  evbuffer_add( buf, resp.c_str(), resp.size() );
-  evhttp_send_reply( req, HTTP_OK, "OK", buf );
-  logger.debug("NOTIFY END");
-  evbuffer_free(buf);
-  return true;
-}
-
-string BeatBoard::HTTPAPINotifier::escape(string str){
-  stringstream ret;
-  for(unsigned int i = 0; i < str.size(); i++){
-    if(str[i] == '\\'){
-      ret << "\\\\";
-    }else if(str[i] == '"'){
-      ret << "\\\"";
-    }else{
-      ret << str[i];
-    }
-  }
-  return ret.str();
-}

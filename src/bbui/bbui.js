@@ -74,6 +74,11 @@ function connect(server, nickname, port){
                    $('#connect').toggle();
                    $('#join_channel').load('join_channel.html');
                }
+               if(obj['users']){
+                   for(var channels in obj['users']){
+                       //obj['users'][channels]
+                   }
+               }
                $('#send_message').load('send_message.html');
                setInterval(checkLoader, 1000);
            });

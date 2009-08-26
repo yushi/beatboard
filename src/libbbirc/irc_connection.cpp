@@ -3,7 +3,9 @@
 struct event_base *ev_base = NULL;
 
 // static field
-string BeatBoard::IRCConnection::newline = string("\r\n");
+const string BeatBoard::IRCConnection::newline = string("\r\n");
+const string BeatBoard::IRCConnection::RPL_NAMREPLY = string("353");
+const string BeatBoard::IRCConnection::RPL_ENDOFNAMES = string("366");
 
 bool BeatBoard::IRCConnection::bb_event_dispatch(struct event_base *ev){
   if(ev != NULL){
@@ -54,19 +56,53 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         string message = *(event->params[1]);
         string prefix = *(event->prefix);
 
-        irc_conn->received[channel].push_back(prefix);
-        irc_conn->received[channel].push_back(message);
-
-        irc_conn->notify();
+        irc_conn->received[channel].addMessage(prefix, message);
+        
+        irc_conn->notifyRead();
         irc_conn->loggingMessage(channel, prefix, message);
         
-      }else if(*(event->command) == string("353")){
-        irc_conn->received[*(event->params[2])].push_back(string("__JOINERS__"));
-        irc_conn->received[*(event->params[2])].push_back(*(event->params[3]));
-        irc_conn->notify();
+      }else if(*(event->command) == BeatBoard::IRCConnection::RPL_NAMREPLY){
+        irc_conn->received[*(event->params[2])].addUser(*(event->params[3]));
+      }else if(*(event->command) == BeatBoard::IRCConnection::RPL_ENDOFNAMES){
+        irc_conn->received[*(event->params[1])].addUserEnd();
+        irc_conn->notifyJoin();
+      }else if(*(event->command) == string("JOIN")){
+        string channel = *(event->params[0]);
+        string message = *(event->command);
+        string prefix = *(event->prefix);
+
+        irc_conn->received[channel].addMessage(prefix, message);
+        
+        irc_conn->notifyRead();
+        irc_conn->loggingMessage(channel, prefix, message);
+
+      }else if(*(event->command) == string("PART")){
+        string channel = *(event->params[0]);
+        string message = *(event->command) + string(" ") + *(event->params[1]);
+        string prefix = *(event->prefix);
+
+        irc_conn->received[channel].addMessage(prefix, message);
+        
+        irc_conn->notifyRead();
+        irc_conn->loggingMessage(channel, prefix, message);
+
+      }else if(*(event->command) == string("QUIT")){
+        string message = *(event->command) + string(" ") + *(event->params[0]);
+        string prefix = *(event->prefix);
+
+        map<string,BeatBoard::IRCChannel>::iterator it =
+          (irc_conn->received).begin();
+        while(it != (irc_conn->received).end()){
+          irc_conn->received[it->first].addMessage(prefix, message);
+          irc_conn->loggingMessage(it->first, prefix, message);
+          ++it;
+        }
+
+        irc_conn->notifyRead();
       }
       delete event;
     }else{
+
       //event not found
     }
   }
@@ -214,28 +250,67 @@ void BeatBoard::IRCConnection::loggingMessage( string channel, string identifier
   }
 }
 
-void BeatBoard::IRCConnection::setNotifier(BeatBoard::Notifier* notifier){
-  this->notifier.push_back(notifier);
+void BeatBoard::IRCConnection::setReadNotifier(BeatBoard::Notifier* notifier){
+  this->readNotifier.push_back(notifier);
+}
+void BeatBoard::IRCConnection::setJoinNotifier(BeatBoard::Notifier* notifier){
+  this->joinNotifier.push_back(notifier);
 }
 
-void BeatBoard::IRCConnection::notify(){
-  map<string, vector<string> > messages = this->getMessage();
-  vector<Notifier*>::iterator it = this->notifier.begin();
+bool BeatBoard::IRCConnection::notify(map<string, vector<string> > messages,
+                                      vector<Notifier*>* notifiers){
+  vector<Notifier*>::iterator it = notifiers->begin();
   bool notify_success = false;
-  while(it != this->notifier.end()){
+  while(it != notifiers->end()){
     bool result = (*it)->notify(&messages);
     delete((*it));
-
+    
     if(result){
       notify_success = true;
     }
-
+    
     ++it;
   }
-  this->notifier.clear();
+  notifiers->clear();
+  return notify_success;
+}
 
-  if(!notify_success){
-    this->received = messages;
+void BeatBoard::IRCConnection::notifyJoin(){
+  map<string, vector<string> > messages;
+  map<string, IRCChannel >::iterator it = (this->received).begin();
+  while(it != this->received.end()){
+    messages[it->first] = it->second.getUsers();
+    ++it;
+  }
+
+    /*
+    res = create_simple_response(true,
+                                 users_str.c_str());
+    cout << "USERS: "<< users_str << endl;
+    evbuffer_add_printf( buf,  res.c_str());
+    */
+
+  /*
+    if(!(this->notify(messages, this->joinNotifier))){
+    map<string, IRCChannel>::iterator it = this->received.begin();
+    while( it != this->received.end() ){
+      (*it).second.recoverMessages();
+      ++it;
+    }
+  }
+  */
+
+}
+
+void BeatBoard::IRCConnection::notifyRead(){
+  map<string, vector<string> > messages = this->getMessage();
+
+  if(!(this->notify(messages, &this->readNotifier))){
+    map<string, IRCChannel>::iterator it = this->received.begin();
+    while( it != this->received.end() ){
+      (*it).second.recoverMessages();
+      ++it;
+    }
   }
 
   return;
@@ -250,9 +325,9 @@ BeatBoard::IRCConnection::~IRCConnection(){
 }
 
 bool BeatBoard::IRCConnection::hasMessage(){
-  map<string, vector<string>  >::iterator it = this->received.begin();
+  map<string, IRCChannel  >::iterator it = this->received.begin();
   while( it != this->received.end() ){
-    if((*it).second.size() != 0){
+    if((*it).second.hasMessage()){
       return true;
     }
     ++it;
@@ -261,8 +336,12 @@ bool BeatBoard::IRCConnection::hasMessage(){
 }
 
 map<string, vector<string> > BeatBoard::IRCConnection::getMessage(){
-  map<string, vector<string> > ret =  map<string, vector<string> >(this->received);
-  this->received.clear();
+  map<string, vector<string> > ret;
+  map<string, IRCChannel>::iterator it = this->received.begin();
+  while( it != this->received.end() ){
+    ret[(*it).first] = (*it).second.getMessages();
+    ++it;
+  }
   return ret;
 }
 

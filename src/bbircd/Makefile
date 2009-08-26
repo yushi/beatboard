@@ -4,7 +4,7 @@ CC_INC_DIR=-I$(BB_HOME)/local/include -I../libbbirc -I../libbbevqueue -I../logap
 CC_LIB_DIR=-L$(BB_HOME)/local/lib -L$(BB_HOME)/lib
 CC_LIBS=-levent -lbbirc -lapicommon -lbbevqueue -lbbrpc
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
-OBJ_FILES=bblogger.o irc_client_operation.o http_api_server.o
+OBJ_FILES=bblogger.o irc_client_operation.o http_api_server.o http_api_notifier.o
 
 all: bbircd
 
