@@ -165,19 +165,19 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
       evbuffer_add_printf( buf,  res.c_str());
     }else{
       map<string, IRCChannel>::iterator it = (conn->received).begin();
-      res += "{'status': 'OK', 'users':";
+      res += "{'status': 'OK', 'users':{";
       while(it != (conn->received).end()){
-        res +=  "{'" + it->first + "': [";
+        res +=  "'" + it->first + "': [";
         vector<string> users = (it->second).getUsers();
         vector<string>::iterator user = users.begin();
         while(user != users.end()){
           res += "'" + *user + "',";
           ++user;
         }
-        res += "]},";
+        res += "],";
         ++it;
       }
-      res += "}";
+      res += "}}";
       evbuffer_add_printf( buf,  res.c_str());
     }
     ostringstream csize;
