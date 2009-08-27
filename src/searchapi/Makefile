@@ -19,7 +19,7 @@ INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 
 SAMPLECFLAGS = $(CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc
-PROTOC = protoc
+PROTOC = $(BBHOME)/local/bin/protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = searchapi.proto
 PROTOBUF_SRC = searchapi.pb.cc
@@ -62,7 +62,7 @@ EVHTTP_SRCS = ../libbbrpc/bb_rpc_client_evhttp.cpp\
 #			searchapi_service_sample_client_evhttp.cpp
 EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
 
-all: $(PROTOBUF_SRC) $(SERVER_TARGET) 
+all: $(PROTOBUF_SRC) $(SERVER_TARGET) $(EVHTTP_TARGET)
 
 $(SERVER_TARGET): $(SERVER_OBJS)
 	$(CC) $(CFLAGS) $(SERVER_MAIN) $(SERVER_OBJS) $(LIBS) $(INCLUDES) $(SERVER_LDFLAGS) -o $(SERVER_TARGET)
@@ -73,7 +73,7 @@ $(SERVER_TARGET): $(SERVER_OBJS)
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $<
 
-sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET) $(EVHTTP_TARGET)
+sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET)
 
 $(EVHTTP_TARGET):
 	$(CC) $(CFLAGS) $(EVHTTP_SRCS) -o $(EVHTTP_TARGET) $(LIBS) $(INCLUDES) $(LDFLAGS) -levent

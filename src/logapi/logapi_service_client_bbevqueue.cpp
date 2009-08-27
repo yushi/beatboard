@@ -7,6 +7,9 @@ BeatBoard::LogApiServiceClientBbevqueue::LogApiServiceClientBbevqueue(
 {
   this->rpcserver_host = rpcserver_host;
   this->rpcserver_port = rpcserver_port;
+  
+  this->message_expiration = 2;
+  messagemap = new MessageMap(5); // default message expiration check time is 5sec
 }
 
 BeatBoard::LogApiServiceClientBbevqueue::~LogApiServiceClientBbevqueue()
@@ -14,11 +17,20 @@ BeatBoard::LogApiServiceClientBbevqueue::~LogApiServiceClientBbevqueue()
   delete service;
   delete channel;
   delete controller;
+  delete messagemap;
 }
 
 void
 BeatBoard::LogApiServiceClientBbevqueue::callback()
 {
+}
+
+bool
+BeatBoard::LogApiServiceClientBbevqueue::checkMessageDuplication( const std::string& key )
+{
+  std::cerr << __func__ << std::endl;
+  bool result = messagemap->checkMessageDuplication(key);
+  return result;
 }
 
 void
@@ -28,9 +40,10 @@ BeatBoard::LogApiServiceClientBbevqueue::insert()
   controller = new BeatBoard::BBRpcController();
   service = new logapi::RpcService::Stub(channel);
 
-  std::cerr << "channel: " << request.channel() << std::endl;
-  std::cerr << "time: " << request.time() << std::endl;
-  std::cerr << "identifier: " << request.identifier() << std::endl;
+  std::cerr << __func__ << std::endl;
+//  std::cerr << "channel: " << request.channel() << std::endl;
+//  std::cerr << "time: " << request.time() << std::endl;
+//  std::cerr << "identifier: " << request.identifier() << std::endl;
 //  std::cerr << "message: " << request.message() << std::endl;
   
   google::protobuf::Closure* cb = google::protobuf::NewCallback(&LogApiServiceClientBbevqueue::callback);
@@ -45,8 +58,17 @@ BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
 
   if ((value = queue.dequeue_nb()) != NULL)
   {
-    std::cerr << *value << std::endl;
+    //std::cerr << *value << std::endl;
     request.ParseFromString(*value);
+    std::string key = request.channel() + request.time() + request.identifier() + request.message();
+    std::cerr << "key: " << key << std::endl;
+    
+    if (checkMessageDuplication(key))
+    {
+      return true;
+    }
+
+    messagemap->setMessage(key, message_expiration);
     insert();
 
     std::cerr << "result: " << response.result() << std::endl;
@@ -55,7 +77,7 @@ BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
     {
       std::cerr << "insert success" << std::endl;
     }
-    else if (result == LOGAPI_RESULT_ERROR)  // 再度投入
+    else if (result == LOGAPI_RESULT_ERROR)  // 蜀榊ｺｦ謚募�
     {
       std::cerr << "insert failed" << std::endl;
       insert();
