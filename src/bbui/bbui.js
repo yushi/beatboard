@@ -76,7 +76,7 @@ function connect(server, nickname, port){
                }
                if(obj['users']){
                    for(var channels in obj['users']){
-                       //obj['users'][channels]
+                       obj['users'][channels];
                    }
                }
                $('#send_message').load('send_message.html');
