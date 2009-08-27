@@ -82,7 +82,6 @@ function connect(server, nickname, port){
                $('#send_message').load('send_message.html');
                setInterval(checkLoader, 1000);
            });
-    
 }
 
 function join(channel, nick){
