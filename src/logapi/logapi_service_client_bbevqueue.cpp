@@ -33,6 +33,16 @@ BeatBoard::LogApiServiceClientBbevqueue::checkMessageDuplication( const std::str
   return result;
 }
 
+std::string
+BeatBoard::LogApiServiceClientBbevqueue::removeIPaddressFromIdentifier()
+{
+  std::string delimiter = "!";
+  std::string identifier = std::string(request.identifier());
+  int position =  identifier.find(delimiter);
+  std::string identifier_substr = identifier.substr(0, position);
+  return identifier_substr;
+}
+
 void
 BeatBoard::LogApiServiceClientBbevqueue::insert()
 {
@@ -60,7 +70,9 @@ BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
   {
     //std::cerr << *value << std::endl;
     request.ParseFromString(*value);
-    std::string key = request.channel() + request.time() + request.identifier() + request.message();
+
+    std::string identifier = removeIPaddressFromIdentifier();
+    std::string key = request.channel() + request.time() + identifier + request.message();
     std::cerr << "key: " << key << std::endl;
     
     if (checkMessageDuplication(key))

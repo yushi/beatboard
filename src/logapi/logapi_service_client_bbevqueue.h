@@ -35,6 +35,7 @@ namespace BeatBoard {
     bool dequeueLogData();
 	void insert();
 	bool checkMessageDuplication( const std::string& key );
+	std::string removeIPaddressFromIdentifier();
     
   public:
     LogApiServiceClientBbevqueue( const std::string& rpcserver_host,
