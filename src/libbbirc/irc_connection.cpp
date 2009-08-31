@@ -65,7 +65,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         string users = *(event->params[3]);
         size_t pos;
         while( (pos = users.find(' ')) != string::npos){
-          irc_conn->received[*(event->params[2])].addUser(users.substr(0, pos - 1));
+          irc_conn->received[*(event->params[2])].addUser(users.substr(0, pos));
           users = users.substr(pos + 1, users.size() - 1);
         }
         irc_conn->received[*(event->params[2])].addUser(users);
