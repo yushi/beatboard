@@ -11,6 +11,7 @@
 #include "bb_rpc_channel.h"
 #include "bb_rpc_controller.h"
 #include "logapi_service_common.h"
+#include "message_map.h"
 
 #include "bb_protobuf_queue_memcached.h"
 
@@ -27,9 +28,14 @@ namespace BeatBoard {
     std::string rpcserver_host;
     int rpcserver_port;
 
+	unsigned int message_expiration;
+	MessageMap *messagemap;
+
     static void callback();
     bool dequeueLogData();
 	void insert();
+	bool checkMessageDuplication( const std::string& key );
+	std::string removeIPaddressFromIdentifier();
     
   public:
     LogApiServiceClientBbevqueue( const std::string& rpcserver_host,

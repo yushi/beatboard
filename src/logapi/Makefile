@@ -47,6 +47,8 @@ BBEVQUEUE_TARGET = logapibbevequeue
 BBEVQUEUE_SRCS = logapi_service_client_bbevqueue_main.cpp\
 				logapi_service_client_bbevqueue.cpp\
 				logapi_service_common.cpp\
+				message.cpp\
+				message_map.cpp\
 				logapi.pb.cc 
 BBEVQUEUE_OBJS = $(BBEVQUEUE_SRCS:.cc=.o)
 
