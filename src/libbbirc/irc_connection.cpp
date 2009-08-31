@@ -63,7 +63,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         
       }else if(*(event->command) == BeatBoard::IRCConnection::RPL_NAMREPLY){
         string users = *(event->params[3]);
-        unsigned int pos;
+        size_t pos;
         while( (pos = users.find(' ')) != string::npos){
           irc_conn->received[*(event->params[2])].addUser(users.substr(0, pos - 1));
           users = users.substr(pos + 1, users.size() - 1);
