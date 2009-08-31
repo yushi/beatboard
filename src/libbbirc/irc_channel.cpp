@@ -8,6 +8,31 @@ void BeatBoard::IRCChannel::addMessage(string from, string message){
   this->messages.push_back(message);
 }
 
+void BeatBoard::IRCChannel::delUser(string user){
+  vector<string>::iterator i = (this->users).begin();
+  if(user.find('!')){
+    user = user.substr(0, user.find('!'));
+  }
+  while(i != (this->users).end()){
+    string target = *i;
+    if(target[0] == '@'){
+      target = target.substr(1,target.size() - 1);
+    }
+    if(target == user){
+      i = (this->users).erase(i);
+    }else{
+      ++i;
+    }
+  }
+}
+
+void BeatBoard::IRCChannel::addUserJoin(string user){
+  if(user.find('!')){
+    user = user.substr(0, user.find('!'));
+  }
+  this->users.push_back(user);
+}
+
 void BeatBoard::IRCChannel::addUser(string user){
   if(!this->userlist_receiving){
     this->users.clear();

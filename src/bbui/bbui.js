@@ -75,8 +75,11 @@ function connect(server, nickname, port){
                    $('#join_channel').load('join_channel.html');
                }
                if(obj['users']){
-                   for(var channels in obj['users']){
-                       obj['users'][channels];
+                   for(var channel in obj['users']){
+                       createChannelUI(channel, 1);
+                       for(var i = 0; i < obj['users'][channel].length; i++){
+                           $('#\\' + channel + '_users').append('<div class="user">' + obj['users'][channel][i] + '</div>');
+                       }
                    }
                }
                $('#send_message').load('send_message.html');
@@ -199,7 +202,7 @@ function selectChannel(channel){
 
 function createChannelUI(channel, active){
     if(!$('#messagebox > #\\' + channel)[0]){
-        $('#messagebox').prepend('<div id="' + channel + '" ></div>');
+        $('#messagebox').prepend('<div id="' + channel + '" ><div class="users" id="' + channel + '_users"></div></div>');
         $('#channels').prepend('<span id="' + 
                                channel + 
                                '" onclick="javascript:selectChannel(\'' + 

@@ -62,7 +62,13 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         irc_conn->loggingMessage(channel, prefix, message);
         
       }else if(*(event->command) == BeatBoard::IRCConnection::RPL_NAMREPLY){
-        irc_conn->received[*(event->params[2])].addUser(*(event->params[3]));
+        string users = *(event->params[3]);
+        unsigned int pos;
+        while( (pos = users.find(' ')) != string::npos){
+          irc_conn->received[*(event->params[2])].addUser(users.substr(0, pos - 1));
+          users = users.substr(pos + 1, users.size() - 1);
+        }
+        irc_conn->received[*(event->params[2])].addUser(users);
       }else if(*(event->command) == BeatBoard::IRCConnection::RPL_ENDOFNAMES){
         irc_conn->received[*(event->params[1])].addUserEnd();
         irc_conn->notifyJoin();
@@ -75,17 +81,18 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         
         irc_conn->notifyRead();
         irc_conn->loggingMessage(channel, prefix, message);
-
+        irc_conn->received[channel].addUserJoin(prefix);
+        
       }else if(*(event->command) == string("PART")){
         string channel = *(event->params[0]);
         string message = *(event->command) + string(" ") + *(event->params[1]);
         string prefix = *(event->prefix);
-
         irc_conn->received[channel].addMessage(prefix, message);
+        irc_conn->received[channel].delUser(prefix);
         
         irc_conn->notifyRead();
         irc_conn->loggingMessage(channel, prefix, message);
-
+        
       }else if(*(event->command) == string("QUIT")){
         string message = *(event->command) + string(" ") + *(event->params[0]);
         string prefix = *(event->prefix);
@@ -94,6 +101,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
           (irc_conn->received).begin();
         while(it != (irc_conn->received).end()){
           irc_conn->received[it->first].addMessage(prefix, message);
+          irc_conn->received[it->first].delUser(prefix);
           irc_conn->loggingMessage(it->first, prefix, message);
           ++it;
         }

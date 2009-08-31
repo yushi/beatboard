@@ -8,6 +8,8 @@ namespace BeatBoard{
     IRCChannel();
     void addMessage(string from, string message);
     void addUser(string user);
+    void addUserJoin(string user);
+    void delUser(string user);
     void addUserEnd();
     vector<string> getUsers();
     vector<string> getMessages();

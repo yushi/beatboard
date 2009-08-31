@@ -46,3 +46,8 @@ span{
     overflow: scroll;
     height: 80%;
 }
+
+.users{
+    position: fixed;
+    right: 10%;
+}
