@@ -7,6 +7,20 @@
     z-index: 1;
 }
 
+#join_channel{
+    top: 0px;
+    position: fixed;
+    background-color: white;
+    width: 80%;
+}
+
+#channels{
+    top: 20px;
+    position: fixed;
+    background-color: white;
+    width: 80%;
+}
+
 #yohaku{
     widdth: 100%;
     height: 50px;
@@ -40,6 +54,7 @@ span{
 }
 
 #messagebox{
+    margin-top: 50px;
     margin-right: 20%;
 }
 
