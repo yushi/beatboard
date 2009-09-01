@@ -142,11 +142,33 @@ function readMessage(nick){
                        for(channel in received){
                            var messages = received[channel];
                            for(var i = 0; i < messages.length; i+=2){
-                               var match_result = messages[i].match('(.+)!.*');
-                               if(match_result){
-                                   addMessage(match_result[1], channel, messages[i+1]);
+                               if(messages[i] == 'JOIN'){
+                                   var match_result = messages[i+1].match('(.+)!.*');
+                                   addMessage(messages[i], channel, match_result[1]);
+                                   $('#\\' + channel + '_users').append('<div class="user">' + match_result[1] + '</div>');
+                               }else if(messages[i].match('QUIT.*')){
+                                   var match_result = messages[i+1].match('(.+)!.*');
+                                   addMessage(messages[i], channel, match_result[1]);
+                                   for(var i = 0; i < $('#\\' + channel + '_users').children().length; i++){
+                                       if ($('#\\' + channel + '_users').children()[i].textContent == match_result[1]){
+                                           $($('#\\' + channel + '_users').children()[i]).remove();
+                                       }
+                                   }
+                               }else if(messages[i].match('PART.*')){
+                                   var match_result = messages[i+1].match('(.+)!.*');
+                                   addMessage(messages[i], channel, match_result[1]);
+                                   for(var i = 0; i < $('#\\' + channel + '_users').children().length; i++){
+                                       if ($('#\\' + channel + '_users').children()[i].textContent == match_result[1]){
+                                           $($('#\\' + channel + '_users').children()[i]).remove();
+                                       }
+                                   }
                                }else{
-                                   $('#status').html('JOINERS: ' + messages[i+1]);
+                                   var match_result = messages[i].match('(.+)!.*');
+                                   if(match_result){
+                                       addMessage(match_result[1], channel, messages[i+1]);
+                                   }else{
+                                       $('#status').html('JOINERS: ' + messages[i+1]);
+                                   }
                                }
                            }
                        }

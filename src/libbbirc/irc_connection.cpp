@@ -77,7 +77,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         string message = *(event->command);
         string prefix = *(event->prefix);
 
-        irc_conn->received[channel].addMessage(prefix, message);
+        irc_conn->received[channel].addMessage(message, prefix);
         
         irc_conn->notifyRead();
         irc_conn->loggingMessage(channel, prefix, message);
@@ -87,7 +87,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         string channel = *(event->params[0]);
         string message = *(event->command) + string(" ") + *(event->params[1]);
         string prefix = *(event->prefix);
-        irc_conn->received[channel].addMessage(prefix, message);
+        irc_conn->received[channel].addMessage(message, prefix);
         irc_conn->received[channel].delUser(prefix);
         
         irc_conn->notifyRead();
@@ -100,7 +100,7 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         map<string,BeatBoard::IRCChannel>::iterator it =
           (irc_conn->received).begin();
         while(it != (irc_conn->received).end()){
-          irc_conn->received[it->first].addMessage(prefix, message);
+          irc_conn->received[it->first].addMessage(message, prefix);
           irc_conn->received[it->first].delUser(prefix);
           irc_conn->loggingMessage(it->first, prefix, message);
           ++it;
