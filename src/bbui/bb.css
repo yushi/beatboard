@@ -39,6 +39,11 @@ span{
     width: 80%;
 }
 
+#messagebox
+{
+    margin-right: 20%;
+}
+
 #debug{
     position:fixed;
     top: 0px;
