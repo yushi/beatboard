@@ -127,6 +127,55 @@ function privmsg(target, message, nick){
     return true;
 }
 
+function readSuccess(data){
+    debug_log('read response succeess');
+    try{
+        eval('received=' + data);
+        for(channel in received){
+            var messages = received[channel];
+            for(var i = 0; i < messages.length; i+=2){
+                if(messages[i] == 'JOIN'){
+                    var match_result = messages[i+1].match('(.+)!.*');
+                    addMessage(messages[i], channel, match_result[1]);
+                    $('#\\' + channel + '_users').append('<div class="user">' + match_result[1] + '</div>');
+                }else if(messages[i].match('QUIT.*')){
+                    var match_result = messages[i+1].match('(.+)!.*');
+                    addMessage(messages[i], channel, match_result[1]);
+                    var delete_index = null;
+                    for(var j = 0; j < $('#\\' + channel + '_users').children().length; j++){
+                        if ($('#\\' + channel + '_users').children()[j].textContent == match_result[1]){
+                            delete_index = j;
+                        }
+                    }
+                    $($('#\\' + channel + '_users').children()[delete_index]).remove();
+                }else if(messages[i].match('PART.*')){
+                    var match_result = messages[i+1].match('(.+)!.*');
+                    addMessage(messages[i], channel, match_result[1]);
+                    var delete_index = null;
+                    for(var j = 0; j < $('#\\' + channel + '_users').children().length; j++){
+                        if ($('#\\' + channel + '_users').children()[j].textContent == match_result[1]){
+                            delete_index = j;
+                        }
+                    }
+                    $($('#\\' + channel + '_users').children()[delete_index]).remove();
+                }else{
+                    var match_result = messages[i].match('(.+)!.*');
+                    if(match_result){
+                        addMessage(match_result[1], channel, messages[i+1]);
+                    }else{
+                        $('#status').html('JOINERS: ' + messages[i+1]);
+                    }
+                }
+            }
+        }
+    }catch(e){
+        //alert('error in read received')
+    }
+    loading = 0;
+    window.scrollBy( 0, screen.height );
+    update_debuginfo('read success');
+}
+
 function readMessage(nick){
     var url = '/api/READ';
     debug_log('read req');
@@ -135,50 +184,7 @@ function readMessage(nick){
                'url': url,
                'data': {'nickname':nick},
                cache: false,
-               success: function(data){
-                   debug_log('read response succeess');
-                   try{
-                       eval('received=' + data);
-                       for(channel in received){
-                           var messages = received[channel];
-                           for(var i = 0; i < messages.length; i+=2){
-                               if(messages[i] == 'JOIN'){
-                                   var match_result = messages[i+1].match('(.+)!.*');
-                                   addMessage(messages[i], channel, match_result[1]);
-                                   $('#\\' + channel + '_users').append('<div class="user">' + match_result[1] + '</div>');
-                               }else if(messages[i].match('QUIT.*')){
-                                   var match_result = messages[i+1].match('(.+)!.*');
-                                   addMessage(messages[i], channel, match_result[1]);
-                                   for(var i = 0; i < $('#\\' + channel + '_users').children().length; i++){
-                                       if ($('#\\' + channel + '_users').children()[i].textContent == match_result[1]){
-                                           $($('#\\' + channel + '_users').children()[i]).remove();
-                                       }
-                                   }
-                               }else if(messages[i].match('PART.*')){
-                                   var match_result = messages[i+1].match('(.+)!.*');
-                                   addMessage(messages[i], channel, match_result[1]);
-                                   for(var i = 0; i < $('#\\' + channel + '_users').children().length; i++){
-                                       if ($('#\\' + channel + '_users').children()[i].textContent == match_result[1]){
-                                           $($('#\\' + channel + '_users').children()[i]).remove();
-                                       }
-                                   }
-                               }else{
-                                   var match_result = messages[i].match('(.+)!.*');
-                                   if(match_result){
-                                       addMessage(match_result[1], channel, messages[i+1]);
-                                   }else{
-                                       $('#status').html('JOINERS: ' + messages[i+1]);
-                                   }
-                               }
-                           }
-                       }
-                   }catch(e){
-                       //alert('error in read received')
-                   }
-                   loading = 0;
-                   window.scrollBy( 0, screen.height );
-                   update_debuginfo('read success');
-               },
+               success: readSuccess,
                error: function(XMLHttpRequest, textStatus, errorThrown){
                    debug_log('read response error');
                    loading = 0;
