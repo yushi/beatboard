@@ -159,8 +159,8 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   try{
     if(NULL == conn){
       IRCConnection *newConnection = new IRCConnection(nick);
-      instance->setIRCConnection( nick, newConnection );
       newConnection->connectIRCServer(server, port);
+      instance->setIRCConnection( nick, newConnection );
       res = create_simple_response(true, "connection created");
       evbuffer_add_printf( buf,  res.c_str());
     }else{

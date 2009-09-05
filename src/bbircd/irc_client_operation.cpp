@@ -14,11 +14,6 @@ BeatBoard::IRCConnection* BeatBoard::IRCClientOperation::getIRCConnection(string
   IRCConnection* conn = this->ircConnections[nick];
   if(conn == NULL){
     cout << "null detected!!!!!!!!!!!!!!!!!!" << endl;
-    map<string, IRCConnection*>::iterator i = this->ircConnections.begin();
-    while(i != this->ircConnections.end()){
-      cout << i->first << ": " << sizeof(i->first) << endl;
-      i++;
-    }
   }
   return conn;
 }
