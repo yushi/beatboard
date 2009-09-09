@@ -7,10 +7,11 @@
 
 namespace BeatBoard {
   class ApiCommon {
-  private:
-    static void replaceEscapeChar( std::string& data, std::string& escapechar);
 
   public:
+    static void replaceEscapeChar( std::string& data,
+								   std::string& escapechar,
+								   std::string& replacechar );
     static std::string escape( const std::string& data );
   };
 }
