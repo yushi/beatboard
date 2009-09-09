@@ -8,9 +8,11 @@ ifeq ($(BB), 1)
 BBHOME = /usr/bb
 BBINCLUDES = -I$(BBHOME)/local/include
 BBLIBS = -L$(BBHOME)/local/lib
+RAGEL= $(BB_HOME)/local/bin/ragel
 else
 BBINCLUDES=
 BBLIBS=
+RAGEL= ragel
 endif
 
 LIBLDFLAGS = -lprotobuf -lbbrpc 
@@ -30,9 +32,13 @@ SERVER_MAIN = searchapi_service_main.cpp
 SERVER_SRCS = $(COMMON_SRCS)\
 				searchapi_service.cpp\
 				searchapi_service_rpc.cpp\
-				searchapi_service_common.cpp
+				searchapi_service_common.cpp\
+				query_parser.cpp\
+				query.cpp
 SERVER_OBJS = $(SERVER_SRCS:.cpp=.o) 
 SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle -lapicommon -lmemcached -ljson -ldrizzle
+RAGEL_SRC = query_parser.rl
+RAGEL_TARGET = $(RAGEL_SRC:.rl=.cpp)	
 
 CLIENT_TARGET = searchapisampleclient
 CLIENT_MAIN = searchapi_service_sample_client.cpp
@@ -64,7 +70,7 @@ EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
 
 all: $(PROTOBUF_SRC) $(SERVER_TARGET) $(EVHTTP_TARGET)
 
-$(SERVER_TARGET): $(SERVER_OBJS)
+$(SERVER_TARGET): $(RAGEL_TARGET) $(SERVER_OBJS)
 	$(CC) $(CFLAGS) $(SERVER_MAIN) $(SERVER_OBJS) $(LIBS) $(INCLUDES) $(SERVER_LDFLAGS) -o $(SERVER_TARGET)
 
 .cpp.o:
@@ -72,6 +78,9 @@ $(SERVER_TARGET): $(SERVER_OBJS)
 
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $<
+
+$(RAGEL_TARGET):
+	$(RAGEL) -C $(RAGEL_SRC) -o $(RAGEL_SRC:.rl=.cpp)
 
 sample: $(PROTOBUF_TARGET) $(CLIENT_TARGET)
 

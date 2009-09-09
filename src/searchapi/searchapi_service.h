@@ -11,6 +11,7 @@
 #include "searchapi_service_common.h"
 #include "drizzle_client.h"
 #include "api_common.h"
+#include "query_parser.h"
 
 #include <json/json.h>
 #include <libmemcached/memcached.h>
@@ -35,6 +36,7 @@ namespace BeatBoard {
 	bool getMemcachedData( std::string& query, std::string& result );
 	void setUpMemcached( const std::string& memcached_host, 
 						 const in_port_t memcached_port );
+	std::string generateSqlWhereClause( const std::string& rawquery );
 
   public:
 	SearchApiService( const std::string& db, 

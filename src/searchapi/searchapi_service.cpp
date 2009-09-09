@@ -111,7 +111,12 @@ BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& r
   std::string select_list = "*";
   std::string from_clause = table_name;
   // escape query here
-  std::string where_clause = "where message like '%" + ApiCommon::escape(query) + "%'";
+  //std::string where_clause = "where message like '%" + ApiCommon::escape(query) + "%'";
+  std::string where_clause = generateSqlWhereClause(query);
+  if (where_clause == "")
+  {
+    return ret;
+  }
 
   ret = client->select(select_list, from_clause, where_clause, drizzle_response);
   if (ret && drizzle_response.ret == DRIZZLE_RETURN_OK )
@@ -125,6 +130,76 @@ BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& r
   }
 
   return ret;
+}
+
+std::string
+BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery )
+{
+  QueryParser *parser = new QueryParser();
+  Query *query;
+
+  std::string plus = std::string("+"); // urlencoded space
+  std::string space = std::string(" "); // urldecoded plus
+  std::string urldecoded_rawquery = rawquery;
+  ApiCommon::replaceEscapeChar( urldecoded_rawquery, plus, space );
+  query = parser->parse(urldecoded_rawquery + "\n"); // FIXME this return suffix
+  if (query == NULL)
+  {
+    return std::string("");
+  }
+
+  std::string where_clause = "where ";
+  std::string date_clause = "";
+  std::string channel_clause = "";
+  std::string words_clause = "";
+  std::vector<std::string> clauses;
+
+  if (query->date)
+  {
+    std::string date = ApiCommon::escape(*(query->date));
+    date_clause += "ts >= \"" + date + "\"";
+    date_clause += "and ts <= \"" + date.substr(0,4) + "-" \
+      + date[4] + date[5] + "-" + date.substr(6,7) + " 23:59:59\"";
+    std::cerr << date_clause << std::endl;
+    clauses.push_back(date_clause);
+  }
+
+  if (query->channel)
+  {
+    channel_clause += "channel = \"" + ApiCommon::escape(*(query->channel)) + "\"";
+    std::cerr << channel_clause << std::endl;
+    clauses.push_back(channel_clause);
+  }
+
+  if (!query->words->empty())
+  {
+    std::vector<std::string*>::iterator it = query->words->begin();
+    words_clause += "message like '%" + ApiCommon::escape(*(*it)) + "%'";
+    ++it;
+
+    while (it != query->words->end() )
+    {
+      words_clause += " and message like '%" + ApiCommon::escape(*(*it)) + "%'";
+      ++it;
+    }
+    std::cerr << words_clause << std::endl;
+    clauses.push_back(words_clause);
+  }
+
+  if (!clauses.empty())
+  {
+    std::vector<std::string>::iterator it = clauses.begin();
+    where_clause += *it;
+    ++it;
+
+    while (it != clauses.end() )
+    {
+      where_clause += " and " + *it;
+      ++it;
+    }
+    std::cerr << where_clause << std::endl;
+  }
+  return where_clause;
 }
 
 bool
