@@ -1,3 +1,7 @@
+#include <event.h>
+#include <evhttp.h>
+#include "bblogger.h"
+#include <sstream>
 #include "irc_client_operation.h"
 namespace BeatBoard{
   

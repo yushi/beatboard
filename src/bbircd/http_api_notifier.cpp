@@ -1,6 +1,3 @@
-#include <event.h>
-#include <evhttp.h>
-#include "bblogger.h"
 #include "http_api_notifier.h"
 
 BeatBoard::HTTPAPIReadNotifier::HTTPAPIReadNotifier(struct evhttp_request *req){
@@ -24,30 +21,29 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
     return false;
   }
 
-  string resp = string("{");
+  ostringstream ss;
+  ss << "{";
   map<string, vector<string> >::iterator it = (*messages).begin();
   while( it != (*messages).end() ){
-    string key = "\"" + this->escape((*it).first) + "\"";
-
-    
-    string val = "[";
+    ss << "\"" << this->escape((*it).first) << "\"";
+    ss << ":";
+    ss << "[";
     for( unsigned int i = 0; i < (*it).second.size(); i+=2){
-      val += "\"" + this->escape((*it).second[i]) + "\",";
-      val += "\"" + this->escape((*it).second[i+1]) + "\",";
+      ss << "\"" << this->escape((*it).second[i]) << "\",";
+      ss << "\"" << this->escape((*it).second[i+1]) << "\",";
     }
-    val += "]";
-    resp += key + ":" + val + ",";
+    ss << "],";
     ++it;
   }
-  resp += "}";
-
+  ss << "}";
+  
   evhttp_add_header(req->output_headers, "Content-type","application/x-javascript; charset=utf-8");
 
   ostringstream csize;
-  csize << resp.size();
+  csize << ss.str().size();
   evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
 
-  evbuffer_add( buf, resp.c_str(), resp.size() );
+  evbuffer_add( buf, ss.str().c_str(), ss.str().size() );
   evhttp_send_reply( req, HTTP_OK, "OK", buf );
   logger.debug("NOTIFY END");
   evbuffer_free(buf);

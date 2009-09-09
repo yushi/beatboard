@@ -129,10 +129,11 @@ map<string, string> BeatBoard::HTTPAPIServer::parseGetParameter(struct evhttp_re
 }
 
 string create_simple_response(bool status, const char* reason){
-  string res = "{'status': ";
-  res += (status ? string("'OK'") : string("'NG'")) + string(", ");
-  res += "'reason' : '" + string(reason) + "'}";
-  return res;
+  ostringstream ss;
+  ss << "{'status': " <<  (status ? "'OK'" : "'NG'");
+  ss << ", ";
+  ss << "'reason' : '" <<  reason << "'}";
+  return ss.str();;
 }
 
 void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void *arg ) {
@@ -155,40 +156,41 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   
   IRCConnection *conn = NULL;
   conn = instance->getIRCConnection( nick );
-  string res;
+  ostringstream ss;
   try{
     if(NULL == conn){
       IRCConnection *newConnection = new IRCConnection(nick);
       newConnection->connectIRCServer(server, port);
       instance->setIRCConnection( nick, newConnection );
-      res = create_simple_response(true, "connection created");
-      evbuffer_add_printf( buf,  res.c_str());
+      ss << create_simple_response(true, "connection created");
+      evbuffer_add_printf( buf,  ss.str().c_str());
     }else{
       map<string, IRCChannel>::iterator it = (conn->received).begin();
-      res += "{'status': 'OK', 'users':{";
+      ss << "{'status': 'OK', 'users':{";
       while(it != (conn->received).end()){
-        res +=  "'" + it->first + "': [";
+        ss << "'" << it->first << "': [";
         vector<string> users = (it->second).getUsers();
         vector<string>::iterator user = users.begin();
         while(user != users.end()){
-          res += "'" + *user + "',";
+          ss << "'" << *user << "',";
           ++user;
         }
-        res += "],";
+        ss << "],";
         ++it;
       }
-      res += "}}";
-      evbuffer_add_printf( buf,  res.c_str());
+      ss << "}}";
+      evbuffer_add_printf( buf,  ss.str().c_str());
     }
     ostringstream csize;
-    csize << res.size();
+    csize << ss.str().size();
     evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
 
   }catch ( BeatBoard::Exception& error ) {
+    logger.debug( "irc connect error" );
     logger.debug( error.message.data() );
-    cerr << "irc coonection error\n";
-    res = create_simple_response(true, "connection create failed");
+
+    string res = create_simple_response(true, "connection create failed");
     evbuffer_add_printf( buf,  res.c_str());
     ostringstream csize;
     csize << res.size();
@@ -213,8 +215,8 @@ void BeatBoard::HTTPAPIServer::exitHandler( struct evhttp_request *req, void *ar
     evhttp_send_reply( req, HTTP_OK, "OK", buf );
   } catch ( BeatBoard::Exception& error ) {
     BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+    logger.debug( "exit error");
     logger.debug( error.message.data() );
-    cerr << "irc coonection error\n";
   }
   evbuffer_free(buf);
   exit(0);
@@ -244,12 +246,10 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
     }
     conn->JOIN(channel);
     
-    //evbuffer_add_printf( buf, "This is JOIN API" );
-    //evhttp_send_reply( req, HTTP_OK, "OK", buf );
     res = create_simple_response(true, "joined");
   } catch ( BeatBoard::Exception& error ) {
+    logger.debug( "irc join error" );
     logger.debug( error.message.data() );
-    cerr << "irc coonection error\n";
     res = create_simple_response(true, "join failed");
   }
   evbuffer_add_printf( buf,  res.c_str());
