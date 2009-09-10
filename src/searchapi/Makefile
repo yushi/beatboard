@@ -8,7 +8,7 @@ ifeq ($(BB), 1)
 BBHOME = /usr/bb
 BBINCLUDES = -I$(BBHOME)/local/include
 BBLIBS = -L$(BBHOME)/local/lib
-RAGEL= $(BB_HOME)/local/bin/ragel
+RAGEL= $(BBHOME)/local/bin/ragel
 else
 BBINCLUDES=
 BBLIBS=
