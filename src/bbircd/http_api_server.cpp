@@ -42,12 +42,12 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
     fprintf( stderr, "failed to create response buffer\n" );
   } else {
     evbuffer_add_printf( buf, "This is BeatBoard API Server<br />\n" );
-    evbuffer_add_printf( buf, req->uri);
+    evbuffer_add_printf( buf,  "%s", req->uri);
     evbuffer_add_printf( buf, "<br />\n" );
 
     // HTTPAPIServer Header Dump
     if(evhttp_find_header (req->input_headers, "User-Agent")){
-      evbuffer_add_printf( buf, evhttp_find_header (req->input_headers, "User-Agent"));
+      evbuffer_add_printf( buf, "%s", (char*)evhttp_find_header (req->input_headers, "User-Agent"));
       evbuffer_add_printf( buf, "<br />\n" );
     }
 
@@ -65,7 +65,7 @@ void BeatBoard::HTTPAPIServer::rootHandler( struct evhttp_request *req, void *ar
     //map<string,string> post_parameters = instance->parsePostParameter(req);
     string hogehoge = get_parameters["hogehoge"];
     if(hogehoge.size() != 0 ){
-      evbuffer_add_printf( buf, (get_parameters["hogehoge"].c_str()));
+      evbuffer_add_printf( buf, "%s", (char*)(get_parameters["hogehoge"].c_str()));
       evbuffer_add_printf( buf, "<br />\n" );
       //POST???
       //      evbuffer_add_printf( buf, req->input_buffer);
@@ -163,7 +163,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
       newConnection->connectIRCServer(server, port);
       instance->setIRCConnection( nick, newConnection );
       ss << create_simple_response(true, "connection created");
-      evbuffer_add_printf( buf,  ss.str().c_str());
+      evbuffer_add_printf( buf,  "%s", (char*)(ss.str().c_str()));
     }else{
       map<string, IRCChannel>::iterator it = (conn->received).begin();
       ss << "{'status': 'OK', 'users':{";
@@ -179,7 +179,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
         ++it;
       }
       ss << "}}";
-      evbuffer_add_printf( buf,  ss.str().c_str());
+      evbuffer_add_printf( buf,  "%s", (char*)(ss.str().c_str()));
     }
     ostringstream csize;
     csize << ss.str().size();
@@ -191,7 +191,7 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
     logger.debug( error.message.data() );
 
     string res = create_simple_response(true, "connection create failed");
-    evbuffer_add_printf( buf,  res.c_str());
+    evbuffer_add_printf( buf, "%s", (char*)(res.c_str()));
     ostringstream csize;
     csize << res.size();
     evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
@@ -252,7 +252,7 @@ void BeatBoard::HTTPAPIServer::joinHandler( struct evhttp_request *req, void *ar
     logger.debug( error.message.data() );
     res = create_simple_response(true, "join failed");
   }
-  evbuffer_add_printf( buf,  res.c_str());
+  evbuffer_add_printf( buf, "%s",  (char*)(res.c_str()));
   ostringstream csize;
   csize << res.size();
   evhttp_add_header(req->output_headers, "Content-Length",csize.str().c_str());
