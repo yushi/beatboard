@@ -192,11 +192,37 @@ function readMessage(nick){
            });
 }
 
+function getUstreamEmbedTag(room){
+    var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag?key=AD8032366E40D6D4BFA76066C699D32C';
+    debug_log('ust embed req');
+    $.ajax({
+               'type': 'GET',
+               'url': url,
+               cache: false,
+               success: function(data){
+		 eval('received=' + data);
+		 $('#messagebox > #\\' + channel).append(received['results'] + '<br /><br />');
+	       },
+               error: function(XMLHttpRequest, textStatus, errorThrown){
+                   debug_log('ust embed tag response error');
+                   loading = 0;
+               }
+           });
+}
+
 function extractLink(str){
+    var ustRegex = new RegExp("");
+    ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
+
     var urlRegex = new RegExp("");
     urlRegex.compile(/https?:\/\/\S+/);
     var match_result = str.match(urlRegex);
     if(match_result){
+	var ustChannel = null;
+	if(ustChannel = str.match(ustRegex)){
+	  getUstreamEmbedTag(ustChannel[1]);
+	}
+
         if(no_refferer){
             //IE not supported
 	    var html = '<html><head><script type="text/javascript"><!--\n'
