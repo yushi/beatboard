@@ -192,7 +192,7 @@ function readMessage(nick){
            });
 }
 
-function getUstreamEmbedTag(room){
+function getUstreamEmbedTag(room, channel){
     var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag?key=AD8032366E40D6D4BFA76066C699D32C';
     debug_log('ust embed req');
     $.ajax({
@@ -210,7 +210,7 @@ function getUstreamEmbedTag(room){
            });
 }
 
-function extractLink(str){
+function extractLink(str, channel){
     var ustRegex = new RegExp("");
     ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
 
@@ -220,7 +220,7 @@ function extractLink(str){
     if(match_result){
 	var ustChannel = null;
 	if(ustChannel = str.match(ustRegex)){
-	  getUstreamEmbedTag(ustChannel[1]);
+	  getUstreamEmbedTag(ustChannel[1], channel);
 	}
 
         if(no_refferer){
@@ -306,7 +306,7 @@ function addMessage(speaker, channel, message){
         '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
             escaped_nick + ': ' + 
-            extractLink(escaped_message) + 
+	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
             getCurrentTime() + '</div></p>');
     
