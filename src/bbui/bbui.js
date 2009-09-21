@@ -193,18 +193,18 @@ function readMessage(nick){
 }
 
 function extractLink(str){
-    var re = new RegExp("");
-    re.compile(/https?:\/\/.*/);
-    var match_result = str.match(re);
+    var urlRegex = new RegExp("");
+    urlRegex.compile(/https?:\/\/\S+/);
+    var match_result = str.match(urlRegex);
     if(match_result){
         if(no_refferer){
             //IE not supported
 	    var html = '<html><head><script type="text/javascript"><!--\n'
 	        + 'document.write(\'<meta http-equiv="refresh" content="0;url='+match_result[0]+'">\');'
 	        + '// --><'+'/script></head><body></body></html>';
-            str = str.replace(re, "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" +encodeURIComponent(html) + "\" >" + match_result[0] + "</a>");
+            str = str.replace(urlRegex, "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" +encodeURIComponent(html) + "\" >" + match_result[0] + "</a>");
         }else{
-            str = str.replace(re, "<a target=\"_blank\" href=\"" + match_result[0] + "\" >" + match_result[0] + "</a>");
+            str = str.replace(urlRegex, "<a target=\"_blank\" href=\"" + match_result[0] + "\" >" + match_result[0] + "</a>");
         }
     }
     return str;
