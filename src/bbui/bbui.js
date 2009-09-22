@@ -219,7 +219,7 @@ function extractLink(str, channel){
     var ustRegex = new RegExp("");
     ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
     var youtubeRegex = new RegExp("");
-    youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&/);
+    youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&?/);
 
     var urlRegex = new RegExp("");
     urlRegex.compile(/https?:\/\/\S+/);
