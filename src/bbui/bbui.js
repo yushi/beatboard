@@ -231,7 +231,6 @@ function extractLink(str, channel){
 	}
 	var youtubeVideoId = null;
 	if(youtubeVideoId = str.match(youtubeRegex)){
-	  alert(youtubeVideoId[1]);
 	  getYoutubeEmbedTag(youtubeVideoId[1], channel);
 	}
 
