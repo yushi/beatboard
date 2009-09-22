@@ -210,9 +210,16 @@ function getUstreamEmbedTag(room, channel){
            });
 }
 
+function getYoutubeEmbedTag(videoId, channel){
+  var tag = '<object width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object><br /><br />';
+  $('#messagebox > #\\' + channel).append(tag);
+}
+
 function extractLink(str, channel){
     var ustRegex = new RegExp("");
     ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
+    var youtubeRegex = new RegExp("");
+    youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&/);
 
     var urlRegex = new RegExp("");
     urlRegex.compile(/https?:\/\/\S+/);
@@ -221,6 +228,11 @@ function extractLink(str, channel){
 	var ustChannel = null;
 	if(ustChannel = str.match(ustRegex)){
 	  getUstreamEmbedTag(ustChannel[1], channel);
+	}
+	var youtubeVideoId = null;
+	if(youtubeVideoId = str.match(youtubeRegex)){
+	  alert(youtubeVideoId[1]);
+	  getYoutubeEmbedTag(youtubeVideoId[1], channel);
 	}
 
         if(no_refferer){
