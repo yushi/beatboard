@@ -28,7 +28,7 @@ function addbutton_event() {
 
 function call_api(func) {
     var test = $("#q").val();
-    var url = "./search.cgi?q=" + test;
+    var url = "./search.cgi?q=" + encodeURIComponent(test);
     remove_search_result();
     $.get(url, function(data){
         func(data);
