@@ -192,19 +192,56 @@ function readMessage(nick){
            });
 }
 
-function extractLink(str){
-    var re = new RegExp("");
-    re.compile(/https?:\/\/.*/);
-    var match_result = str.match(re);
+function getUstreamEmbedTag(room, channel){
+    var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag?key=AD8032366E40D6D4BFA76066C699D32C';
+    debug_log('ust embed req');
+    $.ajax({
+               'type': 'GET',
+               'url': url,
+               cache: false,
+               success: function(data){
+		 eval('received=' + data);
+		 $('#messagebox > #\\' + channel).append(received['results'] + '<br /><br />');
+	       },
+               error: function(XMLHttpRequest, textStatus, errorThrown){
+                   debug_log('ust embed tag response error');
+                   loading = 0;
+               }
+           });
+}
+
+function getYoutubeEmbedTag(videoId, channel){
+  var tag = '<object width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object><br /><br />';
+  $('#messagebox > #\\' + channel).append(tag);
+}
+
+function extractLink(str, channel){
+    var ustRegex = new RegExp("");
+    ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
+    var youtubeRegex = new RegExp("");
+    youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&?/);
+
+    var urlRegex = new RegExp("");
+    urlRegex.compile(/https?:\/\/\S+/);
+    var match_result = str.match(urlRegex);
     if(match_result){
+	var ustChannel = null;
+	if(ustChannel = str.match(ustRegex)){
+	  getUstreamEmbedTag(ustChannel[1], channel);
+	}
+	var youtubeVideoId = null;
+	if(youtubeVideoId = str.match(youtubeRegex)){
+	  getYoutubeEmbedTag(youtubeVideoId[1], channel);
+	}
+
         if(no_refferer){
             //IE not supported
 	    var html = '<html><head><script type="text/javascript"><!--\n'
 	        + 'document.write(\'<meta http-equiv="refresh" content="0;url='+match_result[0]+'">\');'
 	        + '// --><'+'/script></head><body></body></html>';
-            str = str.replace(re, "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" +encodeURIComponent(html) + "\" >" + match_result[0] + "</a>");
+            str = str.replace(urlRegex, "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" +encodeURIComponent(html) + "\" >" + match_result[0] + "</a>");
         }else{
-            str = str.replace(re, "<a target=\"_blank\" href=\"" + match_result[0] + "\" >" + match_result[0] + "</a>");
+            str = str.replace(urlRegex, "<a target=\"_blank\" href=\"" + match_result[0] + "\" >" + match_result[0] + "</a>");
         }
     }
     return str;
@@ -280,7 +317,7 @@ function addMessage(speaker, channel, message){
         '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
             escaped_nick + ': ' + 
-            extractLink(escaped_message) + 
+	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
             getCurrentTime() + '</div></p>');
     
