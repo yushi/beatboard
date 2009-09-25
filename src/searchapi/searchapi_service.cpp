@@ -133,6 +133,34 @@ BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& r
 }
 
 std::string
+BeatBoard::SearchApiService::dateClause( const std::string& date )
+{
+  std::string date_clause = "";
+  date_clause += "ts >= \"" + date + "\"";
+  date_clause += "and ts <= \"" + date.substr(0,4) + "-"            \
+    + date[4] + date[5] + "-" + date.substr(6,7) + " 23:59:59\"";
+  std::cerr << date_clause << std::endl;
+  return date_clause;
+}
+
+std::string
+BeatBoard::SearchApiService::wordsClause( std::vector<std::string*> *words )
+{
+  std::string words_clause = "";
+  std::vector<std::string*>::iterator it = words->begin();
+  words_clause += "message like '%" + ApiCommon::escape(*(*it)) + "%'";
+  ++it;
+  
+  while (it != words->end())
+  {
+    words_clause += " and message like '%" + ApiCommon::escape(*(*it)) + "%'";
+    ++it;
+  }
+  std::cerr << words_clause << std::endl;
+  return words_clause;
+}
+
+std::string
 BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery )
 {
   QueryParser *parser = new QueryParser();
@@ -143,25 +171,33 @@ BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery
   std::string urldecoded_rawquery = rawquery;
   ApiCommon::replaceEscapeChar( urldecoded_rawquery, plus, space );
   query = parser->parse(urldecoded_rawquery + "\n"); // FIXME this return suffix
+
   if (query == NULL)
   {
     return std::string("");
   }
 
-  std::string where_clause = "where ";
+  std::string where_clause;
   std::string date_clause = "";
   std::string channel_clause = "";
   std::string words_clause = "";
+  std::string order_clause = "";
+  std::string limit_clause = "";
   std::vector<std::string> clauses;
+
+  if (query->date || query->channel || !query->words->empty())
+  {
+    where_clause = "where ";
+  }
+  else
+  {
+    where_clause = "";
+  }
 
   if (query->date)
   {
     std::string date = ApiCommon::escape(*(query->date));
-    date_clause += "ts >= \"" + date + "\"";
-    date_clause += "and ts <= \"" + date.substr(0,4) + "-" \
-      + date[4] + date[5] + "-" + date.substr(6,7) + " 23:59:59\"";
-    std::cerr << date_clause << std::endl;
-    clauses.push_back(date_clause);
+    clauses.push_back(dateClause(date));
   }
 
   if (query->channel)
@@ -173,18 +209,22 @@ BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery
 
   if (!query->words->empty())
   {
-    std::vector<std::string*>::iterator it = query->words->begin();
-    words_clause += "message like '%" + ApiCommon::escape(*(*it)) + "%'";
-    ++it;
-
-    while (it != query->words->end() )
-    {
-      words_clause += " and message like '%" + ApiCommon::escape(*(*it)) + "%'";
-      ++it;
-    }
-    std::cerr << words_clause << std::endl;
-    clauses.push_back(words_clause);
+    clauses.push_back(wordsClause(query->words));
   }
+
+
+  if (query->order)
+  {
+    order_clause += " order by ts " + ApiCommon::escape(*(query->order)) + " ";
+    std::cerr << order_clause << std::endl;
+  }
+
+  if (query->limit)
+  {
+    limit_clause += " limit " + ApiCommon::escape(*(query->limit)) + " ";
+    std::cerr << limit_clause << std::endl;
+  }
+
 
   if (!clauses.empty())
   {
@@ -199,6 +239,8 @@ BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery
     }
     std::cerr << where_clause << std::endl;
   }
+  where_clause += order_clause;
+  where_clause += limit_clause;
   return where_clause;
 }
 

@@ -37,6 +37,8 @@ namespace BeatBoard {
 	void setUpMemcached( const std::string& memcached_host, 
 						 const in_port_t memcached_port );
 	std::string generateSqlWhereClause( const std::string& rawquery );
+	std::string dateClause( const std::string& date );
+	std::string wordsClause( std::vector<std::string*> *words );
 
   public:
 	SearchApiService( const std::string& db, 

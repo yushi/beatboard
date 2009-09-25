@@ -13,6 +13,8 @@ public:
   std::string *date;
   std::string *channel;
   std::vector<std::string*> *words;
+  std::string *order;
+  std::string *limit;
 
   Query();
   ~Query();
