@@ -7,6 +7,11 @@ var no_refferer = 1;
 var focused = 1;
 var new_message = 0;
 var notify_index = 0;
+var background_color = '#ddeedd';
+var highlight_color = '#bbeebb';
+var notify_color = '#eebbbb';
+var font_color = 'black';
+
 $.ajaxSetup({'timeout': 0});
 
 function connectServer(){
@@ -257,10 +262,10 @@ function selectChannel(channel){
     for( var i = 0; i < channel_divs.length; i++){
         if( channel_divs[i].id != channel ){
             $(channel_divs[i]).hide();
-            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color','white');
+            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',background_color);
         }else{
             $(channel_divs[i]).show();
-            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color','gray');
+            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',highlight_color);
         }
     }
 }
@@ -306,7 +311,7 @@ function getCurrentTime(){
 }
 
 function toggleTime(elem, flag){
-    var color = flag ? 'black' : 'white';
+    var color = flag ? font_color : background_color;
     $(elem.childNodes[1]).css('color', color);
 }
 function addMessage(speaker, channel, message){
@@ -322,7 +327,7 @@ function addMessage(speaker, channel, message){
             getCurrentTime() + '</div>');
     
     if(channel != active_channel){
-        $($('#channels > #\\' + channel)[0]).css('background-color','red');
+        $($('#channels > #\\' + channel)[0]).css('background-color',notify_color);
     }
 
     if(!focused){
