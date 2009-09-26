@@ -8,6 +8,7 @@ var focused = 1;
 var new_message = 0;
 var notify_index = 0;
 var background_color = '#ddeedd';
+var message_background_color = 'white';
 var highlight_color = '#bbeebb';
 var notify_color = '#eebbbb';
 var font_color = 'black';
@@ -324,7 +325,7 @@ function getCurrentTime(){
 }
 
 function toggleTime(elem, flag){
-    var color = flag ? font_color : background_color;
+    var color = flag ? font_color : message_background_color;
     $(elem.childNodes[1]).css('color', color);
 }
 function addMessage(speaker, channel, message){
