@@ -9,6 +9,7 @@ body{
     bottom: 0px;
     position: fixed;
     z-index: 1;
+    background-color: #ddeedd;
 }
 
 #join_channel{
@@ -16,6 +17,8 @@ body{
     position: fixed;
     width: 80%;
     margin: 5px;
+    margin-top: 0px;
+    background-color: #ddeedd;
 }
 
 #channels{
@@ -24,6 +27,7 @@ body{
     width: 80%;
     margin: 5px;
     border-bottom: 1px solid #99bb99;
+    background-color: #ddeedd;
 }
 
 #yohaku{
@@ -34,7 +38,7 @@ body{
 #line{
     margin: 0px;
     padding: 0px;
-    line-height: 1;
+    line-height: 1.2;
 }
 
 #usermessage{
@@ -66,6 +70,9 @@ span{
 #messagebox{
     margin-top: 60px;
     margin-right: 20%;
+    zindex: -1;
+    margin-left: 5px;
+    background-color: #ddeedd;
 }
 
 #debug{
