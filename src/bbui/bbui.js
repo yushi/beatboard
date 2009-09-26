@@ -319,7 +319,7 @@ function addMessage(speaker, channel, message){
             escaped_nick + ': ' + 
 	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
-            getCurrentTime() + '</div></p>');
+            getCurrentTime() + '</div>');
     
     if(channel != active_channel){
         $($('#channels > #\\' + channel)[0]).css('background-color','red');
