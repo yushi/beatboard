@@ -5,9 +5,12 @@ BeatBoard::SearchApiService::SearchApiService( const std::string& db,
                                                const std::string& drizzle_host, 
                                                const in_port_t drizzle_port,
                                                const std::string& memcached_host, 
-                                               const in_port_t memcached_port )
+                                               const in_port_t memcached_port,
+                                               const std::string& query_log_table_name)
 {
+  parser = new QueryParser();
   client = new BeatBoard::DrizzleClient( drizzle_host, drizzle_port, db );
+  logger = new BeatBoard::QueryLogger( query_log_table_name, client );
   this->table_name = table_name;
   this->expiration= 60;
 
@@ -18,6 +21,10 @@ BeatBoard::SearchApiService::~SearchApiService()
 {
   delete client;
   client = NULL;
+  delete parser;
+  parser = NULL;
+  delete logger;
+  logger = NULL;
   memcached_free(memc);
 }
 
@@ -48,6 +55,16 @@ BeatBoard::SearchApiService::setUpMemcached( const std::string& memcached_host,
 }
 
 void
+BeatBoard::SearchApiService::logQuery( const std::string& query )
+{
+  bool ret = logger->insertQueryLogToDB( query );
+  if (!ret)
+  {
+    std::cerr << "logging failed: " << query << std::endl;
+  }
+}
+
+void
 BeatBoard::SearchApiService::RpcFunc(google::protobuf::RpcController* controller,
                                      const searchapi::Request* request,
                                      searchapi::Response* response,
@@ -57,8 +74,10 @@ BeatBoard::SearchApiService::RpcFunc(google::protobuf::RpcController* controller
 
   std::string query = request->query();
   std::string result = "";
+  bool ret = false;
 
-  bool ret = searchDB( query, result );
+  logQuery( query );
+  ret = searchDB( query, result );
   if (ret)
   {
     response->set_result(result);
@@ -163,7 +182,6 @@ BeatBoard::SearchApiService::wordsClause( std::vector<std::string*> *words )
 std::string
 BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery )
 {
-  QueryParser *parser = new QueryParser();
   Query *query;
 
   std::string plus = std::string("+"); // urlencoded space

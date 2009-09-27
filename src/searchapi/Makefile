@@ -15,7 +15,6 @@ BBLIBS=
 RAGEL= ragel
 endif
 
-LIBLDFLAGS = -lprotobuf -lbbrpc 
 LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon $(BBLIBS)
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 
@@ -34,7 +33,8 @@ SERVER_SRCS = $(COMMON_SRCS)\
 				searchapi_service_rpc.cpp\
 				searchapi_service_common.cpp\
 				query_parser.cpp\
-				query.cpp
+				query.cpp\
+				query_logger.cpp
 SERVER_OBJS = $(SERVER_SRCS:.cpp=.o) 
 SERVER_LDFLAGS = $(LDFLAGS) -lbbdrizzle -lapicommon -lmemcached -ljson -ldrizzle
 RAGEL_SRC = query_parser.rl
