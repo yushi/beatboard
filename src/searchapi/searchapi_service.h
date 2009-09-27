@@ -12,6 +12,7 @@
 #include "drizzle_client.h"
 #include "api_common.h"
 #include "query_parser.h"
+#include "query_logger.h"
 
 #include <json/json.h>
 #include <libmemcached/memcached.h>
@@ -21,6 +22,8 @@ namespace BeatBoard {
   private:
 	BeatBoard::DrizzleClient* client;
     BeatBoard::DrizzleResponse drizzle_response;
+	BeatBoard::QueryLogger* logger;
+	QueryParser* parser;
     std::string table_name;
 	memcached_st *memc;
 	bool memcached_status;
@@ -39,6 +42,7 @@ namespace BeatBoard {
 	std::string generateSqlWhereClause( const std::string& rawquery );
 	std::string dateClause( const std::string& date );
 	std::string wordsClause( std::vector<std::string*> *words );
+	void logQuery( const std::string& query );
 
   public:
 	SearchApiService( const std::string& db, 
@@ -46,7 +50,8 @@ namespace BeatBoard {
 					  const std::string& drizzle_host, 
 					  const in_port_t drizzle_port,
 					  const std::string& memcached_host, 
-					  const in_port_t memcached_port );
+					  const in_port_t memcached_port,
+					  const std::string& query_log_table_name );
 	virtual ~SearchApiService();
     void RpcFunc( google::protobuf::RpcController* controller,
                   const searchapi::Request* request,
