@@ -1,35 +1,65 @@
+body{
+    background-color: #ddeedd;
+    background-color: white;
+}
+
+
 #send_message{
+    left: 0px;
     width: 100%;
     height: 50px;
     bottom: 0px;
     position: fixed;
-    background-color: white;
     z-index: 1;
+    background-color: #ddeedd;
+    border-top: 1px solid #99bb99;
+    padding-left: 10px;
+    padding-top: 10px;
 }
 
 #join_channel{
     top: 0px;
+    left: 0px;
     position: fixed;
-    background-color: white;
-    width: 80%;
+    width: 100%;
+    margin: 0px;
+    background-color: #ddeedd;
+    padding-left: 10px;
+}
+
+#connect{
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    width: 100%;
+    height: 100px;
+    margin: 0px;
+    background-color: #ddeedd;
+    padding-left: 10px;
+    zindex: 5;
+    border-bottom: 1px solid #99bb99;
 }
 
 #channels{
-    top: 20px;
+    top: 25px;
+    left: 0px;
     position: fixed;
-    background-color: white;
-    width: 80%;
+    width: 100%;
+    margin: 5px;
+    margin-left: 0px;
+    border-bottom: 1px solid #99bb99;
+    background-color: #ddeedd;
 }
 
 #yohaku{
     widdth: 100%;
-    height: 50px;
+    height: 55px;
 }
 
 #line{
     margin: 0px;
     padding: 0px;
-    line-height: 5px;
+    line-height: 1.2;
 }
 
 #usermessage{
@@ -49,13 +79,20 @@
 span{
     margin: 10px 10px 10px 10px;
 }
+
 #messages{
     width: 80%;
 }
 
+#message{
+    width: 80%;
+}
+
 #messagebox{
-    margin-top: 50px;
+    margin-top: 60px;
     margin-right: 20%;
+    zindex: -1;
+    margin-left: 5px;
 }
 
 #debug{
@@ -68,5 +105,10 @@ span{
 
 .users{
     position: fixed;
-    right: 10%;
+    right: 0px;
+    background-color: #ddeedd;
+    padding: 10px;
+    border: 1px solid #99bb99;
+    border-right: 0px solid #99bb99;   
+    margin: 0px;
 }

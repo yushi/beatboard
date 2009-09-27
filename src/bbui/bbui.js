@@ -7,6 +7,12 @@ var no_refferer = 1;
 var focused = 1;
 var new_message = 0;
 var notify_index = 0;
+var background_color = '#ddeedd';
+var message_background_color = 'white';
+var highlight_color = '#bbeebb';
+var notify_color = '#eebbbb';
+var font_color = 'black';
+
 $.ajaxSetup({'timeout': 0});
 
 function connectServer(){
@@ -192,7 +198,7 @@ function readMessage(nick){
            });
 }
 
-function getUstreamEmbedTag(room, channel){
+function addUstreamEmbedTag(room, channel){
     var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag?key=AD8032366E40D6D4BFA76066C699D32C';
     debug_log('ust embed req');
     $.ajax({
@@ -210,16 +216,25 @@ function getUstreamEmbedTag(room, channel){
            });
 }
 
-function getYoutubeEmbedTag(videoId, channel){
+function addYoutubeEmbedTag(videoId, channel){
   var tag = '<object width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object><br /><br />';
   $('#messagebox > #\\' + channel).append(tag);
 }
+
+function addImgEmbedTag(url, channel){
+  var tag = '<img src=' + url + ' /><br />';
+  $('#messagebox > #\\' + channel).append(tag);
+}
+
+
 
 function extractLink(str, channel){
     var ustRegex = new RegExp("");
     ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
     var youtubeRegex = new RegExp("");
     youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&?/);
+    var imgRegex = new RegExp("");
+    imgRegex.compile(/https?:\/\/\S+\.(jpe?g|png|gif|bmp)/);
 
     var urlRegex = new RegExp("");
     urlRegex.compile(/https?:\/\/\S+/);
@@ -227,12 +242,16 @@ function extractLink(str, channel){
     if(match_result){
 	var ustChannel = null;
 	if(ustChannel = str.match(ustRegex)){
-	  getUstreamEmbedTag(ustChannel[1], channel);
+	  addUstreamEmbedTag(ustChannel[1], channel);
 	}
 	var youtubeVideoId = null;
 	if(youtubeVideoId = str.match(youtubeRegex)){
-	  getYoutubeEmbedTag(youtubeVideoId[1], channel);
+	  addYoutubeEmbedTag(youtubeVideoId[1], channel);
 	}
+	var imgURL = null;
+        if(imgURL = str.match(imgRegex)){
+          addImgEmbedTag(imgURL[0], channel);
+        }
 
         if(no_refferer){
             //IE not supported
@@ -257,10 +276,10 @@ function selectChannel(channel){
     for( var i = 0; i < channel_divs.length; i++){
         if( channel_divs[i].id != channel ){
             $(channel_divs[i]).hide();
-            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color','white');
+            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',background_color);
         }else{
             $(channel_divs[i]).show();
-            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color','gray');
+            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',highlight_color);
         }
     }
 }
@@ -306,7 +325,7 @@ function getCurrentTime(){
 }
 
 function toggleTime(elem, flag){
-    var color = flag ? 'black' : 'white';
+    var color = flag ? font_color : message_background_color;
     $(elem.childNodes[1]).css('color', color);
 }
 function addMessage(speaker, channel, message){
@@ -319,10 +338,10 @@ function addMessage(speaker, channel, message){
             escaped_nick + ': ' + 
 	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
-            getCurrentTime() + '</div></p>');
+            getCurrentTime() + '</div>');
     
     if(channel != active_channel){
-        $($('#channels > #\\' + channel)[0]).css('background-color','red');
+        $($('#channels > #\\' + channel)[0]).css('background-color',notify_color);
     }
 
     if(!focused){
