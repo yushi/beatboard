@@ -30,6 +30,13 @@ body{
     padding-top: 5px;
 }
 
+#logout{
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    margin-right: 10px;
+}
+
 #channels{
     top: 25px;
     left: 0px;
