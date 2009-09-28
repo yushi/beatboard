@@ -80,6 +80,10 @@ body{
     float: left;
 }
 
+#nick{
+    color: #99aa99;
+}
+
 #time{
     padding: 0px;
     margin: 0px;

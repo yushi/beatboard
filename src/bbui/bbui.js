@@ -335,7 +335,7 @@ function addMessage(speaker, channel, message){
     $('#messagebox > #\\' + channel).append( 
         '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
-            escaped_nick + ': ' + 
+	'<span id="nick">' + escaped_nick + '</span>: ' + 
 	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
             getCurrentTime() + '</div>');
