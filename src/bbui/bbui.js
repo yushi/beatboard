@@ -111,6 +111,7 @@ function join(channel, nick){
                if(obj['status'].match('^OK$')){
                }
                createChannelUI(active_channel, 1);
+	       $('message').focus();
            });
 }
 
@@ -283,6 +284,7 @@ function selectChannel(channel){
             $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',highlight_color);
         }
     }
+    $('#message').focus();
 }
 
 function createChannelUI(channel, active){
