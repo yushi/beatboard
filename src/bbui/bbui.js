@@ -88,7 +88,8 @@ function connect(server, nickname, port){
                        }
                    }
                }
-               $('#send_message').load('send_message.html');
+               $('#send_message').load('send_message.html',null,function(){$('#message').focus();});
+	       
                setInterval(checkLoader, 1000);
            });
 }
@@ -335,7 +336,7 @@ function addMessage(speaker, channel, message){
     $('#messagebox > #\\' + channel).append( 
         '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
-	'<span id="nick">' + escaped_nick + '</span>: ' + 
+	'<span id="speaker">' + escaped_nick + '</span>: ' + 
 	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
             getCurrentTime() + '</div>');
@@ -379,7 +380,7 @@ function replace_centity_ref(message) {
 function init(){
     var args = getopt();
     $(window).blur(function(){ focused = 0 });
-    $(window).focus(function(){ focused = 1; new_message = 0; });
+    $(window).focus(function(){ focused = 1; new_message = 0; $('#message').focus()});
     if(args['debug']){
         debug = new Object();
     }else{
