@@ -218,8 +218,27 @@ function addUstreamEmbedTag(room, channel){
            });
 }
 
+function setParentToDraggable(elem){
+    if($($(elem).parent().get(0)).css('position') == 'fixed'){
+	$($(elem).parent().get(0)).draggable().draggable('enable');
+    }
+}
+
+function setParentToDisdraggable(elem){
+    if($($(elem).parent().get(0)).css('position') == 'fixed'){
+	$($(elem).parent().get(0)).draggable().draggable('disable');
+    }
+}
+
+function setParentToggleFixed(elem){
+    if($($($(elem).parent().get(0)).parent().get(0)).css('position') != 'fixed'){
+	$($($(elem).parent().get(0)).parent().get(0)).css('position', 'fixed');
+    }else{
+	$($($(elem).parent().get(0)).parent().get(0)).css('position', 'static');
+    }
+}
 function addYoutubeEmbedTag(videoId, channel){
-  var tag = '<object width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object><br /><br />';
+  var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div><object id="video" width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object></div><br /><br />';
   $('#messagebox > #\\' + channel).append(tag);
 }
 
