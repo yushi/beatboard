@@ -209,7 +209,7 @@ function addUstreamEmbedTag(room, channel){
                cache: false,
                success: function(data){
 		 eval('received=' + data);
-		 $('#messagebox > #\\' + channel).append(received['results'] + '<br /><br />');
+		 $('#messagebox > #\\' + channel).append('<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + received['results'] + '</div><br /><br />');
 	       },
                error: function(XMLHttpRequest, textStatus, errorThrown){
                    debug_log('ust embed tag response error');
