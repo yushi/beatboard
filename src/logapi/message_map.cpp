@@ -34,13 +34,13 @@ BeatBoard::MessageMap::setMessage( const std::string key, const unsigned int exp
 
   if (!checkMessageDuplication(key))
   {
-    data[key] = newMessage( (unsigned int)time(NULL) + expirationTIme );
     result = true;
   }
   else
   {
     result = false;
   }
+  data[key] = newMessage( (unsigned int)time(NULL) + expirationTIme );
   return result;
 }
 
@@ -53,6 +53,8 @@ BeatBoard::MessageMap::checkMessageDuplication( const std::string key )
   if (it != data.end())
   {
     std::cerr << it->second->getExpirationTime() << std::endl;
+    delete(it->second);
+    data.erase(it);
     result = true;
   }
   else
