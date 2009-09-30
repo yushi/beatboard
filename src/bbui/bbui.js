@@ -231,11 +231,18 @@ function setParentToDisdraggable(elem){
 }
 
 function setParentToggleFixed(elem){
-    if($($($(elem).parent().get(0)).parent().get(0)).css('position') != 'fixed'){
-	$($($(elem).parent().get(0)).parent().get(0)).css('position', 'fixed');
-    }else{
-	$($($(elem).parent().get(0)).parent().get(0)).css('position', 'static');
-    }
+    var target = $($($(elem).parent().get(0)).parent().get(0));
+    target.fadeOut(1000, function(){
+	    if(target.css('position') != 'fixed'){
+		target.css('left','100px');
+		target.css('top','100px');
+		target.css('position', 'fixed');
+	    }else{
+		target.css('position', 'static');
+	    }
+	    target.fadeIn(1000);	    
+	});
+    
 }
 function addYoutubeEmbedTag(videoId, channel){
   var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div><object id="video" width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object></div><br /><br />';
