@@ -8,8 +8,8 @@ BeatBoard::LogApiServiceClientBbevqueue::LogApiServiceClientBbevqueue(
   this->rpcserver_host = rpcserver_host;
   this->rpcserver_port = rpcserver_port;
   
-  this->message_expiration = 2;
-  messagemap = new MessageMap(5); // default message expiration check time is 5sec
+  this->message_expiration = 5;
+  messagemap = new MessageMap(10); // default message expiration check time is 10 sec
 }
 
 BeatBoard::LogApiServiceClientBbevqueue::~LogApiServiceClientBbevqueue()
