@@ -88,7 +88,8 @@ function connect(server, nickname, port){
                        }
                    }
                }
-               $('#send_message').load('send_message.html');
+               $('#send_message').load('send_message.html',null,function(){$('#message').focus();});
+	       
                setInterval(checkLoader, 1000);
            });
 }
@@ -110,6 +111,7 @@ function join(channel, nick){
                if(obj['status'].match('^OK$')){
                }
                createChannelUI(active_channel, 1);
+	       $('message').focus();
            });
 }
 
@@ -207,7 +209,7 @@ function addUstreamEmbedTag(room, channel){
                cache: false,
                success: function(data){
 		 eval('received=' + data);
-		 $('#messagebox > #\\' + channel).append(received['results'] + '<br /><br />');
+		 $('#messagebox > #\\' + channel).append('<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + received['results'] + '</div><br /><br />');
 	       },
                error: function(XMLHttpRequest, textStatus, errorThrown){
                    debug_log('ust embed tag response error');
@@ -216,8 +218,34 @@ function addUstreamEmbedTag(room, channel){
            });
 }
 
+function setParentToDraggable(elem){
+    if($($(elem).parent().get(0)).css('position') == 'fixed'){
+	$($(elem).parent().get(0)).draggable().draggable('enable');
+    }
+}
+
+function setParentToDisdraggable(elem){
+    if($($(elem).parent().get(0)).css('position') == 'fixed'){
+	$($(elem).parent().get(0)).draggable().draggable('disable');
+    }
+}
+
+function setParentToggleFixed(elem){
+    var target = $($($(elem).parent().get(0)).parent().get(0));
+    target.fadeOut(1000, function(){
+	    if(target.css('position') != 'fixed'){
+		target.css('left','100px');
+		target.css('top','100px');
+		target.css('position', 'fixed');
+	    }else{
+		target.css('position', 'static');
+	    }
+	    target.fadeIn(1000);	    
+	});
+    
+}
 function addYoutubeEmbedTag(videoId, channel){
-  var tag = '<object width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object><br /><br />';
+  var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div><object id="video" width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object></div><br /><br />';
   $('#messagebox > #\\' + channel).append(tag);
 }
 
@@ -282,6 +310,7 @@ function selectChannel(channel){
             $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',highlight_color);
         }
     }
+    $('#message').focus();
 }
 
 function createChannelUI(channel, active){
@@ -335,7 +364,7 @@ function addMessage(speaker, channel, message){
     $('#messagebox > #\\' + channel).append( 
         '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
-            escaped_nick + ': ' + 
+	'<span id="speaker">' + escaped_nick + '</span>: ' + 
 	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
             getCurrentTime() + '</div>');
@@ -379,7 +408,7 @@ function replace_centity_ref(message) {
 function init(){
     var args = getopt();
     $(window).blur(function(){ focused = 0 });
-    $(window).focus(function(){ focused = 1; new_message = 0; });
+    $(window).focus(function(){ focused = 1; new_message = 0; $('#message').focus()});
     if(args['debug']){
         debug = new Object();
     }else{
