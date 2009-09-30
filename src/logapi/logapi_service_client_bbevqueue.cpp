@@ -72,7 +72,7 @@ BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
     request.ParseFromString(*value);
 
     std::string identifier = removeIPaddressFromIdentifier();
-    std::string key = request.channel() + request.time() + identifier + request.message();
+    std::string key = request.channel() + identifier + request.message();
     std::cerr << "key: " << key << std::endl;
     
     if (checkMessageDuplication(key))
