@@ -6,6 +6,9 @@
 #include <vector>
 
 namespace BeatBoard {
+  extern unsigned int DB_DRIZZLE;
+  extern unsigned int DB_MYSQL;
+
   class ApiCommon {
 
   public:

@@ -22,9 +22,9 @@ BBINCLUDES=
 BBLIBS=
 endif
 
-LDFLAGS = -ldrizzle
-LIBS = -L/usr/local/lib -L. $(BBLIBS)
-INCLUDES = -I. $(BBINCLUDES)
+LDFLAGS = -ldrizzle -lapicommon
+LIBS = -L/usr/local/lib -L. $(BBLIBS) -L../libapicommon
+INCLUDES = -I. -I../libapicommon $(BBINCLUDES)
 TARGET = libbbdrizzle.so
 OBJS = drizzle_client.o
 MAINTARGET = drizzle_client_main

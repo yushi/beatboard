@@ -5,6 +5,11 @@ static const std::string doublequotation = "\"";
 static const std::string singlequotation = "'";
 static const std::string backslash = "\\";
 
+namespace BeatBoard {
+unsigned int DB_DRIZZLE = 1;
+unsigned int DB_MYSQL = 2;
+}
+
 void
 BeatBoard::ApiCommon::replaceEscapeChar( std::string& data, std::string& escapechar, std::string& replacechar)
 {

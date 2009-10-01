@@ -1,10 +1,13 @@
 #include "drizzle_client.h"
 
-BeatBoard::DrizzleClient::DrizzleClient( const std::string& host, const in_port_t port, const std::string& db )
+BeatBoard::DrizzleClient::DrizzleClient( const std::string& host, const in_port_t port, const std::string& db, const unsigned int db_type, const std::string& user, const std::string& password )
 {
   this->host = host;
   this->port = port;
   this->db = db;
+  this->db_type = db_type;
+  this->user = user;
+  this->password = password;
   connect();
 }
 
@@ -27,7 +30,12 @@ BeatBoard::DrizzleClient::connect()
   (void)drizzle_con_create(&drizzle, &con);
   drizzle_con_set_db(&con, db.c_str());
   drizzle_con_set_tcp(&con, host.c_str(), port);
-  //drizzle_con_set_auth(&con, user.c_str(), password.c_str());
+
+  if (BeatBoard::DB_MYSQL == db_type)
+  {
+    drizzle_con_add_options(&con, DRIZZLE_CON_MYSQL);
+    drizzle_con_set_auth(&con, this->user.c_str(), this->password.c_str());
+  }
 }
 
 bool
