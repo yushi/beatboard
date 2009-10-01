@@ -25,7 +25,9 @@ namespace BeatBoard {
 
   public:
 	LogApiService( const std::string& db, const std::string& table_name, 
-                   const std::string& host, const in_port_t port );
+                   const std::string& host, const in_port_t port,
+				   const unsigned int db_type, const std::string& user,
+				   const std::string& password );
 	virtual ~LogApiService();
     void RpcFunc( google::protobuf::RpcController* controller,
                   const logapi::Request* request,
