@@ -8,8 +8,8 @@ BeatBoard::LogApiServiceClientBbevqueue::LogApiServiceClientBbevqueue(
   this->rpcserver_host = rpcserver_host;
   this->rpcserver_port = rpcserver_port;
   
-  this->message_expiration = 2;
-  messagemap = new MessageMap(5); // default message expiration check time is 5sec
+  this->message_expiration = 5;
+  messagemap = new MessageMap(10); // default message expiration check time is 10 sec
 }
 
 BeatBoard::LogApiServiceClientBbevqueue::~LogApiServiceClientBbevqueue()
@@ -72,7 +72,7 @@ BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
     request.ParseFromString(*value);
 
     std::string identifier = removeIPaddressFromIdentifier();
-    std::string key = request.channel() + request.time() + identifier + request.message();
+    std::string key = request.channel() + identifier + request.message();
     std::cerr << "key: " << key << std::endl;
     
     if (checkMessageDuplication(key))
