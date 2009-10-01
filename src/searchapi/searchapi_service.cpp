@@ -6,10 +6,13 @@ BeatBoard::SearchApiService::SearchApiService( const std::string& db,
                                                const in_port_t drizzle_port,
                                                const std::string& memcached_host, 
                                                const in_port_t memcached_port,
-                                               const std::string& query_log_table_name)
+                                               const std::string& query_log_table_name, 
+                                               const unsigned int db_type,
+                                               const std::string& user,
+                                               const std::string& password )
 {
   parser = new QueryParser();
-  client = new BeatBoard::DrizzleClient( drizzle_host, drizzle_port, db );
+  client = new BeatBoard::DrizzleClient( drizzle_host, drizzle_port, db, db_type, user, password );
   logger = new BeatBoard::QueryLogger( query_log_table_name, client );
   this->table_name = table_name;
   this->expiration= 60;

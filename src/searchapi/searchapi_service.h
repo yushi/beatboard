@@ -51,7 +51,10 @@ namespace BeatBoard {
 					  const in_port_t drizzle_port,
 					  const std::string& memcached_host, 
 					  const in_port_t memcached_port,
-					  const std::string& query_log_table_name );
+					  const std::string& query_log_table_name,
+					  const unsigned int db_type,
+					  const std::string& user,
+					  const std::string& password );
 	virtual ~SearchApiService();
     void RpcFunc( google::protobuf::RpcController* controller,
                   const searchapi::Request* request,
