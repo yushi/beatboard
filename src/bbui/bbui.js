@@ -304,10 +304,10 @@ function selectChannel(channel){
     for( var i = 0; i < channel_divs.length; i++){
         if( channel_divs[i].id != channel ){
             $(channel_divs[i]).hide();
-            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',background_color);
+            $('#\\' + channel_divs[i].id + '_tab').css('background-color',background_color);
         }else{
             $(channel_divs[i]).show();
-            $($('#channels > #\\' + channel_divs[i].id)[0]).css('background-color',highlight_color);
+            $('#\\' + channel_divs[i].id + '_tab').css('background-color',highlight_color);
         }
     }
     $('#message').focus();
@@ -317,7 +317,7 @@ function createChannelUI(channel, active){
     if(!$('#messagebox > #\\' + channel)[0]){
         $('#messagebox').prepend('<div id="' + channel + '" ><div class="users" id="' + channel + '_users"></div></div>');
         $('#channels').prepend('<span id="' + 
-                               channel + 
+                               channel + '_tab' +
                                '" onclick="javascript:selectChannel(\'' + 
                                channel + 
                                '\')" >' + 
@@ -370,7 +370,7 @@ function addMessage(speaker, channel, message){
             getCurrentTime() + '</div>');
     
     if(channel != active_channel){
-        $($('#channels > #\\' + channel)[0]).css('background-color',notify_color);
+        $($('#\\' + channel + '_tab')[0]).css('background-color',notify_color);
     }
 
     if(!focused){
