@@ -8,6 +8,7 @@ install:
 	install -m644 send_message.html $(BB_UI_HOME)
 	install -m644 jquery-1.3.2.min.js $(BB_UI_HOME)
 	install -m644 jquery.cookie.js $(BB_UI_HOME)
+	install -m644 jquery.blockUI.js.v2.26 $(BB_UI_HOME)
 	install -m644 bbui.js $(BB_UI_HOME)
 	cp -r ui $(BB_UI_HOME)
 

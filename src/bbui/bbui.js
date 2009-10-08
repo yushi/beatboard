@@ -61,6 +61,7 @@ function checkLoader(){
 
 
 function connect(server, nickname, port){
+    $.blockUI({message: ""});
     nick = nickname;
     $.cookie('nick',nickname);
     $.cookie('server',server);
@@ -73,6 +74,7 @@ function connect(server, nickname, port){
                'port' : port
            },
            function(data){
+	       $.unblockUI();
                debug_log('connect res');
                eval('obj=' + data);
                $('#status').html(obj['reason']);
@@ -89,7 +91,6 @@ function connect(server, nickname, port){
                    }
                }
                $('#send_message').load('send_message.html',null,function(){$('#message').focus();});
-	       
                setInterval(checkLoader, 1000);
            });
 }
