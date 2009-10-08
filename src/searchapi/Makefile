@@ -4,16 +4,11 @@ CC = g++
 CFLAGS = -g -Wall -pipe
 OS	= ${shell uname}
 
-ifeq ($(BB), 1)
 BBHOME = /usr/bb
 BBINCLUDES = -I$(BBHOME)/local/include
 BBLIBS = -L$(BBHOME)/local/lib
 RAGEL= $(BBHOME)/local/bin/ragel
-else
-BBINCLUDES=
-BBLIBS=
-RAGEL= ragel
-endif
+#RAGEL= ragel
 
 LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon $(BBLIBS)
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
@@ -21,6 +16,7 @@ INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 SAMPLECFLAGS = $(CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc
 PROTOC = $(BBHOME)/local/bin/protoc
+#PROTOC = protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = searchapi.proto
 PROTOBUF_SRC = searchapi.pb.cc
@@ -99,4 +95,4 @@ $(PYTHON_WRRAPER_TARGET): $(PYTHON_WRRAPER_OBJS)
 	$(CC) $(SWIG_LIB_OPT) $(SWIG_OBJS) -o $(PYTHON_WRRAPER_TARGET)  -L. -L../libbbrpc/. -L/opt/local/lib/python2.5  $(SWIG_LDFLAGS)
 
 clean:
-	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) 
+	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) $(EVHTTP_TARGET)

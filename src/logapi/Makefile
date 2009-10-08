@@ -4,14 +4,9 @@ CC = g++
 CFLAGS = -g -Wall -pipe
 OS	= ${shell uname}
 
-ifeq ($(BB), 1)
 BBHOME = /usr/bb
 BBINCLUDES = -I$(BBHOME)/local/include
 BBLIBS = -L$(BBHOME)/local/lib
-else
-BBINCLUDES=
-BBLIBS=
-endif
 
 LIBLDFLAGS = -lprotobuf -lbbrpc -luuid
 LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon $(BBLIBS)
@@ -20,6 +15,7 @@ INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 SAMPLECFLAGS = $(COMMON_CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc
 PROTOC = $(BBHOME)/local/bin/protoc
+#PROTOC = protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = logapi.proto
 PROTOBUF_SRC = logapi.pb.cc
@@ -75,4 +71,4 @@ $(CLIENT_TARGET): $(CLIENT_OBJS)
 	$(CC) $(SAMPLECFLAGS) $(CLIENT_MAIN) $(CLIENT_OBJS) $(LIBS) $(INCLUDES) $(LDFLAGS) -o $(CLIENT_TARGET)
 
 clean:
-	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) 
+	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) $(BBEVQUEUE_TARGET)

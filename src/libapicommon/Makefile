@@ -13,14 +13,9 @@ CFLAGS = $(COMMON_CFLAGS) -Kpic
 CLIBFLAGS = -G -dynamiclib
 endif
 
-ifeq ($(BB), 1)
 BBHOME = /usr/bb
 BBINCLUDES = -I$(BBHOME)/local/include
 BBLIBS = -L$(BBHOME)/local/lib
-else
-BBINCLUDES=
-BBLIBS=
-endif
 
 LDFLAGS = -lmemcached
 LIBS = -L/usr/local/lib -L. $(BBLIBS)
