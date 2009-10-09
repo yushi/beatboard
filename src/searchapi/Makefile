@@ -4,19 +4,24 @@ CC = g++
 CFLAGS = -g -Wall -pipe
 OS	= ${shell uname}
 
+ifeq (${OS}, Linux)
+PROTOC = $(BBHOME)/local/bin/protoc
+RAGEL= $(BBHOME)/local/bin/ragel
+endif
+ifeq (${OS}, Darwin)
+PROTOC = protoc
+RAGEL= ragel
+endif
+
 BBHOME = /usr/bb
 BBINCLUDES = -I$(BBHOME)/local/include
 BBLIBS = -L$(BBHOME)/local/lib
-RAGEL= $(BBHOME)/local/bin/ragel
-#RAGEL= ragel
 
 LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon $(BBLIBS)
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 
 SAMPLECFLAGS = $(CFLAGS)
 LDFLAGS = -lprotobuf -lbbrpc
-PROTOC = $(BBHOME)/local/bin/protoc
-#PROTOC = protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = searchapi.proto
 PROTOBUF_SRC = searchapi.pb.cc
