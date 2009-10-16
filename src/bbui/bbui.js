@@ -45,6 +45,7 @@ function updateNotifyTitle(){
     $("title").text(notify_message[notify_index]);
     notify_index = notify_index ? 0 : 1;
 }
+
 function checkLoader(){
     if(loading == 0){
         loading = 1;
@@ -58,7 +59,6 @@ function checkLoader(){
     }
     update_debuginfo('checkLoader');
 }
-
 
 function connect(server, nickname, port){
     $.blockUI({message: ""});
@@ -85,6 +85,7 @@ function connect(server, nickname, port){
                if(obj['users']){
                    for(var channel in obj['users']){
                        createChannelUI(channel, 1);
+                       searchRecentLog(channel, 10);
                        for(var i = 0; i < obj['users'][channel].length; i++){
                            $('#\\' + channel + '_users').append('<div class="user">' + obj['users'][channel][i] + '</div>');
                        }
@@ -94,6 +95,30 @@ function connect(server, nickname, port){
                setInterval(checkLoader, 1000);
            });
 }
+
+function searchRecentLog(channel, count){
+    $.get('/api/search',
+           {
+               'q': 'channel:' + channel + ' limit:' + count,
+           },
+           function(data){
+               debug_log('search recent log');
+	       if(data != null){
+		   eval('obj=' + data);
+		   if(obj['messages'] != null){
+		       for(var i in obj['messages']){
+			   var date = obj['messages'][i][0];
+			   var channel = obj['messages'][i][1];
+			   var unixtime = obj['messages'][i][2];
+			   var nick = obj['messages'][i][3];
+			   var body = obj['messages'][i][4];
+			   addMessage(nick, channel, body);
+		       }
+		   }
+	       }
+           });
+}
+
 
 function join(channel, nick){
     var url = '/api/JOIN';
