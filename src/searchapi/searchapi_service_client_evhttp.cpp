@@ -91,6 +91,10 @@ SearchapiServiceClientEvhttp::searchHandler( struct evhttp_request *req,
       char *escaped_val = evhttp_htmlescape(val.c_str());
       std::cerr << escaped_val << std::endl;
       result = instance->search(escaped_val);
+      evhttp_add_header(req->output_headers, "Content-type","application/x-javascript; charset=utf-8");
+      std::stringstream result_size;
+      result_size << result.size();
+      evhttp_add_header(req->output_headers, "Content-Length", result_size.str().c_str());
       evbuffer_add_printf(buf, result.c_str());
       free(escaped_val);
     }
