@@ -99,7 +99,7 @@ function connect(server, nickname, port){
 function searchRecentLog(channel, count){
     $.get('/api/search',
           {
-              'q': 'channel:' + channel + ' limit:' + count,
+              'q': 'channel:' + channel + ' limit:' + count + ' order:desc',
           },
           function(data){
               debug_log('search recent log');
