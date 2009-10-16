@@ -74,7 +74,7 @@ function connect(server, nickname, port){
                'port' : port
            },
            function(data){
-	       $.unblockUI();
+               $.unblockUI();
                debug_log('connect res');
                eval('obj=' + data);
                $('#status').html(obj['reason']);
@@ -98,25 +98,25 @@ function connect(server, nickname, port){
 
 function searchRecentLog(channel, count){
     $.get('/api/search',
-           {
-               'q': 'channel:' + channel + ' limit:' + count,
-           },
-           function(data){
-               debug_log('search recent log');
-	       if(data != null){
-		   eval('obj=' + data);
-		   if(obj['messages'] != null){
-		       for(var i in obj['messages']){
-			   var date = obj['messages'][i][0];
-			   var channel = obj['messages'][i][1];
-			   var unixtime = obj['messages'][i][2];
-			   var nick = obj['messages'][i][3];
-			   var body = obj['messages'][i][4];
-			   addMessage(nick, channel, body);
-		       }
-		   }
-	       }
-           });
+          {
+              'q': 'channel:' + channel + ' limit:' + count,
+          },
+          function(data){
+              debug_log('search recent log');
+              if(data != null){
+                  eval('obj=' + data);
+                  if(obj['messages'] != null){
+                      for(var i in obj['messages']){
+                          var date = obj['messages'][i][0];
+                          var channel = obj['messages'][i][1];
+                          var unixtime = obj['messages'][i][2];
+                          var nick = obj['messages'][i][3];
+                          var body = obj['messages'][i][4];
+                          addMessage(nick, channel, body);
+                      }
+                  }
+              }
+          });
 }
 
 
@@ -137,7 +137,7 @@ function join(channel, nick){
                if(obj['status'].match('^OK$')){
                }
                createChannelUI(active_channel, 1);
-	       $('message').focus();
+               $('message').focus();
            });
 }
 
@@ -234,9 +234,9 @@ function addUstreamEmbedTag(room, channel){
                'url': url,
                cache: false,
                success: function(data){
-		 eval('received=' + data);
-		 $('#messagebox > #\\' + channel).append('<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + received['results'] + '</div><br /><br />');
-	       },
+                   eval('received=' + data);
+                   $('#messagebox > #\\' + channel).append('<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + received['results'] + '</div><br /><br />');
+               },
                error: function(XMLHttpRequest, textStatus, errorThrown){
                    debug_log('ust embed tag response error');
                    loading = 0;
