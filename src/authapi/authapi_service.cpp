@@ -3,11 +3,14 @@
 static const unsigned int UUID_UNPARSED_SIZE = 32;
 
 BeatBoard::AuthApiService::AuthApiService( const std::string& db, 
-                                         const std::string& table_name, 
-                                         const std::string& host, 
-                                         const in_port_t port )
+                                           const std::string& table_name, 
+                                           const std::string& host, 
+                                           const in_port_t port,
+                                           const unsigned int db_type,
+                                           const std::string& user,
+                                           const std::string& password )
 {
-  client = new BeatBoard::DrizzleClient( host, port, db );
+  client = new BeatBoard::DrizzleClient( host, port, db, db_type, user, password );
   this->table_name = table_name;
 }
 

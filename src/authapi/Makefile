@@ -4,22 +4,25 @@ CC = g++
 CFLAGS = -g -Wall -pipe
 OS	= ${shell uname}
 
-ifeq ($(BB), 1)
+ifeq (${OS}, Linux)
+LDFLAGS = -lprotobuf -lbbrpc -luuid
+PROTOC = $(BBHOME)/local/bin/protoc
+endif
+ifeq (${OS}, Darwin)
+LDFLAGS = -lprotobuf -lbbrpc
+PROTOC = protoc
+endif
+
+
 BBHOME = /usr/bb
 BBINCLUDES = -I$(BBHOME)/local/include
 BBLIBS = -L$(BBHOME)/local/lib
-else
-BBINCLUDES=
-BBLIBS=
-endif
 
 LIBLDFLAGS = -lprotobuf -lbbrpc -luuid
 LIBS = -L/usr/local/lib -L. -L../libbbrpc/ -L../libbbdrizzle/ -L../libapicommon $(BBLIBS)
 INCLUDES = -I../libbbrpc/ -I. -I../libbbdrizzle/ -I../libapicommon $(BBINCLUDES)
 
 SAMPLECFLAGS = $(COMMON_CFLAGS)
-LDFLAGS = -lprotobuf -lbbrpc -luuid
-PROTOC = $(BBHOME)/local/bin/protoc
 PROTOFLAGS = --cpp_out=.
 PROTOSRC = authapi.proto
 PROTOBUF_SRC = authapi.pb.cc

@@ -39,7 +39,9 @@ namespace BeatBoard {
 
   public:
 	AuthApiService( const std::string& db, const std::string& table_name, 
-                   const std::string& host, const in_port_t port );
+					const std::string& host, const in_port_t port,
+					const unsigned int db_type, const std::string& user,
+					const std::string& password );
 	virtual ~AuthApiService();
     void RpcFunc( google::protobuf::RpcController* controller,
                   const authapi::Request* request,
