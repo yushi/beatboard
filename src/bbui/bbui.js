@@ -113,7 +113,7 @@ function searchRecentLog(channel, count){
                           var unixtime = obj['messages'][i][2];
                           var nick = obj['messages'][i][3];
                           var body = obj['messages'][i][4];
-                          addMessage(nick, channel, body);
+                          addMessage(nick, channel, body, getTimeStrFromSearchResult(date));
                       }
                   }
               }
@@ -367,7 +367,14 @@ function zeroPadding(num){
     }
     return ret;
 }
-function getCurrentTime(){
+
+function getTimeStrFromSearchResult(str){
+    var ret = str.substr(0,(str.length - 3));
+    ret.replace(/-/g,'/');
+    return ret;
+}
+
+function getCurrentTimeStr(){
     var now = new Date();
     return (1900 + now.getYear()) + 
         '/' + 
@@ -384,7 +391,11 @@ function toggleTime(elem, flag){
     var color = flag ? font_color : message_background_color;
     $(elem.childNodes[1]).css('color', color);
 }
-function addMessage(speaker, channel, message){
+function addMessage(speaker, channel, message, time){
+    if(time == undefined){
+        time = getCurrentTimeStr();
+    }
+
     var escaped_nick = replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
@@ -394,7 +405,7 @@ function addMessage(speaker, channel, message){
 	'<span id="speaker">' + escaped_nick + '</span>: ' + 
 	extractLink(escaped_message, channel) + 
             '</div><div id="time">' + 
-            getCurrentTime() + '</div>');
+            time + '</div>');
     
     if(channel != active_channel){
         $($('#\\' + channel + '_tab')[0]).css('background-color',notify_color);
