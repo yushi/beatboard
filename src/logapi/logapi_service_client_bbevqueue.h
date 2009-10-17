@@ -30,6 +30,7 @@ namespace BeatBoard {
 
 	unsigned int message_expiration;
 	MessageMap *messagemap;
+	BeatBoard::ProtobufQueueMemcached *queue;
 
     static void callback();
     bool dequeueLogData();

@@ -10,6 +10,7 @@ BeatBoard::LogApiServiceClientBbevqueue::LogApiServiceClientBbevqueue(
   
   this->message_expiration = 5;
   messagemap = new MessageMap(10); // default message expiration check time is 10 sec
+  this->queue = new BeatBoard::ProtobufQueueMemcached(); 
 }
 
 BeatBoard::LogApiServiceClientBbevqueue::~LogApiServiceClientBbevqueue()
@@ -18,6 +19,7 @@ BeatBoard::LogApiServiceClientBbevqueue::~LogApiServiceClientBbevqueue()
   delete channel;
   delete controller;
   delete messagemap;
+  delete queue;
 }
 
 void
@@ -63,10 +65,9 @@ BeatBoard::LogApiServiceClientBbevqueue::insert()
 bool
 BeatBoard::LogApiServiceClientBbevqueue::dequeueLogData()
 {
-  BeatBoard::ProtobufQueueMemcached queue;
   std::string *value = NULL;
 
-  if ((value = queue.dequeue_nb()) != NULL)
+  if ((value = queue->dequeue_nb()) != NULL)
   {
     //std::cerr << *value << std::endl;
     request.ParseFromString(*value);
@@ -118,7 +119,8 @@ BeatBoard::LogApiServiceClientBbevqueue::start()
     if (!ret)
     {
       //std::cerr << "bbevqueue is empty" << std::endl;
-      usleep(20);
+      //usleep(20);
+      sleep(1);
     }
   }
 }
