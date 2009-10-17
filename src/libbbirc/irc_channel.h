@@ -13,12 +13,12 @@ namespace BeatBoard{
     void addUserEnd();
     vector<string> getUsers();
     vector<string> getMessages();
-    void recoverMessages();
     bool hasMessage();
   private:
     bool userlist_receiving;
     vector<string> users;
-    vector<string> messages;
+    string* new_message_from;
+    string* new_message_body;
     vector<string> messages_backup;    
   };
 }  

@@ -4,8 +4,8 @@ BeatBoard::IRCChannel::IRCChannel(){
 }
 
 void BeatBoard::IRCChannel::addMessage(string from, string message){
-  this->messages.push_back(from);
-  this->messages.push_back(message);
+  this->new_message_from = new string(from);
+  this->new_message_body = new string(message);
 }
 
 void BeatBoard::IRCChannel::delUser(string user){
@@ -52,18 +52,19 @@ vector<string> BeatBoard::IRCChannel::getUsers(){
 }
 
 vector<string> BeatBoard::IRCChannel::getMessages(){
-  vector<string> ret = this->messages;
-  this->messages.clear();
-  this->messages_backup = ret;
+  vector<string> ret;
+  
+  if(this->new_message_from != NULL){
+    ret.push_back(*(this->new_message_from));
+    ret.push_back(*(this->new_message_body));
+    this->new_message_from = NULL;
+    this->new_message_body = NULL;
+  }
 
   return ret;
 }
 
-void BeatBoard::IRCChannel::recoverMessages(){
-  this->messages = this->messages_backup;
-}
-
 bool BeatBoard::IRCChannel::hasMessage(){
-  return (this->messages.size() != 0);
+  return (this->new_message_from != NULL);
 }
 
