@@ -99,13 +99,21 @@ BeatBoard::SearchApiService::RpcFunc(google::protobuf::RpcController* controller
 }
 
 bool
-BeatBoard::SearchApiService::searchDB( std::string& query, std::string& result )
+BeatBoard::SearchApiService::searchDB( std::string& rawquery, std::string& result )
 {
   bool ret = false;
 
-  if (memcached_status)
+  Query *query = parseQuery(rawquery);
+
+  if (query == NULL)
   {
-    ret = getMemcachedData(query, result);
+    std::cerr << "query parse failed" << std::endl;
+    return ret;
+  }
+
+  if (memcached_status && *(query->cache) != std::string("off"))
+  {
+    ret = getMemcachedData(rawquery, result);
   }
 
   if (!ret)
@@ -115,18 +123,31 @@ BeatBoard::SearchApiService::searchDB( std::string& query, std::string& result )
     if (ret && memcached_status)
     {
       std::cerr << "set memcached " << std::endl;
-      setMemcachedData(query, result);
+      setMemcachedData(rawquery, result);
     }
   }
   else
   {
     std::cerr << "get memcached " << std::endl;
   }
+  delete query;
   return ret;
 }
 
+Query*
+BeatBoard::SearchApiService::parseQuery( std::string& rawquery )
+{
+  Query *query;
+  std::string plus = std::string("+"); // urlencoded space
+  std::string space = std::string(" "); // urldecoded plus
+  std::string urldecoded_rawquery = rawquery;
+  ApiCommon::replaceEscapeChar( urldecoded_rawquery, plus, space );
+  query = parser->parse(urldecoded_rawquery + "\n"); // FIXME this return suffix
+  return query;
+}
+
 bool
-BeatBoard::SearchApiService::searchDrizzleDB( std::string& query, std::string& result )
+BeatBoard::SearchApiService::searchDrizzleDB( Query* query, std::string& result )
 {
   bool ret = false;
 
@@ -183,21 +204,8 @@ BeatBoard::SearchApiService::wordsClause( std::vector<std::string*> *words )
 }
 
 std::string
-BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery )
+BeatBoard::SearchApiService::generateSqlWhereClause( Query *query )
 {
-  Query *query;
-
-  std::string plus = std::string("+"); // urlencoded space
-  std::string space = std::string(" "); // urldecoded plus
-  std::string urldecoded_rawquery = rawquery;
-  ApiCommon::replaceEscapeChar( urldecoded_rawquery, plus, space );
-  query = parser->parse(urldecoded_rawquery + "\n"); // FIXME this return suffix
-
-  if (query == NULL)
-  {
-    return std::string("");
-  }
-
   std::string where_clause;
   std::string date_clause = "";
   std::string channel_clause = "";
@@ -262,6 +270,7 @@ BeatBoard::SearchApiService::generateSqlWhereClause( const std::string& rawquery
   }
   where_clause += order_clause;
   where_clause += limit_clause;
+
   return where_clause;
 }
 

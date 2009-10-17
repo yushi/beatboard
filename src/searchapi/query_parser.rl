@@ -33,6 +33,12 @@
     query->limit = substr(begin, fpc);
   }
 
+  action begin_cache { begin = fpc; }
+  action end_cache {
+    puts("parse cache");
+    query->cache = substr(begin, fpc);
+  }
+
   action error { 
     puts("parse error");
     parse_result = false;
@@ -44,11 +50,12 @@
   sharp = "#";
   andch = "&";
   irc_ch_prefix = ( sharp | andch );
+  cache = "cache" colon ( "on" | "off" ) >begin_cache %end_cache;
   order = "order" colon ( "asc" | "desc" ) >begin_order %end_order;
   limit = "limit" colon (digit){1,4} >begin_limit %end_limit;
   channel = "channel" colon (irc_ch_prefix words_chstring{1,}) >begin_channel %end_channel;
   date = "date" colon (digit){8} >begin_date %end_date;
-  options = date | channel | order | limit;
+  options = date | channel | order | limit | cache;
   words = (words_chstring){1,} >begin_query %end_query;  
   label = (words | options);
   query = sp? label sp{1,} (label sp)*;

@@ -5,6 +5,7 @@ Query::Query() {
   channel = NULL;
   order = NULL;
   limit = NULL;
+  cache = NULL;
   words = new std::vector<std::string*>;
 }
 
@@ -27,6 +28,11 @@ Query::~Query() {
   if (limit)
   {
     delete limit;
+  }
+
+  if (cache)
+  {
+    delete cache;
   }
 
   if (!words->empty())

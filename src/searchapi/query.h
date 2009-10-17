@@ -15,6 +15,7 @@ public:
   std::vector<std::string*> *words;
   std::string *order;
   std::string *limit;
+  std::string *cache;
 
   Query();
   ~Query();

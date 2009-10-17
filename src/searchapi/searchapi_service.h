@@ -34,15 +34,16 @@ namespace BeatBoard {
     bool readDrizzleField( struct json_object* my_array );
     void fieldToJsonArray( struct json_object* my_array,
                            std::vector<std::string>& field_data );
-	bool searchDrizzleDB( std::string& query, std::string& result );
+	bool searchDrizzleDB( Query* query, std::string& result );
 	bool setMemcachedData( std::string& query, std::string& result );
 	bool getMemcachedData( std::string& query, std::string& result );
 	void setUpMemcached( const std::string& memcached_host, 
 						 const in_port_t memcached_port );
-	std::string generateSqlWhereClause( const std::string& rawquery );
+	std::string generateSqlWhereClause( Query* rawquery );
 	std::string dateClause( const std::string& date );
 	std::string wordsClause( std::vector<std::string*> *words );
 	void logQuery( const std::string& query );
+	Query* parseQuery( std::string& rawquery );
 
   public:
 	SearchApiService( const std::string& db, 
