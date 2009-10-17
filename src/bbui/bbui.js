@@ -106,6 +106,7 @@ function searchRecentLog(channel, count){
               if(data != null){
                   eval('obj=' + data);
                   if(obj['messages'] != null){
+                      obj['messages'].reverse();
                       for(var i in obj['messages']){
                           var date = obj['messages'][i][0];
                           var channel = obj['messages'][i][1];
