@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../irc_connection.h"
+#include "irc_connection.h"
 using namespace BeatBoard;
 void* func(void* args);
 
@@ -46,7 +46,7 @@ namespace {
   TEST_F(IRCProtoTest, connect) {
     usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
-    this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
+    this->conn->connectIRCServer(string("127.0.0.1"), string("16667"));
     BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\n", this->buf);
@@ -56,36 +56,36 @@ namespace {
   TEST_F(IRCProtoTest, pong) {
     usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
-    this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
+    this->conn->connectIRCServer(string("127.0.0.1"), string("16667"));
     this->conn->PONG("hoge");
     BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nPONG :hoge\r\n", this->buf);
     delete this->conn;
   }
-
+  /*
   TEST_F(IRCProtoTest, JOIN) {
     usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
-    this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
+    this->conn->connectIRCServer(string("127.0.0.1"), string("16667"));
     this->conn->JOIN("hoge");
     BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nJOIN :hoge\r\n", this->buf);
     delete this->conn;    
   }
-  
+
   TEST_F(IRCProtoTest, PRIVMSG) {
     usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
-    this->conn->connectIRCServer(string("127.0.0.1"), string("6667"));
+    this->conn->connectIRCServer(string("127.0.0.1"), string("16667"));
     this->conn->PRIVMSG("#hoge","hoge");
     BeatBoard::IRCConnection::bb_event_dispatch(NULL);
     pthread_join( this->pt, NULL );
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nPRIVMSG #hoge :hoge\r\n", this->buf);
     delete this->conn;        
   }
-
+  */
 }  // namespace
 
 void* func(void* args){
@@ -105,7 +105,7 @@ void* func(void* args){
   bzero((char *)&saddr, sizeof(saddr));
   saddr.sin_family        = PF_INET;
   saddr.sin_addr.s_addr   = INADDR_ANY;
-  saddr.sin_port          = htons(6667);
+  saddr.sin_port          = htons(16667);
   setsockopt(listen_fd ,SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
   if (bind(listen_fd, (struct sockaddr *)&saddr, len) < 0) {

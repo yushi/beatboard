@@ -39,24 +39,24 @@ namespace {
   
   // Tests that the Foo::Bar() method does Abc.
   TEST_F(IRCProtoTest, parse_ng_1) {
-    this->ret = parse_irc_message("");
+    this->ret = parse_irc_message((char*)"");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
 
-    this->ret = parse_irc_message("PRIVMSG");
+    this->ret = parse_irc_message((char*)"PRIVMSG");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
 
-    this->ret = parse_irc_message("PRIVMSG #channel text");
+    this->ret = parse_irc_message((char*)"PRIVMSG #channel text");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
 
-    this->ret = parse_irc_message("PRIVMSG #channel text");
+    this->ret = parse_irc_message((char*)"PRIVMSG #channel text");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
 
-    this->ret = parse_irc_message(":1 PRIVMSG #channel text");
+    this->ret = parse_irc_message((char*)":1 PRIVMSG #channel text");
     ASSERT_EQ(this->ret, (IRCEvent*)NULL);
   }
 
   TEST_F(IRCProtoTest, parse_privmsg_1) {
-    this->ret = parse_irc_message("PRIVMSG #channelA text\r");
+    this->ret = parse_irc_message((char*)"PRIVMSG #channelA text\r");
     ASSERT_NE(this->ret, (IRCEvent*)NULL);
     ASSERT_EQ(this->ret->prefix, (std::string*)NULL);    
     ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");
@@ -69,7 +69,7 @@ namespace {
   }
 
   TEST_F(IRCProtoTest, parse_privmsg_2) {
-    this->ret = parse_irc_message("PRIVMSG #channelB :text hoge\r");
+    this->ret = parse_irc_message((char*)"PRIVMSG #channelB :text hoge\r");
     ASSERT_NE(this->ret, (IRCEvent*)NULL);
     ASSERT_EQ(this->ret->prefix, (std::string*)NULL);
     ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");
@@ -80,7 +80,7 @@ namespace {
   }  
 
   TEST_F(IRCProtoTest, parse_privmsg_3) {
-    this->ret = parse_irc_message(":example.com PRIVMSG #channelC text\r");
+    this->ret = parse_irc_message((char*)":example.com PRIVMSG #channelC text\r");
     ASSERT_NE(this->ret, (IRCEvent*)NULL);
     ASSERT_STREQ(this->ret->prefix->c_str(), "example.com");
     ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");
@@ -93,7 +93,7 @@ namespace {
   }
 
   TEST_F(IRCProtoTest, parse_privmsg_4) {
-    this->ret = parse_irc_message(":yushi_ai_!~yushi_ai@192.168.1.5 PRIVMSG #bb :test\r");
+    this->ret = parse_irc_message((char*)":yushi_ai_!~yushi_ai@192.168.1.5 PRIVMSG #bb :test\r");
     ASSERT_NE(this->ret, (IRCEvent*)NULL);
     ASSERT_STREQ(this->ret->prefix->c_str(), "yushi_ai_!~yushi_ai@192.168.1.5");
     ASSERT_STREQ(this->ret->command->c_str(), "PRIVMSG");

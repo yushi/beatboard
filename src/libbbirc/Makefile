@@ -23,7 +23,7 @@ RAGEL=$(BB_HOME)/local/bin/ragel
 	$(CC) $(CC_OPTS) -c $<
 
 all: $(LIBBBIRC) $(OBJS) irc_client
-	make -C ruby -f Makefile.bb
+#	make -C ruby -f Makefile.bb
 	make -C tests
 
 $(LIBBBIRC): $(OBJS)
@@ -49,7 +49,7 @@ run_irc_client: irc_client
 clean:
 	rm -rf $(LIBBBIRC) $(OBJS) irc_proto.cpp irc_client irc_client.dSYM
 	rm -rf *.gcno *.gcda $(COVER_INFO) $(COVER_DIR)
-	make -C ruby -f Makefile.bb clean
+#	make -C ruby -f Makefile.bb clean
 	make -C tests clean
 
 install: $(LIBBBIRC)
