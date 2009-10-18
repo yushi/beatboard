@@ -111,7 +111,8 @@ BeatBoard::SearchApiService::searchDB( std::string& rawquery, std::string& resul
     return ret;
   }
 
-  if (memcached_status && *(query->cache) != std::string("off"))
+  if (memcached_status && 
+      (query->cache == NULL || *(query->cache) != std::string("off")))
   {
     ret = getMemcachedData(rawquery, result);
   }
