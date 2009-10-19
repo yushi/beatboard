@@ -21,12 +21,16 @@ test_irc_proto: test_irc_proto.cpp
 test_irc_connection: test_irc_connection.cpp
 	LD_RUN_PATH=$(BB_HOME)/local/lib $(CC) $(CC_OPTS) $(CC_LIBS_TEST) $^ -o $@
 
-test: test_irc_proto test_irc_connection
+test_irc_channel: test_irc_channel.cpp
+	LD_RUN_PATH=$(BB_HOME)/local/lib $(CC) $(CC_OPTS) $(CC_LIBS_TEST) $^ -o $@	
+
+test: test_irc_proto test_irc_connection test_irc_channel
 	$(ENV_LIBRARY_PATH)=..:$(BB_HOME)/local/lib ./test_irc_proto
 	$(ENV_LIBRARY_PATH)=..:$(BB_HOME)/local/lib ./test_irc_connection
+	$(ENV_LIBRARY_PATH)=..:$(BB_HOME)/local/lib ./test_irc_channel
 
 memtest: test_irc_proto
-	$(ENV_LIBRARY_PATH)=..:$(BB_HOME)/local/lib valgrind ./$<
+	$(ENV_LIBRARY_PATH)=..:$(BB_HOME)/local/lib valgrind --leak-check=full ./$< 
 
 clean:
-	rm -rf test_irc_proto test_irc_connection test_irc_proto.dSYM test_irc_connection.dSYM
+	rm -rf test_irc_proto test_irc_connection test_irc_channel test_irc_proto.dSYM test_irc_connection.dSYM test_irc_channel.dSYM
