@@ -1,5 +1,4 @@
 #include "irc_connection.h"
-//FIXME 文字列操作を連結でやるのは汚い
 struct event_base *ev_base = NULL;
 
 // static field
@@ -52,15 +51,18 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
       if(*(event->command) == string("PING")){
         irc_conn->PONG( *(event->params[0]) );
       }else if(*(event->command) == string("PRIVMSG")){
-        string channel = *(event->params[0]);
-        string message = *(event->params[1]);
-        string prefix = *(event->prefix);
-
-        irc_conn->received[channel].addMessage(prefix, message);
-        
-        irc_conn->notifyRead();
-        irc_conn->loggingMessage(channel, prefix, message);
-        
+        if( (event->params[0] != NULL) && 
+            (event->params[1] != NULL) &&
+            (event->prefix != NULL)){
+          string channel = *(event->params[0]);
+          string message = *(event->params[1]);
+          string prefix = *(event->prefix);
+          
+          irc_conn->received[channel].addMessage(prefix, message);
+          
+          irc_conn->notifyRead();
+          irc_conn->loggingMessage(channel, prefix, message);
+        }
       }else if(*(event->command) == BeatBoard::IRCConnection::RPL_NAMREPLY){
         string users = *(event->params[3]);
         size_t pos;
@@ -73,16 +75,19 @@ void irc_buffevent_read( struct bufferevent *bev, void *arg ) {
         irc_conn->received[*(event->params[1])].addUserEnd();
         irc_conn->notifyJoin();
       }else if(*(event->command) == string("JOIN")){
-        string channel = *(event->params[0]);
-        string message = *(event->command);
-        string prefix = *(event->prefix);
-
-        irc_conn->received[channel].addMessage(message, prefix);
-        
-        irc_conn->notifyRead();
-        irc_conn->loggingMessage(channel, prefix, message);
-        irc_conn->received[channel].addUserJoin(prefix);
-        
+        if((event->params[0] != NULL) &&
+           (event->prefix != NULL)
+           ){
+          string channel = *(event->params[0]);
+          string message = *(event->command);
+          string prefix = *(event->prefix);
+          
+          irc_conn->received[channel].addMessage(message, prefix);
+          
+          irc_conn->notifyRead();
+          irc_conn->loggingMessage(channel, prefix, message);
+          irc_conn->received[channel].addUserJoin(prefix);
+        }
       }else if(*(event->command) == string("PART")){
         string channel = *(event->params[0]);
         string message = *(event->command) + string(" ") + *(event->params[1]);

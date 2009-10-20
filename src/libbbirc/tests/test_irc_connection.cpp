@@ -63,7 +63,7 @@ namespace {
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nPONG :hoge\r\n", this->buf);
     delete this->conn;
   }
-  /*
+
   TEST_F(IRCProtoTest, JOIN) {
     usleep(1000);
     this->conn = new BeatBoard::IRCConnection(string("tester"));
@@ -85,7 +85,6 @@ namespace {
     ASSERT_STREQ("NICK :tester\r\nUSER tester 0 * ::beatboard\r\nPRIVMSG #hoge :hoge\r\n", this->buf);
     delete this->conn;        
   }
-  */
 }  // namespace
 
 void* func(void* args){
