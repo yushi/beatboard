@@ -1,11 +1,50 @@
 #include "irc_channel.h"
+int BeatBoard::IRCChannel::notify_timelimit = 10; //sec
 
 BeatBoard::IRCChannel::IRCChannel(){
 }
 
-void BeatBoard::IRCChannel::addMessage(string from, string message){
-  this->new_message_from = new string(from);
-  this->new_message_body = new string(message);
+void BeatBoard::IRCChannel::addMessage(string from, 
+                                       string message){
+  this->addMessage(from, message, 0);
+}
+
+void BeatBoard::IRCChannel::addMessage(string from, 
+                                               string message,
+                                               time_t time){
+  this->removeOldMessages();
+
+  if(time == 0){
+    struct timeval now;
+    int ret = gettimeofday(&now, NULL);
+    if(ret != 0){
+      perror("addMessage failed");
+      return;
+    }
+    time = now.tv_sec;
+  }
+
+  messages.push_back(make_pair(time, from));
+  messages.push_back(make_pair(time, message));
+}
+
+void BeatBoard::IRCChannel::removeOldMessages(){
+  struct timeval now;
+
+  int ret = gettimeofday(&now, NULL);
+  if(ret != 0){
+    perror("addMessage failed");
+    return;
+  }
+
+  vector< pair<time_t, string> >::iterator i = (this->messages).begin();
+  while( i != (this->messages).end()){
+    if( (now.tv_sec - i->first) > notify_timelimit){
+      i = (this->messages).erase(i);
+    }else{
+      ++i;
+    }
+  }
 }
 
 void BeatBoard::IRCChannel::delUser(string user){
@@ -52,19 +91,20 @@ vector<string> BeatBoard::IRCChannel::getUsers(){
 }
 
 vector<string> BeatBoard::IRCChannel::getMessages(){
+  this->removeOldMessages();
   vector<string> ret;
-  
-  if(this->new_message_from != NULL){
-    ret.push_back(*(this->new_message_from));
-    ret.push_back(*(this->new_message_body));
-    this->new_message_from = NULL;
-    this->new_message_body = NULL;
+  vector< pair<time_t, string> >::iterator i = (this->messages).begin();
+  while( i != (this->messages).end()){
+    ret.push_back(i->second);
+    ++i;
   }
+  (this->messages).clear();
 
   return ret;
 }
 
 bool BeatBoard::IRCChannel::hasMessage(){
-  return (this->new_message_from != NULL);
+  this->removeOldMessages();
+  return ((this->messages).size() != 0);
 }
 

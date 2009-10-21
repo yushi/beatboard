@@ -25,6 +25,20 @@ namespace {
 
     ret = this->target->getMessages();
     ASSERT_EQ((unsigned)0, ret.size());    
+
+    this->target->addMessage(string("userA"), string("messageA"));
+    this->target->addMessage(string("userB"), string("messageB"));
+    ret = this->target->getMessages();
+    ASSERT_EQ((unsigned)4, ret.size());
+    ASSERT_EQ(string("userA"), ret[0]);
+    ASSERT_EQ(string("messageA"), ret[1]);
+    ASSERT_EQ(string("userB"), ret[2]);
+    ASSERT_EQ(string("messageB"), ret[3]);
+
+    this->target->addMessage(string("userA"), string("messageA"), 1);
+    this->target->addMessage(string("userB"), string("messageB"), 1);
+    ret = this->target->getMessages();
+    ASSERT_EQ((unsigned)0, ret.size());
   }
 
   TEST_F(IRCChannelTest, addUsers){
