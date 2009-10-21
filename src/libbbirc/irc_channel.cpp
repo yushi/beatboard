@@ -92,6 +92,8 @@ vector<string> BeatBoard::IRCChannel::getUsers(){
 
 vector<string> BeatBoard::IRCChannel::getMessages(){
   this->removeOldMessages();
+  this->messages_backup = this->messages;
+
   vector<string> ret;
   vector< pair<time_t, string> >::iterator i = (this->messages).begin();
   while( i != (this->messages).end()){
@@ -108,3 +110,6 @@ bool BeatBoard::IRCChannel::hasMessage(){
   return ((this->messages).size() != 0);
 }
 
+void BeatBoard::IRCChannel::recoverMessages(){
+  this->messages = this->messages_backup;
+}

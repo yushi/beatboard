@@ -318,7 +318,14 @@ void BeatBoard::IRCConnection::notifyJoin(){
 void BeatBoard::IRCConnection::notifyRead(){
   map<string, vector<string> > messages = this->getMessage();
 
-  this->notify(messages, &this->readNotifier);
+  if(!(this->notify(messages, &this->readNotifier))){
+    map<string, IRCChannel>::iterator it = this->received.begin();
+    while( it != this->received.end() ){
+      (*it).second.recoverMessages();
+      ++it;
+    }
+  }
+
   return;
 }
 

@@ -17,12 +17,14 @@ namespace BeatBoard{
     vector<string> getUsers();
     vector<string> getMessages();
     bool hasMessage();
+    void recoverMessages();
   private:
     static int notify_timelimit;
     void removeOldMessages();
     bool userlist_receiving;
     vector<string> users;
     vector< pair<time_t, string> > messages;
+    vector< pair<time_t, string> > messages_backup;
     string* new_message_from;
     string* new_message_body;
   };
