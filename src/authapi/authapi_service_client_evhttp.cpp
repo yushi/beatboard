@@ -66,6 +66,7 @@ AuthapiServiceClientEvhttp::updateUserInfo(
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&AuthapiServiceClientEvhttp::callback);
   service->RpcFunc(controller, &request, &response, callback);
   deleteRpc();
+  return response.result();
 }
  
 unsigned int 
@@ -174,13 +175,13 @@ AuthapiServiceClientEvhttp::checkVerifyResultAndPublishSID(
   {
     std::string sid;
     sid = BBRpcClientEvhttp::uniq_id();
-    result_json = "{result:" + result_ss.str() + ", sid:" + sid + "}";
+    result_json = "{\"result\":" + result_ss.str() + ", \"sid\":\"" + sid + "\"}";
     // set sid to memcached
     setSidToMemcached(sid);
   }
   else
   {
-    result_json = "{result:" + result_ss.str() + "}";
+    result_json = "{\"result\":" + result_ss.str() + "}";
   }
   std::cerr << result_json << std::endl;
 
