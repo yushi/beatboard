@@ -2,7 +2,7 @@
 
 CC = g++
 
-COMMON_CFLAGS = -Wall -Werror
+COMMON_CFLAGS = -g -Wall -Werror -fprofile-arcs -ftest-coverage
 OS	= ${shell uname}
 ifeq (${OS}, Linux)
 CFLAGS = $(COMMON_CFLAGS) -fpic
@@ -27,6 +27,10 @@ OBJS = $(SRCS:.cpp=.o)
 MAINTARGET = api_common_main
 MAINOBJS = api_common_main.o
 MAINLDFLAGS = $(LDFLAGS) -lapicommon
+GCOVDATA = *.gcov *.gcda *.gcno *.info
+
+LCOVFILE = libapicommon.info
+LCOVDIR = cov
 
 all: $(TARGET)
 
@@ -37,7 +41,9 @@ $(TARGET): $(OBJS)
 	$(CC) -c $(CFLAGS) $(INCLUDES) $(LIBS) $<
 
 clean:
-	rm -f $(TARGET) $(OBJS) $(MAINTARGET) $(MAINOBJS)
+	rm -f $(TARGET) $(OBJS) $(MAINTARGET) $(MAINOBJS) $(GCOVDATA)
+	rm -r $(LCOVDIR)
+	make -C tests clean
 
 main: $(MAINTARGET)
 
@@ -47,3 +53,8 @@ $(MAINTARGET): $(MAINOBJS) $(TARGET)
 install: $(TARGET)
 	mkdir -p /usr/bb/lib
 	install $(TARGET) /usr/bb/lib
+
+test: clean all
+	make -C tests test
+	lcov -c --output-file $(LCOVFILE) -d .
+	genhtml $(LCOVFILE) -o $(LCOVDIR)
