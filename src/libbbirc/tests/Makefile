@@ -12,7 +12,7 @@ CC_INC_DIR=-I$(BB_HOME)/local/include -I.. -I../../libbbevqueue -I../../logapi
 CC_LIB_DIR=-L$(BB_HOME)/local/lib -L..
 CC_LIBS=-lgtest -lbbirc
 CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
-TEST_LIB_PATH=$(BB_HOME)/local/lib:../:../../libbbevqueue:../../logapi
+TEST_LIB_PATH=$(BB_HOME)/local/lib:../:../../libbbevqueue:../../logapi:../../libbbrpc:../../libapicommon
 
 all: test_irc_proto test_irc_connection
 
