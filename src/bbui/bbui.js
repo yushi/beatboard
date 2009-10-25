@@ -15,7 +15,7 @@ var font_color = 'black';
 var cookie_expire = new Date();
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
-$.ajaxSetup({'timeout': 0});
+$.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
 
 function connectServer(){
     var server = $('#server').val();
