@@ -151,6 +151,7 @@ function privmsg(target, message, nick){
     }
     debug_log('privmsg req');
     addMessage(nick, active_channel,message);
+    window.scrollBy( 0, screen.height );
     $.post(url,
            {
                'message':message,
@@ -159,7 +160,6 @@ function privmsg(target, message, nick){
            },
            function(data){
                debug_log('privmsg res');
-               window.scrollBy( 0, screen.height );
            });
     return true;
 }
