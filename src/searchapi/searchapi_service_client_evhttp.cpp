@@ -95,7 +95,7 @@ SearchapiServiceClientEvhttp::searchHandler( struct evhttp_request *req,
       std::stringstream result_size;
       result_size << result.size();
       evhttp_add_header(req->output_headers, "Content-Length", result_size.str().c_str());
-      evbuffer_add_printf(buf, result.c_str());
+      evbuffer_add_printf(buf, "%s", result.c_str());
       free(escaped_val);
     }
     else
