@@ -3,7 +3,7 @@
 CC = g++
 
 COMMON_CFLAGS = -g -Wall -Werror -fprofile-arcs -ftest-coverage
-OS	= ${shell uname}
+OS = ${shell uname}
 ifeq (${OS}, Linux)
 CFLAGS = $(COMMON_CFLAGS) -fpic
 CLIBFLAGS = -shared
@@ -42,7 +42,7 @@ $(TARGET): $(OBJS)
 
 clean:
 	rm -f $(TARGET) $(OBJS) $(MAINTARGET) $(MAINOBJS) $(GCOVDATA)
-	rm -r $(LCOVDIR)
+	if test -d $(LCOVDIR); then rm -r $(LCOVDIR); fi;
 	make -C tests clean
 
 main: $(MAINTARGET)

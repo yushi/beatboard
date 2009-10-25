@@ -1,6 +1,6 @@
 .SUFFIXES: .cc .o .h
 
-OS      = ${shell uname}
+OS = ${shell uname}
 ifeq (${OS}, Linux)
 ENV_LIBRARY_PATH=LD_LIBRARY_PATH
 endif

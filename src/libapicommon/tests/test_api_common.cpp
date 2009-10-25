@@ -6,7 +6,7 @@
 TEST(ApiCommonTest, Escape) {
   std::string query = "h,o\"g'e h,o\"g'e";
   std::string escaped_query = BeatBoard::ApiCommon::escape(query);
-  ASSERT_EQ("h\\\,o\\\"g\\\'e h\\\,o\\\"g\\\'e", escaped_query);
+  ASSERT_EQ(std::string("h\\,o\\\"g\\'e h\\,o\\\"g\\\'e"), escaped_query);
 }
 
 TEST(ApiCommonTest, MemcacheSuccess) {
