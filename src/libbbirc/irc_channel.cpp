@@ -1,5 +1,5 @@
 #include "irc_channel.h"
-int BeatBoard::IRCChannel::notify_timelimit = 10; //sec
+int BeatBoard::IRCChannel::notify_timelimit = 60 * 3; //sec = 3minutes
 
 BeatBoard::IRCChannel::IRCChannel(){
 }

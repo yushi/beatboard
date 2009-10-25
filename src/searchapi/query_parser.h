@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include "query.h"
-
+#include <stdlib.h>
+#include <string.h>
 void parse(const char *);
 
 class QueryParser {

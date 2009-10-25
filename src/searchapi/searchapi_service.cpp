@@ -326,7 +326,7 @@ BeatBoard::SearchApiService::drizzleResultToJson( std::string& result )
   bool ret = false;
   struct json_object *my_object = json_object_new_object();
   struct json_object *my_array = json_object_new_array();
-  char *label = "messages";
+  char label[] = "messages";
 
   while ( drizzle_row_read(&drizzle_response.result, &drizzle_response.ret) != 0 && drizzle_response.ret == DRIZZLE_RETURN_OK )
   {

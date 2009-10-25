@@ -2,7 +2,9 @@ BB_UI_HOME=/usr/bb/htdocs
 install:
 	mkdir -p $(BB_UI_HOME)
 	install -m644 favicon.ico $(BB_UI_HOME)
+	install -m644 apple-touch-icon.png $(BB_UI_HOME)
 	install -m644 bb.css $(BB_UI_HOME)
+	install -m644 bb_iphone.css $(BB_UI_HOME)
 	install -m644 index.html $(BB_UI_HOME)
 	install -m644 join_channel.html $(BB_UI_HOME)
 	install -m644 send_message.html $(BB_UI_HOME)

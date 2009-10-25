@@ -12,8 +12,10 @@ var message_background_color = 'white';
 var highlight_color = '#bbeebb';
 var notify_color = '#eebbbb';
 var font_color = 'black';
+var cookie_expire = new Date();
+cookie_expire.setDate( cookie_expire.getDate()+7 );
 
-$.ajaxSetup({'timeout': 0});
+$.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
 
 function connectServer(){
     var server = $('#server').val();
@@ -63,9 +65,9 @@ function checkLoader(){
 function connect(server, nickname, port){
     $.blockUI({message: ""});
     nick = nickname;
-    $.cookie('nick',nickname);
-    $.cookie('server',server);
-    $.cookie('port',port);
+    $.cookie('nick',nickname, {expires: cookie_expire});
+    $.cookie('server',server, {expires: cookie_expire});
+    $.cookie('port',port, {expires: cookie_expire});
     debug_log('connect req');
     $.post('/api/CONNECT',
            {
@@ -123,7 +125,7 @@ function searchRecentLog(channel, count){
 
 function join(channel, nick){
     var url = '/api/JOIN';
-    $.cookie('channel',channel);
+    $.cookie('channel',channel, {expires: cookie_expire});
     active_channel = channel;
     debug_log('join req');
     $.post(url,
@@ -148,6 +150,8 @@ function privmsg(target, message, nick){
         return;
     }
     debug_log('privmsg req');
+    addMessage(nick, active_channel,message);
+    window.scrollBy( 0, screen.height );
     $.post(url,
            {
                'message':message,
@@ -156,8 +160,6 @@ function privmsg(target, message, nick){
            },
            function(data){
                debug_log('privmsg res');
-               addMessage(nick, active_channel,message);
-               window.scrollBy( 0, screen.height );
            });
     return true;
 }

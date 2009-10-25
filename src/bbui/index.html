@@ -2,10 +2,12 @@
   <head>
     <title>BeatBoard</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <link rel="shortcut icon" href="./favicon.ico">
   </head>
   <body>
-    <link href="bb.css" rel="stylesheet" type="text/css">
+    <link media="only screen and (max-device-width:480px)" href="bb_iphone.css" rel="stylesheet" type="text/css">
+    <link media="screen and (min-device-width:481px)" href="bb.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="./jquery-1.3.2.min.js"></script>
     <script type="text/javascript" src="./jquery.cookie.js"></script>
     <script type="text/javascript" src="./ui/ui.core.js"></script>
@@ -14,10 +16,21 @@
     <div id="join_channel"></div>
     <div id="channels"></div>
     <form  id="connect" onsubmit="javascript:return connectServer();"> 
-      server<input id="server" type="text" value="irc.freenode.net" />
-      name<input id="nick" type="text" value="" />
-      port<input id="port" type="text" value="6667" />
-      <input type="submit" value="connect">
+      <table>
+        <tr>
+          <td>server</td>
+          <td><input id="server" width=100px type="text" value="irc.freenode.net" /></td>
+        </tr>
+        <tr>
+          <td>port</td>
+          <td><input id="port" type="text" value="6667" /></td>
+        </tr>
+        <tr>
+          <td>name</td>
+          <td><input id="nick" type="text" value="" /></td>
+          <td><input type="submit" value="connect"></td>
+        </tr>
+      </table>
     </form>
 
     <div id="messagebox">
@@ -25,7 +38,7 @@
     <div id="yohaku"> </div>
     <div id="send_message">
     </div>
-    <div id="joiners"></div>
+    <!-- <div id="joiners"></div> -->
     <div id="debug">
       <div id="status"></div>
       <div id="debug_info"></div>
@@ -37,5 +50,3 @@
     <script type="text/javascript" src="./bbui.js"></script>
   </body>
 </html>
-
-

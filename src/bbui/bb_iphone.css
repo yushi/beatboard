@@ -1,0 +1,159 @@
+html{
+  margin: 0;
+  padding: 0;
+  -webkit-text-size-adjust:(100%|none|auto);
+}
+
+body{
+  background-color: #ddeedd;
+  background-color: white;
+}
+
+#send_message{
+  left: -10px;
+  width: 110%;
+  height: 50px;
+  bottom: 0px;
+  position: relative;
+  z-index: 1;
+  background-color: #ddeedd;
+  border-top: 1px solid #99bb99;
+  padding-left: 10px;
+  padding-top: 10px;
+  margin-left: -10px
+  margin: 0px;
+  float: left;
+}
+
+#join_channel{
+  top: 0px;
+  left: 0px;
+  position: fixed;
+  height: 40px;
+  width: 100%;
+  margin: 0px;
+  background-color: #ddeedd;
+  padding-left: 10px;
+  padding-top: 5px;
+}
+
+#logout{
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  margin-right: 10px;
+}
+
+#channels{
+  top: 25px;
+  left: 0px;
+  position: fixed;
+  height: 25px;
+  width: 100%;
+  margin: 5px;
+  margin-left: 0px;
+  border-bottom: 1px solid #99bb99;
+  background-color: #ddeedd;
+}
+
+#connect{
+  top: 0px;
+  left: 0px;
+  position: fixed;
+  width: 100%;
+  height: 100px;
+  margin: 0px;
+  background-color: #ddeedd;
+  padding-left: 10px;
+  z-index: 5;
+  border-bottom: 1px solid #99bb99;
+}
+
+#yohaku{
+  width: 100%;
+  height: 55px;
+}
+
+#line{
+  margin: 0px;
+  padding: 0px;
+  line-height: 1.2;
+}
+
+#usermessage{
+  margin: 0px;
+  padding: 0px;
+  text-align: left;
+  float: left;
+}
+
+#speaker{
+  color: #99aa99;
+}
+
+#time{
+  padding: 0px;
+  margin: 0px;
+  text-align: right;
+  color: white;
+}
+
+#messages{
+  width: 80%;
+}
+
+#message_form{
+  margin-right: 130px;
+}
+
+#message{
+  width: 100%;
+  margin-right: 120px;
+}
+
+#messagebox{
+  margin-top: 60px;
+  z-index: -1;
+  margin-left: 5px;
+  margin-right: 120px;
+  font-size: 9px;
+}
+
+#debug{
+  position:fixed;
+  top: 0px;
+  right: 0px;
+  overflow: scroll;
+  height: 80%;
+}
+
+.users{
+  height: 100%;
+  width: 60px;
+  position: fixed;
+  top:55px;
+  bottom: 60px;
+  right: 0px;
+  background-color: #ddeedd;
+  padding: 10px;
+  border-left: 1px solid #99bb99;
+  z-index: 6;
+  margin: 0px;
+}
+
+#video_container{
+  width: 200px;
+  height: 160px;
+  z-index: 10;
+}
+
+#video{
+  z-index: 10;
+}
+
+#video_bar{
+  width: 200px;
+  height: 20px;
+  background-color: #ddeedd;
+  z-index: 10;
+}
