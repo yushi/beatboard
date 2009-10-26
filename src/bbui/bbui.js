@@ -232,7 +232,7 @@ function readMessage(nick){
 }
 
 function addObjectEmbedTag(channel, objectTag){
-    var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + objectTag + '</div><br /><br />';
+    var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/><input type="checkbox" onclick="javascript:setObjectToggleVisible(this)"/></div>' + objectTag + '</div><br /><br />';
     $('#messagebox > #\\' + channel).append(tag);
 }
 
@@ -284,6 +284,11 @@ function setParentToggleFixed(elem){
 	    target.fadeIn(1000);	    
 	});
     
+}
+
+function setObjectToggleVisible(elem){
+    var target = $($(elem).parent().parent().children().get(1));
+    target.toggle();
 }
 
 function addImgEmbedTag(url, channel){
