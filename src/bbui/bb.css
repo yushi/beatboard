@@ -137,8 +137,8 @@ span{
 }
 
 #video_container{
-    width: 200px;
-    height: 160px;
+    width: 320px;
+    height: 260px;
     z-index: 10;
 }
 
@@ -147,7 +147,7 @@ span{
 }
 
 #video_bar{
-    width: 200px;
+    width: 320px;
     height: 20px;
     background-color: #ddeedd;
     z-index: 10;

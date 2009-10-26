@@ -13,6 +13,8 @@ var highlight_color = '#bbeebb';
 var notify_color = '#eebbbb';
 var font_color = 'black';
 var cookie_expire = new Date();
+var scrollPosition = {};
+
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
 $.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
@@ -247,6 +249,11 @@ function addUstreamEmbedTag(room, channel){
            });
 }
 
+function addYoutubeEmbedTag(videoId, channel){
+    var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div><object id="video" width="320" height="260"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="320" height="260"></embed></object></div><br /><br />';
+    $('#messagebox > #\\' + channel).append(tag);
+}
+
 function setParentToDraggable(elem){
     if($($(elem).parent().get(0)).css('position') == 'fixed'){
 	$($(elem).parent().get(0)).draggable().draggable('enable');
@@ -272,10 +279,6 @@ function setParentToggleFixed(elem){
 	    target.fadeIn(1000);	    
 	});
     
-}
-function addYoutubeEmbedTag(videoId, channel){
-  var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div><object id="video" width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object></div><br /><br />';
-  $('#messagebox > #\\' + channel).append(tag);
 }
 
 function addImgEmbedTag(url, channel){
@@ -332,10 +335,12 @@ function selectChannel(channel){
     var channel_divs = $('#messagebox > *');
     for( var i = 0; i < channel_divs.length; i++){
         if( channel_divs[i].id != channel ){
+            scrollPosition[channel_divs[i].id] = document.body.scrollTop;
             $(channel_divs[i]).hide();
             $('#\\' + channel_divs[i].id + '_tab').css('background-color',background_color);
         }else{
             $(channel_divs[i]).show();
+            window.scrollBy( 0, scrollPosition[channel] );
             $('#\\' + channel_divs[i].id + '_tab').css('background-color',highlight_color);
         }
     }
