@@ -231,8 +231,13 @@ function readMessage(nick){
            });
 }
 
+function addObjectEmbedTag(channel, objectTag){
+    var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + objectTag + '</div><br /><br />';
+    $('#messagebox > #\\' + channel).append(tag);
+}
+
 function addUstreamEmbedTag(room, channel){
-    var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag?key=AD8032366E40D6D4BFA76066C699D32C';
+    var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag';
     debug_log('ust embed req');
     $.ajax({
                'type': 'GET',
@@ -240,7 +245,7 @@ function addUstreamEmbedTag(room, channel){
                cache: false,
                success: function(data){
                    eval('received=' + data);
-                   $('#messagebox > #\\' + channel).append('<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + received['results'] + '</div><br /><br />');
+                   addObjectEmbedTag(channel, received['results']);
                },
                error: function(XMLHttpRequest, textStatus, errorThrown){
                    debug_log('ust embed tag response error');
@@ -250,8 +255,8 @@ function addUstreamEmbedTag(room, channel){
 }
 
 function addYoutubeEmbedTag(videoId, channel){
-    var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div><object id="video" width="320" height="260"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="320" height="260"></embed></object></div><br /><br />';
-    $('#messagebox > #\\' + channel).append(tag);
+    var objectTag = '<object id="video" width="320" height="260"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="320" height="260"></embed></object>';
+    addObjectEmbedTag(channel, objectTag);
 }
 
 function setParentToDraggable(elem){
