@@ -2,7 +2,7 @@
 
 CC = g++
 
-COMMON_CFLAGS = -Wall -Werror
+COMMON_CFLAGS = -g -Wall -Werror -fprofile-arcs -ftest-coverage
 OS	= ${shell uname}
 ifeq (${OS}, Linux)
 CFLAGS = $(COMMON_CFLAGS) -fpic
@@ -26,6 +26,11 @@ MAINTARGET = drizzle_client_main
 MAINOBJS = drizzle_client_main.o
 MAINLDFLAGS = $(LDFLAGS) -lbbdrizzle
 
+GCOVDATA = *.gcov *.gcda *.gcno *.info
+
+LCOVFILE = libbbdrizzle.info
+LCOVDIR = cov
+
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -36,8 +41,19 @@ $(TARGET): $(OBJS)
 
 clean:
 	rm -f $(TARGET) $(OBJS) $(MAINTARGET) $(MAINOBJS)
+	if test -d $(LCOVDIR); then rm -r $(LCOVDIR); fi;
+	make -C tests clean
 
 main: $(MAINTARGET)
 
 $(MAINTARGET): $(MAINOBJS) $(TARGET)
 	$(CC) $(CFLAGS) $(LIBS) $(MAINLDFLAGS) $(MAINOBJS) -o $(MAINTARGET)
+
+install: $(TARGET)
+	mkdir -p /usr/bb/lib
+	install $(TARGET) /usr/bb/lib
+
+test: clean all
+	make -C tests test
+	lcov -c --output-file $(LCOVFILE) -d .
+	genhtml $(LCOVFILE) -o $(LCOVDIR)
