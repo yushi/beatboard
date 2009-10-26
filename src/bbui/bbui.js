@@ -117,6 +117,13 @@ function searchRecentLog(channel, count){
                           var unixtime = obj['messages'][i][2];
                           var nick = obj['messages'][i][3];
                           var body = obj['messages'][i][4];
+
+                          var nickRegex = new RegExp("");
+                          nickRegex.compile(/(.+)\!.+@.+/);
+                          var nickResult  = nick.match(nickRegex);
+                          if(nickResult){
+                              nick = nickResult[1];
+                          }
                           addMessage(nick, channel, body, getTimeStrFromSearchResult(date));
                       }
                   }
@@ -408,16 +415,19 @@ function toggleTime(elem, flag){
     var color = flag ? font_color : message_background_color;
     $(elem.childNodes[1]).css('color', color);
 }
+
 function addMessage(speaker, channel, message, time){
+    var isOld = true;
     if(time == undefined){
         time = getCurrentTimeStr();
+        isOld = false;
     }
 
     var escaped_nick = replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
     $('#messagebox > #\\' + channel).append( 
-        '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
+        '<div id="' + (isOld ? 'oldline' : 'line') + '" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
 	'<span id="speaker">' + escaped_nick + '</span>: ' + 
 	extractLink(escaped_message, channel) + 

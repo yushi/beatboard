@@ -73,6 +73,13 @@ body{
     line-height: 1.2;
 }
 
+#oldline{
+    margin: 0px;
+    padding: 0px;
+    line-height: 1.2;
+    color: #99aa99;
+}
+
 #usermessage{
     margin: 0px;
     padding: 0px;
