@@ -14,6 +14,7 @@ var notify_color = '#eebbbb';
 var font_color = 'black';
 var cookie_expire = new Date();
 var scrollPosition = {};
+var privmsgQueue = [];
 
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
@@ -27,19 +28,26 @@ function connectServer(){
     return false;
 }
 
-function joinChannel(elem){
+function joinhannel(elem){
     var channel = $('#channel').val();
     join(channel, nick);
     return false;
 }
 
-function sendMessage(elem){
-    var message = $('#message').val();
+function sendMessage(ev){
+    if(ev.keyCode != 13){
+        return false;
+    }
+    var message_str = $('#message').val();
     
-    if(message.length != 0){
-        if(privmsg(active_channel, message, nick)){
-            $('#message').val('');
+    if(message_str.length != 0){
+        var messages = message_str.split("\n");
+        for(var i in messages){
+            addPrivmsg(active_channel, messages[i], nick);            
         }
+        privmsgFromQueue();
+        $('#message').val('');
+        return true;
     }
     return false;
 }
@@ -95,7 +103,13 @@ function connect(server, nickname, port){
                        }
                    }
                }
-               $('#send_message').load('send_message.html',null,function(){$('#message').focus();});
+               $('#send_message').load('send_message.html',null,
+                                       function(){
+                                           $('#message').focus();
+                                           $('#message').keydown(function(e){
+                                                                     return !sendMessage(e);
+                                                                 });
+                                       });
                setInterval(checkLoader, 1000);
            });
 }
@@ -153,7 +167,23 @@ function join(channel, nick){
            });
 }
 
-function privmsg(target, message, nick){
+function addPrivmsg(target, message, nick){
+    privmsgQueue.push([target, message, nick]);
+}
+
+function privmsgFromQueue(){
+    var next = privmsgQueue.shift();
+    if(!next){
+        return;
+    }
+    var target = next[0];
+    var message = next[1];
+    var nick = next[2];
+
+    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue)},2000);
+}
+
+function privmsg(target, message, nick, callback){
     var url = '/api/SPEAK';
     if(target == null){
         return;
@@ -169,6 +199,9 @@ function privmsg(target, message, nick){
            },
            function(data){
                debug_log('privmsg res');
+               if(callback){
+                   callback();
+               }
            });
     return true;
 }
@@ -520,4 +553,6 @@ function delete_cookie(){
     $.cookie('port', null);
     $.cookie('channel', null);
 }
+
 init();
+
