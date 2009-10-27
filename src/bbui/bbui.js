@@ -171,7 +171,11 @@ function addPrivmsg(target, message, nick){
     privmsgQueue.push([target, message, nick]);
 }
 
-function privmsgFromQueue(){
+function privmsgFromQueue(wait){
+    var wait_time = 2000; // 2sec
+    if(!wait){
+        wait_time = 0;
+    }
     var next = privmsgQueue.shift();
     if(!next){
         return;
@@ -180,7 +184,7 @@ function privmsgFromQueue(){
     var message = next[1];
     var nick = next[2];
 
-    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue)},2000);
+    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue(1))},wait_time);
 }
 
 function privmsg(target, message, nick, callback){
