@@ -38,7 +38,10 @@ PROTOBUF_SRC = sample.pb.cc
 COMMON_SRCS = $(PROTOBUF_SRC)
 
 SERVER_TARGET = server
-SERVER_MAIN = sample_rpc_service.cpp
+SERVER_MAIN = sample_rpc_service.cpp\
+			./tests/bb_sample_rpc.cpp\
+			./tests/example_service.cpp
+
 SERVER_SRCS = $(COMMON_SRCS)
 SERVER_OBJS = $(SERVER_SRCS:.cc=.o) 
 
