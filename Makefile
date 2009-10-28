@@ -9,6 +9,7 @@ install:
 	make -C src/libbbirc install
 	make -C src/bbircd install
 	make -C src/bbui install
+	make -C src/searchapi
 
 clean:
 	make -C src/libbbrpc clean
@@ -18,3 +19,4 @@ clean:
 	make -C src/logapi clean
 	make -C src/libbbirc clean
 	make -C src/bbircd clean
+	make -C src/searchapi clean

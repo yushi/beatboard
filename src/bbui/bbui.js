@@ -13,9 +13,12 @@ var highlight_color = '#bbeebb';
 var notify_color = '#eebbbb';
 var font_color = 'black';
 var cookie_expire = new Date();
+var scrollPosition = {};
+var privmsgQueue = [];
+
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
-$.ajaxSetup({'timeout': 0});
+$.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
 
 function connectServer(){
     var server = $('#server').val();
@@ -25,19 +28,26 @@ function connectServer(){
     return false;
 }
 
-function joinChannel(elem){
+function joinhannel(elem){
     var channel = $('#channel').val();
     join(channel, nick);
     return false;
 }
 
-function sendMessage(elem){
-    var message = $('#message').val();
+function sendMessage(ev){
+    if(ev.keyCode != 13){
+        return false;
+    }
+    var message_str = $('#message').val();
     
-    if(message.length != 0){
-        if(privmsg(active_channel, message, nick)){
-            $('#message').val('');
+    if(message_str.length != 0){
+        var messages = message_str.split("\n");
+        for(var i in messages){
+            addPrivmsg(active_channel, messages[i], nick);            
         }
+        privmsgFromQueue();
+        $('#message').val('');
+        return true;
     }
     return false;
 }
@@ -93,7 +103,13 @@ function connect(server, nickname, port){
                        }
                    }
                }
-               $('#send_message').load('send_message.html',null,function(){$('#message').focus();});
+               $('#send_message').load('send_message.html',null,
+                                       function(){
+                                           $('#message').focus();
+                                           $('#message').keydown(function(e){
+                                                                     return !sendMessage(e);
+                                                                 });
+                                       });
                setInterval(checkLoader, 1000);
            });
 }
@@ -115,6 +131,13 @@ function searchRecentLog(channel, count){
                           var unixtime = obj['messages'][i][2];
                           var nick = obj['messages'][i][3];
                           var body = obj['messages'][i][4];
+
+                          var nickRegex = new RegExp("");
+                          nickRegex.compile(/(.+)\!.+@.+/);
+                          var nickResult  = nick.match(nickRegex);
+                          if(nickResult){
+                              nick = nickResult[1];
+                          }
                           addMessage(nick, channel, body, getTimeStrFromSearchResult(date));
                       }
                   }
@@ -144,12 +167,34 @@ function join(channel, nick){
            });
 }
 
-function privmsg(target, message, nick){
+function addPrivmsg(target, message, nick){
+    privmsgQueue.push([target, message, nick]);
+}
+
+function privmsgFromQueue(wait){
+    var wait_time = 2000; // 2sec
+    if(!wait){
+        wait_time = 0;
+    }
+    var next = privmsgQueue.shift();
+    if(!next){
+        return;
+    }
+    var target = next[0];
+    var message = next[1];
+    var nick = next[2];
+
+    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue(1))},wait_time);
+}
+
+function privmsg(target, message, nick, callback){
     var url = '/api/SPEAK';
     if(target == null){
         return;
     }
     debug_log('privmsg req');
+    addMessage(nick, active_channel,message);
+    window.scrollBy( 0, screen.height );
     $.post(url,
            {
                'message':message,
@@ -158,8 +203,9 @@ function privmsg(target, message, nick){
            },
            function(data){
                debug_log('privmsg res');
-               addMessage(nick, active_channel,message);
-               window.scrollBy( 0, screen.height );
+               if(callback){
+                   callback();
+               }
            });
     return true;
 }
@@ -231,8 +277,13 @@ function readMessage(nick){
     rColumnHight = rColumnHight+10;
 }
 
+function addObjectEmbedTag(channel, objectTag){
+    var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/><input type="checkbox" onclick="javascript:setObjectToggleVisible(this)"/></div>' + objectTag + '</div><br /><br />';
+    $('#messagebox > #\\' + channel).append(tag);
+}
+
 function addUstreamEmbedTag(room, channel){
-    var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag?key=AD8032366E40D6D4BFA76066C699D32C';
+    var url = '/api/tp/ust/json/channel/' + room + '/getEmbedTag';
     debug_log('ust embed req');
     $.ajax({
                'type': 'GET',
@@ -240,13 +291,18 @@ function addUstreamEmbedTag(room, channel){
                cache: false,
                success: function(data){
                    eval('received=' + data);
-                   $('#messagebox > #\\' + channel).append('<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div>' + received['results'] + '</div><br /><br />');
+                   addObjectEmbedTag(channel, received['results']);
                },
                error: function(XMLHttpRequest, textStatus, errorThrown){
                    debug_log('ust embed tag response error');
                    loading = 0;
                }
            });
+}
+
+function addYoutubeEmbedTag(videoId, channel){
+    var objectTag = '<object id="video" width="320" height="260"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="320" height="260"></embed></object>';
+    addObjectEmbedTag(channel, objectTag);
 }
 
 function setParentToDraggable(elem){
@@ -275,9 +331,10 @@ function setParentToggleFixed(elem){
 	});
     
 }
-function addYoutubeEmbedTag(videoId, channel){
-  var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/></div><object id="video" width="200" height="150"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="150"></embed></object></div><br /><br />';
-  $('#messagebox > #\\' + channel).append(tag);
+
+function setObjectToggleVisible(elem){
+    var target = $($(elem).parent().parent().children().get(1));
+    target.toggle();
 }
 
 function addImgEmbedTag(url, channel){
@@ -334,10 +391,12 @@ function selectChannel(channel){
     var channel_divs = $('#messagebox > *');
     for( var i = 0; i < channel_divs.length; i++){
         if( channel_divs[i].id != channel ){
+            scrollPosition[channel_divs[i].id] = document.body.scrollTop;
             $(channel_divs[i]).hide();
             $('#\\' + channel_divs[i].id + '_tab').css('background-color',background_color);
         }else{
             $(channel_divs[i]).show();
+            window.scrollBy( 0, scrollPosition[channel] );
             $('#\\' + channel_divs[i].id + '_tab').css('background-color',highlight_color);
         }
     }
@@ -395,16 +454,19 @@ function toggleTime(elem, flag){
     var color = flag ? font_color : message_background_color;
     $(elem.childNodes[1]).css('color', color);
 }
+
 function addMessage(speaker, channel, message, time){
+    var isOld = true;
     if(time == undefined){
         time = getCurrentTimeStr();
+        isOld = false;
     }
 
     var escaped_nick = replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
     $('#messagebox > #\\' + channel).append( 
-        '<div id="line" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
+        '<div id="' + (isOld ? 'oldline' : 'line') + '" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
 	'<span id="speaker">' + escaped_nick + '</span>: ' + 
 	extractLink(escaped_message, channel) + 
@@ -497,4 +559,6 @@ function delete_cookie(){
     $.cookie('port', null);
     $.cookie('channel', null);
 }
+
 init();
+
