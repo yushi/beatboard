@@ -13,7 +13,7 @@ body{
 #send_message{
   left: -10px;
   width: 100%;
-  height: 50px;
+  height: 61px;
   bottom: 0px;
   position: relative;
   z-index: 1;
@@ -22,6 +22,7 @@ body{
   border-bottom: 1px solid #99bb99;
   padding-left: 10px;
   padding-top: 10px;
+  padding-bottom: 0px;
   float: left;
 }
 
@@ -102,6 +103,7 @@ body{
 #message_form{
   margin-right: 130px;
   padding-left: 10px;
+  padding-bottom: 0px;
 }
 
 #message{
@@ -127,7 +129,7 @@ body{
 }
 
 .users{
-  height: 100%;
+  height: 2048;
   width: 60px;
   position: fixed;
   top:55px;

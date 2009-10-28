@@ -124,6 +124,7 @@ span{
 }
 
 .users{
+    height: auto;
     width: 100px;
     position: fixed;
     top:55px;

@@ -227,6 +227,8 @@ function readMessage(nick){
                    loading = 0;
                }
            });
+    var rColumnHight = document.getElementById(active_channel+"_users").style.height;
+    rColumnHight = rColumnHight+10;
 }
 
 function addUstreamEmbedTag(room, channel){
