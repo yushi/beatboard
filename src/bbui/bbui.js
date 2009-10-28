@@ -36,7 +36,8 @@ function joinhannel(elem){
 }
 
 function sendMessage(ev){
-    if(ev.keyCode != 13){
+    var shift = typeof ev.modifiers == 'undefined' ? ev.shiftKey : ev.modifiers & Event.SHIFT_MASK;
+    if(shift || ev.keyCode != 13){
         return false;
     }
     var message_str = $('#message').val();
