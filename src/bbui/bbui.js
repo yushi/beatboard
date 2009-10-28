@@ -15,6 +15,7 @@ var font_color = 'black';
 var cookie_expire = new Date();
 var scrollPosition = {};
 var privmsgQueue = [];
+var privmsgSending = 0;
 
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
@@ -45,11 +46,12 @@ function sendMessage(ev){
         for(var i in messages){
             addPrivmsg(active_channel, messages[i], nick);            
         }
-        privmsgFromQueue();
+        if(!privmsgSending){
+            privmsgFromQueue(1);            
+        }
         $('#message').val('');
-        return true;
     }
-    return false;
+    return true;
 }
 
 function updateNotifyTitle(){
@@ -171,20 +173,25 @@ function addPrivmsg(target, message, nick){
     privmsgQueue.push([target, message, nick]);
 }
 
-function privmsgFromQueue(wait){
+function privmsgFromQueue(nowait){
+    if(!privmsgSending){
+        privmsgSending = 1;        
+    }
+
     var wait_time = 2000; // 2sec
-    if(!wait){
+    if(nowait){
         wait_time = 0;
     }
     var next = privmsgQueue.shift();
     if(!next){
+        privmsgSending = 0;
         return;
     }
     var target = next[0];
     var message = next[1];
     var nick = next[2];
 
-    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue(1))},wait_time);
+    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue)},wait_time);
 }
 
 function privmsg(target, message, nick, callback){
