@@ -108,9 +108,10 @@ function connect(server, nickname, port){
                $('#send_message').load('send_message.html',null,
                                        function(){
                                            $('#message').focus();
-                                           $('#message').keydown(function(e){
-                                                                     return !sendMessage(e);
-                                                                 });
+
+                                           $('#message').get(0).onkeydown = function(e){
+                                               return !sendMessage(e);
+                                           }
                                        });
                setInterval(checkLoader, 1000);
            });
