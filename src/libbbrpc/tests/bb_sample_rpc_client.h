@@ -20,8 +20,8 @@ public:
   virtual ~BBSampleRpcClient();
   static void Done();
   void Search(std::string query);
-  void DoSearch();
-  void DoSearch2(char *query);
+  std::string DoSearch();
+  std::string DoSearch2(std::string& query);
   const char* DoSearch3(char *query);
 
 };

@@ -34,16 +34,18 @@ BBSampleRpcClient::Search(std::string query)
   delete controller;
 }
 
-void
+std::string
 BBSampleRpcClient::DoSearch()
 {
   Search("query from client");
+  return response.result();
 }
 
-void
-BBSampleRpcClient::DoSearch2(char *query)
+std::string
+BBSampleRpcClient::DoSearch2(std::string& query)
 {
   Search(std::string(query));
+  return response.result();
 }
 
 const char*
