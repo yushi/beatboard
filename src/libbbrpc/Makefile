@@ -46,7 +46,8 @@ SERVER_SRCS = $(COMMON_SRCS)
 SERVER_OBJS = $(SERVER_SRCS:.cc=.o) 
 
 CLIENT_TARGET = client
-CLIENT_MAIN = sample_rpc_client.cpp
+CLIENT_MAIN = sample_rpc_client.cpp\
+			./tests/bb_sample_rpc_client.cpp
 CLIENT_SRCS = $(COMMON_SRCS)
 CLIENT_OBJS = $(CLIENT_SRCS:.cc=.o)
 
