@@ -14,6 +14,8 @@ var notify_color = '#eebbbb';
 var font_color = 'black';
 var cookie_expire = new Date();
 var scrollPosition = {};
+var privmsgQueue = [];
+var privmsgSending = 0;
 
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
@@ -33,15 +35,24 @@ function joinChannel(elem){
     return false;
 }
 
-function sendMessage(elem){
-    var message = $('#message').val();
-    
-    if(message.length != 0){
-        if(privmsg(active_channel, message, nick)){
-            $('#message').val('');
-        }
+function sendMessage(ev){
+    var shift = typeof ev.modifiers == 'undefined' ? ev.shiftKey : ev.modifiers & Event.SHIFT_MASK;
+    if(shift || ev.keyCode != 13){
+        return false;
     }
-    return false;
+    var message_str = $('#message').val();
+    
+    if(message_str.length != 0){
+        var messages = message_str.split("\n");
+        for(var i in messages){
+            addPrivmsg(active_channel, messages[i], nick);            
+        }
+        if(!privmsgSending){
+            privmsgFromQueue(1);            
+        }
+        $('#message').val('');
+    }
+    return true;
 }
 
 function updateNotifyTitle(){
@@ -95,7 +106,14 @@ function connect(server, nickname, port){
                        }
                    }
                }
-               $('#send_message').load('send_message.html',null,function(){$('#message').focus();});
+               $('#send_message').load('send_message.html',null,
+                                       function(){
+                                           $('#message').focus();
+
+                                           $('#message').get(0).onkeydown = function(e){
+                                               return !sendMessage(e);
+                                           }
+                                       });
                setInterval(checkLoader, 1000);
            });
 }
@@ -153,7 +171,32 @@ function join(channel, nick){
            });
 }
 
-function privmsg(target, message, nick){
+function addPrivmsg(target, message, nick){
+    privmsgQueue.push([target, message, nick]);
+}
+
+function privmsgFromQueue(nowait){
+    if(!privmsgSending){
+        privmsgSending = 1;        
+    }
+
+    var wait_time = 2000; // 2sec
+    if(nowait){
+        wait_time = 0;
+    }
+    var next = privmsgQueue.shift();
+    if(!next){
+        privmsgSending = 0;
+        return;
+    }
+    var target = next[0];
+    var message = next[1];
+    var nick = next[2];
+
+    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue)},wait_time);
+}
+
+function privmsg(target, message, nick, callback){
     var url = '/api/SPEAK';
     if(target == null){
         return;
@@ -169,6 +212,9 @@ function privmsg(target, message, nick){
            },
            function(data){
                debug_log('privmsg res');
+               if(callback){
+                   callback();
+               }
            });
     return true;
 }
@@ -236,6 +282,8 @@ function readMessage(nick){
                    loading = 0;
                }
            });
+    var rColumnHight = document.getElementById(active_channel+"_users").style.height;
+    rColumnHight = rColumnHight+10;
 }
 
 function addObjectEmbedTag(channel, objectTag){
@@ -418,19 +466,25 @@ function toggleTime(elem, flag){
 
 function addMessage(speaker, channel, message, time){
     var isOld = true;
+    var isSequencial = false;
     if(time == undefined){
         time = getCurrentTimeStr();
         isOld = false;
     }
 
-    var escaped_nick = replace_centity_ref(speaker);
+
+    if( getLastMessageSpeaker(channel) == speaker){
+        isSequencial = true;
+    }
+    var escaped_nick = isSequencial ? '' : replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
     $('#messagebox > #\\' + channel).append( 
         '<div id="' + (isOld ? 'oldline' : 'line') + '" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
-	'<span id="speaker">' + escaped_nick + '</span>: ' + 
-	extractLink(escaped_message, channel) + 
+	    '<span id="speaker">' + escaped_nick + '</span>' + 
+            '<span id="leftspace" />' + 
+	    (isSequencial ? extractLink(escaped_message, channel) : '')+ 
             '</div><div id="time">' + 
             time + '</div>');
     
@@ -441,6 +495,28 @@ function addMessage(speaker, channel, message, time){
     if(!focused){
         new_message = 1;
     }
+
+    if(!isSequencial){
+        addMessage(speaker, channel, message, isOld ? time:undefined);
+    }
+}
+
+function getLastMessageSpeaker(channel){
+    var channel = $('#messagebox > #\\' + channel);
+    if(!channel){
+        return;
+    }
+
+    var index = channel.children().size() - 1;
+    if(index < 1){
+        return;
+    }
+
+    var nick = null;
+    while(!nick){
+        nick = $(channel.children().eq(index--)).children().eq(0).children().eq(0).text();
+    }
+    return nick;
 }
 
 function getopt(){
@@ -520,4 +596,6 @@ function delete_cookie(){
     $.cookie('port', null);
     $.cookie('channel', null);
 }
+
 init();
+

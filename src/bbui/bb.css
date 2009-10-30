@@ -7,7 +7,7 @@ body{
 #send_message{
     left: 0px;
     width: 100%;
-    height: 50px;
+    height: 80px;
     bottom: 0px;
     position: fixed;
     z-index: 1;
@@ -64,7 +64,7 @@ body{
 
 #yohaku{
     widdth: 100%;
-    height: 55px;
+    height: 85px;
 }
 
 #line{
@@ -102,6 +102,10 @@ span{
     margin: 10px 10px 10px 10px;
 }
 
+#leftspace{
+    margin: 0px 0px 0px 20px;
+}
+
 #messages{
     width: 80%;
 }
@@ -131,10 +135,11 @@ span{
 }
 
 .users{
+    height: auto;
     width: 100px;
     position: fixed;
     top:55px;
-    bottom: 60px;
+    bottom: 90px;
     right: 0px;
     background-color: #ddeedd;
     padding: 10px;

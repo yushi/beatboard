@@ -1,27 +1,28 @@
 html{
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 0px;
   -webkit-text-size-adjust:(100%|none|auto);
 }
 
 body{
   background-color: #ddeedd;
   background-color: white;
+  margin: 0px;
 }
 
 #send_message{
   left: -10px;
-  width: 110%;
-  height: 50px;
+  width: 100%;
+  height: 61px;
   bottom: 0px;
   position: relative;
   z-index: 1;
   background-color: #ddeedd;
   border-top: 1px solid #99bb99;
+  border-bottom: 1px solid #99bb99;
   padding-left: 10px;
   padding-top: 10px;
-  margin-left: -10px
-  margin: 0px;
+  padding-bottom: 0px;
   float: left;
 }
 
@@ -54,6 +55,7 @@ body{
   margin-left: 0px;
   border-bottom: 1px solid #99bb99;
   background-color: #ddeedd;
+  padding-left: 10px;
 }
 
 #connect{
@@ -98,12 +100,10 @@ body{
   color: white;
 }
 
-#messages{
-  width: 80%;
-}
-
 #message_form{
   margin-right: 130px;
+  padding-left: 10px;
+  padding-bottom: 0px;
 }
 
 #message{
@@ -117,6 +117,7 @@ body{
   margin-left: 5px;
   margin-right: 120px;
   font-size: 9px;
+  padding: 0px;
 }
 
 #debug{
@@ -128,7 +129,7 @@ body{
 }
 
 .users{
-  height: 100%;
+  height: 2048;
   width: 60px;
   position: fixed;
   top:55px;
@@ -138,7 +139,6 @@ body{
   padding: 10px;
   border-left: 1px solid #99bb99;
   z-index: 6;
-  margin: 0px;
 }
 
 #video_container{
