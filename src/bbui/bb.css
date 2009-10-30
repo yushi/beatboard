@@ -102,6 +102,10 @@ span{
     margin: 10px 10px 10px 10px;
 }
 
+#leftspace{
+    margin: 0px 0px 0px 20px;
+}
+
 #messages{
     width: 80%;
 }

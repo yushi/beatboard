@@ -29,7 +29,7 @@ function connectServer(){
     return false;
 }
 
-function joinhannel(elem){
+function joinChannel(elem){
     var channel = $('#channel').val();
     join(channel, nick);
     return false;
@@ -466,19 +466,25 @@ function toggleTime(elem, flag){
 
 function addMessage(speaker, channel, message, time){
     var isOld = true;
+    var isSequencial = false;
     if(time == undefined){
         time = getCurrentTimeStr();
         isOld = false;
     }
 
-    var escaped_nick = replace_centity_ref(speaker);
+
+    if( getLastMessageSpeaker(channel) == speaker){
+        isSequencial = true;
+    }
+    var escaped_nick = isSequencial ? '' : replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
     $('#messagebox > #\\' + channel).append( 
         '<div id="' + (isOld ? 'oldline' : 'line') + '" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
             '<div id="usermessage">' + 
-	'<span id="speaker">' + escaped_nick + '</span>: ' + 
-	extractLink(escaped_message, channel) + 
+	    '<span id="speaker">' + escaped_nick + '</span>' + 
+            '<span id="leftspace" />' + 
+	    (isSequencial ? extractLink(escaped_message, channel) : '')+ 
             '</div><div id="time">' + 
             time + '</div>');
     
@@ -489,6 +495,28 @@ function addMessage(speaker, channel, message, time){
     if(!focused){
         new_message = 1;
     }
+
+    if(!isSequencial){
+        addMessage(speaker, channel, message, isOld ? time:undefined);
+    }
+}
+
+function getLastMessageSpeaker(channel){
+    var channel = $('#messagebox > #\\' + channel);
+    if(!channel){
+        return;
+    }
+
+    var index = channel.children().size() - 1;
+    if(index < 1){
+        return;
+    }
+
+    var nick = null;
+    while(!nick){
+        nick = $(channel.children().eq(index--)).children().eq(0).children().eq(0).text();
+    }
+    return nick;
 }
 
 function getopt(){
