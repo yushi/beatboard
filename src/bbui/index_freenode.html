@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <title>BeatBoard</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0, maximum-scale=2.0, minimum-scale=1.0">
+    <link rel="shortcut icon" href="./favicon.ico">
+  </head>
+  <body>
+    <link media="only screen and (max-device-width:480px)" href="bb_iphone.css" rel="stylesheet" type="text/css">
+    <link media="screen and (min-device-width:481px)" href="/bb.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/ui/ui.core.js"></script>
+    <script type="text/javascript" src="/ui/bb.ui.draggable.js"></script>
+    <script type="text/javascript" src="/jquery.blockUI.js.v2.26"></script>
+    <div id="join_channel"></div>
+    <div id="channels"></div>
+
+    <div id="messagebox">
+    </div>
+    <div id="yohaku"> </div>
+    <div id="send_message">
+    </div>
+    <!-- <div id="joiners"></div> -->
+    <div id="debug">
+      <div id="status"></div>
+      <div id="debug_info"></div>
+      <div id="debug_menu">
+        <input type="button" value="delete cookie" onclick="javascript:delete_cookie()" />
+      </div>
+      <div id="debug_log"></div>
+    </div>
+    <script type="text/javascript" src="/bbui.js"></script>
+    <script type="text/javascript" src="/init_freenode.js"></script>
+  </body>
+</html>
