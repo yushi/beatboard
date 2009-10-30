@@ -45,7 +45,9 @@ function sendMessage(ev){
     if(message_str.length != 0){
         var messages = message_str.split("\n");
         for(var i in messages){
-            addPrivmsg(active_channel, messages[i], nick);            
+            if(messages[i] != ''){
+                addPrivmsg(active_channel, messages[i], nick);                            
+            }
         }
         if(!privmsgSending){
             privmsgFromQueue(1);            
