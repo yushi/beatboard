@@ -1,7 +1,7 @@
 .SUFFIXES: .cc .cpp .o .h
 
 CC = g++
-COMMON_CFLAGS = -g -Wall -pipe
+COMMON_CFLAGS = -g -Wall -pipe -Werror -fprofile-arcs -ftest-coverage
 OS	= ${shell uname}
 ifeq (${OS}, Linux)
 CFLAGS = $(COMMON_CFLAGS) -fpic
@@ -56,6 +56,10 @@ EVHTTP_SRCS = bb_rpc_client_evhttp.cpp\
 			sample_rpc_client_evhttp_main.cpp
 EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
 
+GCOVDATA = *.gcov *.gcda *.gcno *.info
+LCOVFILE = libbbrpc.info
+LCOVDIR = cov
+
 all: $(TARGET)
 
 $(TARGET): $(LIB_OBJS)
@@ -80,7 +84,13 @@ $(EVHTTP_TARGET): $(EVHTTP_OBJS)
 
 clean:
 	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(TARGET) $(LIB_OBJS)
+	make -C tests clean
 
 install: $(TARGET)
 	mkdir -p /usr/bb/lib
 	install -m644 $(TARGET) /usr/bb/lib
+
+test: clean all
+	make -C tests test
+	lcov -c --output-file $(LCOVFILE) -d .
+	genhtml $(LCOVFILE) -o $(LCOVDIR)
