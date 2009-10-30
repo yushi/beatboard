@@ -16,7 +16,7 @@ var cookie_expire = new Date();
 var scrollPosition = {};
 var privmsgQueue = [];
 var privmsgSending = 0;
-
+var isUIBlocking = false;
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
 $.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
@@ -45,7 +45,9 @@ function sendMessage(ev){
     if(message_str.length != 0){
         var messages = message_str.split("\n");
         for(var i in messages){
-            addPrivmsg(active_channel, messages[i], nick);            
+            if(messages[i] != ''){
+                addPrivmsg(active_channel, messages[i], nick);                            
+            }
         }
         if(!privmsgSending){
             privmsgFromQueue(1);            
@@ -76,6 +78,7 @@ function checkLoader(){
 }
 
 function connect(server, nickname, port){
+    isUIBlocking = true;
     $.blockUI({message: ""});
     nick = nickname;
     $.cookie('nick',nickname, {expires: cookie_expire});
@@ -90,12 +93,13 @@ function connect(server, nickname, port){
            },
            function(data){
                $.unblockUI();
+               isUIBlocking = false;
                debug_log('connect res');
                eval('obj=' + data);
                $('#status').html(obj['reason']);
                if(obj['status'].match('^OK$')){
                    $('#connect').toggle();
-                   $('#join_channel').load('join_channel.html');
+                   $('#join_channel').load('/join_channel.html');
                }
                if(obj['users']){
                    for(var channel in obj['users']){
@@ -106,7 +110,7 @@ function connect(server, nickname, port){
                        }
                    }
                }
-               $('#send_message').load('send_message.html',null,
+               $('#send_message').load('/send_message.html',null,
                                        function(){
                                            $('#message').focus();
 
@@ -546,29 +550,6 @@ function replace_centity_ref(message) {
     return message;
 }
 
-function init(){
-    var args = getopt();
-    $(window).blur(function(){ focused = 0 });
-    $(window).focus(function(){ focused = 1; new_message = 0; $('#message').focus()});
-    if(args['debug']){
-        debug = new Object();
-    }else{
-        $('#debug').hide();
-        $('#debug_menu').hide();
-        $('#debug_log').hide();
-    }
-
-    nick = $.cookie('nick');
-    if($.cookie('server') && $.cookie('port') && $.cookie('nick')){
-        connect($.cookie('server'), $.cookie('nick'), $.cookie('port'));
-    }
-    if($.cookie('channel')){
-        join($.cookie('channel'), $.cookie('nick'));
-    }
-    update_debuginfo('init');
-    debug_log('init');
-}
-
 function update_debuginfo(from){
     if(debug){
         var debug_text = '';
@@ -595,7 +576,6 @@ function delete_cookie(){
     $.cookie('nick', null);
     $.cookie('port', null);
     $.cookie('channel', null);
+    nick = null;
+    location.reload();
 }
-
-init();
-
