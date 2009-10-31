@@ -543,6 +543,7 @@ function replace_centity_ref(message) {
     centity_ref_array.push(new Array(RegExp('\'', 'g'), '&quot;'));
     centity_ref_array.push(new Array(RegExp('<', 'g'), '&lt;'));
     centity_ref_array.push(new Array(RegExp('>', 'g'), '&gt;'));
+    centity_ref_array.push(new Array(RegExp(' ', 'g'), '&nbsp;'));
     for(var i = 0; i < centity_ref_array.length; i++) {
         message = message.replace(centity_ref_array[i][0],
                                   centity_ref_array[i][1]);
