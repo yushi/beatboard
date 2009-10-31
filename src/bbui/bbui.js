@@ -471,15 +471,16 @@ function toggleTime(elem, flag){
 function addMessage(speaker, channel, message, time){
     var isOld = true;
     var isSequencial = false;
+
     if(time == undefined){
         time = getCurrentTimeStr();
         isOld = false;
     }
 
-
     if( getLastMessageSpeaker(channel) == speaker){
         isSequencial = true;
     }
+
     var escaped_nick = isSequencial ? '' : replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
@@ -519,6 +520,8 @@ function getLastMessageSpeaker(channel){
     var nick = null;
     while(!nick){
         nick = $(channel.children().eq(index--)).children().eq(0).children().eq(0).text();
+        // replace nbst(160 = \xa0) to SPACE(32)
+        nick = nick.replace(RegExp('\xa0', 'g'), ' ');
     }
     return nick;
 }
