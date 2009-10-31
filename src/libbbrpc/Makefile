@@ -1,7 +1,7 @@
 .SUFFIXES: .cc .cpp .o .h
 
 CC = g++
-COMMON_CFLAGS = -g -Wall -pipe
+COMMON_CFLAGS = -g -Wall -pipe -Werror -fprofile-arcs -ftest-coverage
 OS	= ${shell uname}
 ifeq (${OS}, Linux)
 CFLAGS = $(COMMON_CFLAGS) -fpic
@@ -38,12 +38,16 @@ PROTOBUF_SRC = sample.pb.cc
 COMMON_SRCS = $(PROTOBUF_SRC)
 
 SERVER_TARGET = server
-SERVER_MAIN = sample_rpc_service.cpp
+SERVER_MAIN = sample_rpc_service.cpp\
+			./tests/bb_sample_rpc.cpp\
+			./tests/example_service.cpp
+
 SERVER_SRCS = $(COMMON_SRCS)
 SERVER_OBJS = $(SERVER_SRCS:.cc=.o) 
 
 CLIENT_TARGET = client
-CLIENT_MAIN = sample_rpc_client.cpp
+CLIENT_MAIN = sample_rpc_client.cpp\
+			./tests/bb_sample_rpc_client.cpp
 CLIENT_SRCS = $(COMMON_SRCS)
 CLIENT_OBJS = $(CLIENT_SRCS:.cc=.o)
 
@@ -51,6 +55,10 @@ EVHTTP_TARGET = evhttp_client
 EVHTTP_SRCS = bb_rpc_client_evhttp.cpp\
 			sample_rpc_client_evhttp_main.cpp
 EVHTTP_OBJS = $(EVHTTP_SRCS:.cc=.o)
+
+GCOVDATA = *.gcov *.gcda *.gcno *.info
+LCOVFILE = libbbrpc.info
+LCOVDIR = cov
 
 all: $(TARGET)
 
@@ -76,7 +84,13 @@ $(EVHTTP_TARGET): $(EVHTTP_OBJS)
 
 clean:
 	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(TARGET) $(LIB_OBJS)
+	make -C tests clean
 
 install: $(TARGET)
 	mkdir -p /usr/bb/lib
 	install -m644 $(TARGET) /usr/bb/lib
+
+test: clean all
+	make -C tests test
+	lcov -c --output-file $(LCOVFILE) -d .
+	genhtml $(LCOVFILE) -o $(LCOVDIR)
