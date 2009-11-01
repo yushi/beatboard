@@ -16,7 +16,6 @@ var cookie_expire = new Date();
 var scrollPosition = {};
 var privmsgQueue = [];
 var privmsgSending = 0;
-var isUIBlocking = false;
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
 $.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
@@ -25,13 +24,13 @@ function connectServer(){
     var server = $('#server').val();
     var nick = $('#nick').val();
     var port = $('#port').val();
-    connect(server, nick, port);
+    BBAPI.connect(server, nick, port);
     return false;
 }
 
 function joinChannel(elem){
     var channel = $('#channel').val();
-    join(channel, nick);
+    BBAPI.join(channel, nick);
     return false;
 }
 
@@ -66,7 +65,7 @@ function updateNotifyTitle(){
 function checkLoader(){
     if(loading == 0){
         loading = 1;
-        readMessage(nick);
+        BBAPI.readMessage(nick);
         
     }
     if(new_message){
@@ -75,104 +74,6 @@ function checkLoader(){
         $("title").text("BeatBoard");
     }
     update_debuginfo('checkLoader');
-}
-
-function connect(server, nickname, port){
-    isUIBlocking = true;
-    $.blockUI({message: ""});
-    nick = nickname;
-    $.cookie('nick',nickname, {expires: cookie_expire});
-    $.cookie('server',server, {expires: cookie_expire});
-    $.cookie('port',port, {expires: cookie_expire});
-    debug_log('connect req');
-    $.post('/api/CONNECT',
-           {
-               'server': server,
-               'nick' : nick ,
-               'port' : port
-           },
-           function(data){
-               $.unblockUI();
-               isUIBlocking = false;
-               debug_log('connect res');
-               eval('obj=' + data);
-               $('#status').html(obj['reason']);
-               if(obj['status'].match('^OK$')){
-                   $('#connect').toggle();
-                   $('#join_channel').load('/join_channel.html');
-               }
-               if(obj['users']){
-                   for(var channel in obj['users']){
-                       createChannelUI(channel, 1);
-                       searchRecentLog(channel, 10);
-                       for(var i = 0; i < obj['users'][channel].length; i++){
-                           $('#\\' + channel + '_users').append('<div class="user">' + obj['users'][channel][i] + '</div>');
-                       }
-                   }
-               }
-               $('#send_message').load('/send_message.html',null,
-                                       function(){
-                                           $('#message').focus();
-
-                                           $('#message').get(0).onkeydown = function(e){
-                                               return !sendMessage(e);
-                                           }
-                                       });
-               setInterval(checkLoader, 1000);
-           });
-}
-
-function searchRecentLog(channel, count){
-    $.get('/api/search',
-          {
-              'q': 'channel:' + channel + ' limit:' + count + ' order:desc',
-          },
-          function(data){
-              debug_log('search recent log');
-              if(data != null){
-                  eval('obj=' + data);
-                  if(obj['messages'] != null){
-                      obj['messages'].reverse();
-                      for(var i in obj['messages']){
-                          var date = obj['messages'][i][0];
-                          var channel = obj['messages'][i][1];
-                          var unixtime = obj['messages'][i][2];
-                          var nick = obj['messages'][i][3];
-                          var body = obj['messages'][i][4];
-
-                          var nickRegex = new RegExp("");
-                          nickRegex.compile(/(.+)\!.+@.+/);
-                          var nickResult  = nick.match(nickRegex);
-                          if(nickResult){
-                              nick = nickResult[1];
-                          }
-                          addMessage(nick, channel, body, getTimeStrFromSearchResult(date));
-                      }
-                  }
-              }
-          });
-}
-
-
-function join(channel, nick){
-    var url = '/api/JOIN';
-    $.cookie('channel',channel, {expires: cookie_expire});
-    active_channel = channel;
-    debug_log('join req');
-    $.post(url,
-           {
-               'channel':channel, //escape(channel),
-               'nick' : nick,
-           },
-           function(data){
-               debug_log('join res');
-               eval('obj=' + data);
-               $('#status').html(obj['reason']);
-               if(obj['status'].match('^OK$')){
-               }
-               createChannelUI(active_channel, 1);
-               $('message').focus();
-           });
 }
 
 function addPrivmsg(target, message, nick){
@@ -197,30 +98,7 @@ function privmsgFromQueue(nowait){
     var message = next[1];
     var nick = next[2];
 
-    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue)},wait_time);
-}
-
-function privmsg(target, message, nick, callback){
-    var url = '/api/SPEAK';
-    if(target == null){
-        return;
-    }
-    debug_log('privmsg req');
-    addMessage(nick, active_channel,message);
-    window.scrollBy( 0, screen.height );
-    $.post(url,
-           {
-               'message':message,
-               'channel':target, //escape(target),
-               'nick':nick,
-           },
-           function(data){
-               debug_log('privmsg res');
-               if(callback){
-                   callback();
-               }
-           });
-    return true;
+    setTimeout(function(){BBAPI.privmsg(target, message, nick, privmsgFromQueue)},wait_time);
 }
 
 function readSuccess(data){
@@ -270,24 +148,6 @@ function readSuccess(data){
     loading = 0;
     window.scrollBy( 0, screen.height );
     update_debuginfo('read success');
-}
-
-function readMessage(nick){
-    var url = '/api/READ';
-    debug_log('read req');
-    $.ajax({
-               'type': 'POST',
-               'url': url,
-               'data': {'nickname':nick},
-               cache: false,
-               success: readSuccess,
-               error: function(XMLHttpRequest, textStatus, errorThrown){
-                   debug_log('read response error');
-                   loading = 0;
-               }
-           });
-    var rColumnHight = document.getElementById(active_channel+"_users").style.height;
-    rColumnHight = rColumnHight+10;
 }
 
 function addObjectEmbedTag(channel, objectTag){
