@@ -1,5 +1,55 @@
 var BBAPI = function(){
     var isUIBlocking = false;
+    var loading = false;
+
+    var readSuccess = function(data){
+        debug_log('read response succeess');
+        try{
+            eval('received=' + data);
+            for(channel in received){
+                var messages = received[channel];
+                for(var i = 0; i < messages.length; i+=2){
+                    if(messages[i] == 'JOIN'){
+                        var match_result = messages[i+1].match('(.+)!.*');
+                        addMessage(messages[i], channel, match_result[1]);
+                        $('#\\' + channel + '_users').append('<div class="user">' + match_result[1] + '</div>');
+                    }else if(messages[i].match('QUIT.*')){
+                        var match_result = messages[i+1].match('(.+)!.*');
+                        addMessage(messages[i], channel, match_result[1]);
+                        var delete_index = null;
+                        for(var j = 0; j < $('#\\' + channel + '_users').children().length; j++){
+                            if ($('#\\' + channel + '_users').children()[j].textContent == match_result[1]){
+                                delete_index = j;
+                            }
+                        }
+                        $($('#\\' + channel + '_users').children()[delete_index]).remove();
+                    }else if(messages[i].match('PART.*')){
+                        var match_result = messages[i+1].match('(.+)!.*');
+                        addMessage(messages[i], channel, match_result[1]);
+                        var delete_index = null;
+                        for(var j = 0; j < $('#\\' + channel + '_users').children().length; j++){
+                            if ($('#\\' + channel + '_users').children()[j].textContent == match_result[1]){
+                                delete_index = j;
+                            }
+                        }
+                        $($('#\\' + channel + '_users').children()[delete_index]).remove();
+                    }else{
+                        var match_result = messages[i].match('(.+)!.*');
+                        if(match_result){
+                            addMessage(match_result[1], channel, messages[i+1]);
+                        }else{
+                            $('#status').html('JOINERS: ' + messages[i+1]);
+                        }
+                    }
+                }
+            }
+        }catch(e){
+            //alert('error in read received')
+        }
+        window.scrollBy( 0, screen.height );
+        update_debuginfo('read success');
+    }
+    
     var searchRecentLog = function(channel, count){
         $.get('/api/search',
               {
@@ -32,6 +82,9 @@ var BBAPI = function(){
     }
     
     return {
+        isLoading: function(){
+          return loading;  
+        },
         connect: function(server, nickname, port){
             isUIBlocking = true;
             $.blockUI({message: ""});
@@ -118,7 +171,11 @@ var BBAPI = function(){
                    });
             return true;
         },
-        readMessage: function(nick){
+        readMessage: function(nick, callback_readafter){
+            if(loading){
+                return;
+            }
+            loading = true;
             var url = '/api/READ';
             debug_log('read req');
             $.ajax({
@@ -126,14 +183,16 @@ var BBAPI = function(){
                        'url': url,
                        'data': {'nickname':nick},
                        cache: false,
-                       success: readSuccess,
+                       success: function(data){
+                           readSuccess(data);
+                           loading = false;
+                       },
                        error: function(XMLHttpRequest, textStatus, errorThrown){
                            debug_log('read response error');
-                           loading = 0;
+                           loading = false;
                        }
                    });
-            var rColumnHight = document.getElementById(active_channel+"_users").style.height;
-            rColumnHight = rColumnHight+10;
+            callback_readafter();
         }
     }
 }();
