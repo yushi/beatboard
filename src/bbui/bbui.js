@@ -15,6 +15,7 @@ var cookie_expire = new Date();
 var scrollPosition = {};
 var privmsgQueue = [];
 var privmsgSending = 0;
+var video_seq_num = 0;
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
 $.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
@@ -143,6 +144,15 @@ function addYoutubeEmbedTag(videoId, channel){
     addObjectEmbedTag(channel, objectTag);
 }
 
+function addNico2EmbedTag(videoId, channel){
+    var objectTag = '<div id="video_' + ++video_seq_num + '"></div><script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/sm'
+        + videoId 
+        + '"></script>';
+    document.write_org = document.write;
+    document.write = function(arg){alert(video_seq_num);document.getElementById('video_' + video_seq_num ).innerHTML = arg;};
+    addObjectEmbedTag(channel, objectTag);
+}
+
 function setParentToDraggable(elem){
     if($($(elem).parent().get(0)).css('position') == 'fixed'){
 	$($(elem).parent().get(0)).draggable().draggable('enable');
@@ -183,10 +193,15 @@ function addImgEmbedTag(url, channel){
 
 
 function extractLink(str, channel){
+    var nico2Regex = new RegExp("");
+    nico2Regex.compile(/http:\/\/www.nicovideo.jp\/watch\/sm(\d+)/);
+
     var ustRegex = new RegExp("");
     ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
+
     var youtubeRegex = new RegExp("");
     youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&?/);
+
     var imgRegex = new RegExp("");
     imgRegex.compile(/https?:\/\/\S+\.(jpe?g|png|gif|bmp)/);
 
@@ -201,6 +216,10 @@ function extractLink(str, channel){
 	var youtubeVideoId = null;
 	if(youtubeVideoId = str.match(youtubeRegex)){
 	    addYoutubeEmbedTag(youtubeVideoId[1], channel);
+	}
+	var nico2VideoId = null;
+	if(nico2VideoId = str.match(nico2Regex)){
+	    addNico2EmbedTag(nico2VideoId[1], channel);
 	}
 	var imgURL = null;
         if(imgURL = str.match(imgRegex)){
