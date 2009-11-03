@@ -149,7 +149,7 @@ function addNico2EmbedTag(videoId, channel){
         + videoId 
         + '"></script>';
     document.write_org = document.write;
-    document.write = function(arg){alert(video_seq_num);document.getElementById('video_' + video_seq_num ).innerHTML = arg;};
+    document.write = function(arg){document.getElementById('video_' + video_seq_num ).innerHTML = arg;};
     addObjectEmbedTag(channel, objectTag);
 }
 
