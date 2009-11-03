@@ -164,3 +164,8 @@ span{
     background-color: #ddeedd;
     z-index: 10;
 }
+
+embed{
+    width: 320px;
+    height: 260px;
+}
