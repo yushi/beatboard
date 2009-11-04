@@ -1,4 +1,3 @@
-var loading = 0;
 var nick = null;
 var active_channel = null;
 var noexec = 0;
@@ -16,7 +15,7 @@ var cookie_expire = new Date();
 var scrollPosition = {};
 var privmsgQueue = [];
 var privmsgSending = 0;
-var isUIBlocking = false;
+var video_seq_num = 0;
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
 $.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
@@ -25,13 +24,13 @@ function connectServer(){
     var server = $('#server').val();
     var nick = $('#nick').val();
     var port = $('#port').val();
-    connect(server, nick, port);
+    BBAPI.connect(server, nick, port);
     return false;
 }
 
 function joinChannel(elem){
     var channel = $('#channel').val();
-    join(channel, nick);
+    BBAPI.join(channel, nick);
     return false;
 }
 
@@ -64,115 +63,17 @@ function updateNotifyTitle(){
 }
 
 function checkLoader(){
-    if(loading == 0){
-        loading = 1;
-        readMessage(nick);
-        
-    }
+    BBAPI.readMessage(nick, function(){
+                          var rColumnHight = document.getElementById(active_channel+"_users").style.height;
+                          rColumnHight = rColumnHight+10;
+                      });
+
     if(new_message){
         updateNotifyTitle();
     }else{
         $("title").text("BeatBoard");
     }
     update_debuginfo('checkLoader');
-}
-
-function connect(server, nickname, port){
-    isUIBlocking = true;
-    $.blockUI({message: ""});
-    nick = nickname;
-    $.cookie('nick',nickname, {expires: cookie_expire});
-    $.cookie('server',server, {expires: cookie_expire});
-    $.cookie('port',port, {expires: cookie_expire});
-    debug_log('connect req');
-    $.post('/api/CONNECT',
-           {
-               'server': server,
-               'nick' : nick ,
-               'port' : port
-           },
-           function(data){
-               $.unblockUI();
-               isUIBlocking = false;
-               debug_log('connect res');
-               eval('obj=' + data);
-               $('#status').html(obj['reason']);
-               if(obj['status'].match('^OK$')){
-                   $('#connect').toggle();
-                   $('#join_channel').load('/join_channel.html');
-               }
-               if(obj['users']){
-                   for(var channel in obj['users']){
-                       createChannelUI(channel, 1);
-                       searchRecentLog(channel, 10);
-                       for(var i = 0; i < obj['users'][channel].length; i++){
-                           $('#\\' + channel + '_users').append('<div class="user">' + obj['users'][channel][i] + '</div>');
-                       }
-                   }
-               }
-               $('#send_message').load('/send_message.html',null,
-                                       function(){
-                                           $('#message').focus();
-
-                                           $('#message').get(0).onkeydown = function(e){
-                                               return !sendMessage(e);
-                                           }
-                                       });
-               setInterval(checkLoader, 1000);
-           });
-}
-
-function searchRecentLog(channel, count){
-    $.get('/api/search',
-          {
-              'q': 'channel:' + channel + ' limit:' + count + ' order:desc',
-          },
-          function(data){
-              debug_log('search recent log');
-              if(data != null){
-                  eval('obj=' + data);
-                  if(obj['messages'] != null){
-                      obj['messages'].reverse();
-                      for(var i in obj['messages']){
-                          var date = obj['messages'][i][0];
-                          var channel = obj['messages'][i][1];
-                          var unixtime = obj['messages'][i][2];
-                          var nick = obj['messages'][i][3];
-                          var body = obj['messages'][i][4];
-
-                          var nickRegex = new RegExp("");
-                          nickRegex.compile(/(.+)\!.+@.+/);
-                          var nickResult  = nick.match(nickRegex);
-                          if(nickResult){
-                              nick = nickResult[1];
-                          }
-                          addMessage(nick, channel, body, getTimeStrFromSearchResult(date));
-                      }
-                  }
-              }
-          });
-}
-
-
-function join(channel, nick){
-    var url = '/api/JOIN';
-    $.cookie('channel',channel, {expires: cookie_expire});
-    active_channel = channel;
-    debug_log('join req');
-    $.post(url,
-           {
-               'channel':channel, //escape(channel),
-               'nick' : nick,
-           },
-           function(data){
-               debug_log('join res');
-               eval('obj=' + data);
-               $('#status').html(obj['reason']);
-               if(obj['status'].match('^OK$')){
-               }
-               createChannelUI(active_channel, 1);
-               $('message').focus();
-           });
 }
 
 function addPrivmsg(target, message, nick){
@@ -197,102 +98,21 @@ function privmsgFromQueue(nowait){
     var message = next[1];
     var nick = next[2];
 
-    setTimeout(function(){privmsg(target, message, nick, privmsgFromQueue)},wait_time);
-}
-
-function privmsg(target, message, nick, callback){
-    var url = '/api/SPEAK';
-    if(target == null){
-        return;
-    }
-    debug_log('privmsg req');
-    addMessage(nick, active_channel,message);
-    window.scrollBy( 0, screen.height );
-    $.post(url,
-           {
-               'message':message,
-               'channel':target, //escape(target),
-               'nick':nick,
-           },
-           function(data){
-               debug_log('privmsg res');
-               if(callback){
-                   callback();
-               }
-           });
-    return true;
-}
-
-function readSuccess(data){
-    debug_log('read response succeess');
-    try{
-        eval('received=' + data);
-        for(channel in received){
-            var messages = received[channel];
-            for(var i = 0; i < messages.length; i+=2){
-                if(messages[i] == 'JOIN'){
-                    var match_result = messages[i+1].match('(.+)!.*');
-                    addMessage(messages[i], channel, match_result[1]);
-                    $('#\\' + channel + '_users').append('<div class="user">' + match_result[1] + '</div>');
-                }else if(messages[i].match('QUIT.*')){
-                    var match_result = messages[i+1].match('(.+)!.*');
-                    addMessage(messages[i], channel, match_result[1]);
-                    var delete_index = null;
-                    for(var j = 0; j < $('#\\' + channel + '_users').children().length; j++){
-                        if ($('#\\' + channel + '_users').children()[j].textContent == match_result[1]){
-                            delete_index = j;
-                        }
-                    }
-                    $($('#\\' + channel + '_users').children()[delete_index]).remove();
-                }else if(messages[i].match('PART.*')){
-                    var match_result = messages[i+1].match('(.+)!.*');
-                    addMessage(messages[i], channel, match_result[1]);
-                    var delete_index = null;
-                    for(var j = 0; j < $('#\\' + channel + '_users').children().length; j++){
-                        if ($('#\\' + channel + '_users').children()[j].textContent == match_result[1]){
-                            delete_index = j;
-                        }
-                    }
-                    $($('#\\' + channel + '_users').children()[delete_index]).remove();
-                }else{
-                    var match_result = messages[i].match('(.+)!.*');
-                    if(match_result){
-                        addMessage(match_result[1], channel, messages[i+1]);
-                    }else{
-                        $('#status').html('JOINERS: ' + messages[i+1]);
-                    }
-                }
-            }
-        }
-    }catch(e){
-        //alert('error in read received')
-    }
-    loading = 0;
-    window.scrollBy( 0, screen.height );
-    update_debuginfo('read success');
-}
-
-function readMessage(nick){
-    var url = '/api/READ';
-    debug_log('read req');
-    $.ajax({
-               'type': 'POST',
-               'url': url,
-               'data': {'nickname':nick},
-               cache: false,
-               success: readSuccess,
-               error: function(XMLHttpRequest, textStatus, errorThrown){
-                   debug_log('read response error');
-                   loading = 0;
-               }
-           });
-    var rColumnHight = document.getElementById(active_channel+"_users").style.height;
-    rColumnHight = rColumnHight+10;
+    setTimeout(function(){BBAPI.privmsg(target, message, nick, privmsgFromQueue)},wait_time);
 }
 
 function addObjectEmbedTag(channel, objectTag){
-    var tag = '<div id="video_container" ><div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" ><input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/><input type="checkbox" onclick="javascript:setObjectToggleVisible(this)"/></div>' + objectTag + '</div><br /><br />';
+    var tag = '<div id="video_container" >'
+        + '<div id="video_bar" onmouseout="javascript:setParentToDisdraggable(this);" onmouseover="javascript:setParentToDraggable(this);" >'
+        + '<input type="checkbox" onclick="javascript:setParentToggleFixed(this)"/>'
+        + '<input type="checkbox" onclick="javascript:setObjectToggleVisible(this)"/>'
+        + '</div>'
+        + objectTag
+        + '</div>'
+        + '<br /><br />';
+
     $('#messagebox > #\\' + channel).append(tag);
+
 }
 
 function addUstreamEmbedTag(room, channel){
@@ -308,13 +128,28 @@ function addUstreamEmbedTag(room, channel){
                },
                error: function(XMLHttpRequest, textStatus, errorThrown){
                    debug_log('ust embed tag response error');
-                   loading = 0;
                }
            });
 }
 
 function addYoutubeEmbedTag(videoId, channel){
-    var objectTag = '<object id="video" width="320" height="260"><param name="movie" value="http://www.youtube.com/v/' + videoId + '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' + videoId + '" type="application/x-shockwave-flash" wmode="transparent" width="320" height="260"></embed></object>';
+    var objectTag = '<object id="video" width="320" height="260">'
+        + '<param name="movie" value="http://www.youtube.com/v/'
+        + videoId + '" />'
+        + '<param name="wmode" value="transparent" />'
+        + '<embed src="http://www.youtube.com/v/'
+        + videoId 
+        + '" type="application/x-shockwave-flash" wmode="transparent" width="320" height="260" />'
+        + '</object>';
+    addObjectEmbedTag(channel, objectTag);
+}
+
+function addNico2EmbedTag(videoId, channel){
+    var objectTag = '<div id="video_' + ++video_seq_num + '"></div><script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/sm'
+        + videoId 
+        + '"></script>';
+    document.write_org = document.write;
+    document.write = function(arg){document.getElementById('video_' + video_seq_num ).innerHTML = arg;};
     addObjectEmbedTag(channel, objectTag);
 }
 
@@ -358,10 +193,12 @@ function addImgEmbedTag(url, channel){
 
 
 function extractLink(str, channel){
-    var ustRegex = new RegExp("");
-    ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
-    var youtubeRegex = new RegExp("");
-    youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&?/);
+    var videoExtractRules = [
+        ["http://www.nicovideo.jp/watch/sm(\\d+)", addNico2EmbedTag],
+        ["https?://www.ustream.tv/channel/(\\S+)", addUstreamEmbedTag],
+        ["https?://www.youtube.com/watch\\S+v=(\\S+)&?", addYoutubeEmbedTag],
+    ];
+
     var imgRegex = new RegExp("");
     imgRegex.compile(/https?:\/\/\S+\.(jpe?g|png|gif|bmp)/);
 
@@ -369,19 +206,23 @@ function extractLink(str, channel){
     urlRegex.compile(/https?:\/\/\S+/);
     var match_result = str.match(urlRegex);
     if(match_result){
-	var ustChannel = null;
-	if(ustChannel = str.match(ustRegex)){
-	  addUstreamEmbedTag(ustChannel[1], channel);
-	}
-	var youtubeVideoId = null;
-	if(youtubeVideoId = str.match(youtubeRegex)){
-	  addYoutubeEmbedTag(youtubeVideoId[1], channel);
-	}
+        //extract videos
+        for(var i = 0; i < videoExtractRules.length; i++){
+            var videoMatchResult = null;
+            var regexp = new RegExp(videoExtractRules[i][0]);
+            var videoEmbedFunction = videoExtractRules[i][1];
+            if(videoMatchResult = str.match(regexp)){
+                videoEmbedFunction(videoMatchResult[1], channel);                
+            }
+        }
+
+        //extract image
 	var imgURL = null;
         if(imgURL = str.match(imgRegex)){
           addImgEmbedTag(imgURL[0], channel);
         }
 
+        //extract link
         if(no_refferer){
             //IE not supported
 	    var html = '<html><head><script type="text/javascript"><!--\n'
@@ -471,15 +312,16 @@ function toggleTime(elem, flag){
 function addMessage(speaker, channel, message, time){
     var isOld = true;
     var isSequencial = false;
+    
     if(time == undefined){
         time = getCurrentTimeStr();
         isOld = false;
     }
-
-
+    
     if( getLastMessageSpeaker(channel) == speaker){
         isSequencial = true;
     }
+    
     var escaped_nick = isSequencial ? '' : replace_centity_ref(speaker);
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
@@ -495,11 +337,11 @@ function addMessage(speaker, channel, message, time){
     if(channel != active_channel){
         $($('#\\' + channel + '_tab')[0]).css('background-color',notify_color);
     }
-
+    
     if(!focused){
         new_message = 1;
     }
-
+    
     if(!isSequencial){
         addMessage(speaker, channel, message, isOld ? time:undefined);
     }
@@ -510,15 +352,17 @@ function getLastMessageSpeaker(channel){
     if(!channel){
         return;
     }
-
+    
     var index = channel.children().size() - 1;
     if(index < 1){
         return;
     }
-
+    
     var nick = null;
     while(!nick){
         nick = $(channel.children().eq(index--)).children().eq(0).children().eq(0).text();
+        // replace nbst(160 = \xa0) to SPACE(32)
+        nick = nick.replace(RegExp('\xa0', 'g'), ' ');
     }
     return nick;
 }
@@ -543,6 +387,7 @@ function replace_centity_ref(message) {
     centity_ref_array.push(new Array(RegExp('\'', 'g'), '&quot;'));
     centity_ref_array.push(new Array(RegExp('<', 'g'), '&lt;'));
     centity_ref_array.push(new Array(RegExp('>', 'g'), '&gt;'));
+    centity_ref_array.push(new Array(RegExp(' ', 'g'), '&nbsp;'));
     for(var i = 0; i < centity_ref_array.length; i++) {
         message = message.replace(centity_ref_array[i][0],
                                   centity_ref_array[i][1]);
@@ -553,7 +398,7 @@ function replace_centity_ref(message) {
 function update_debuginfo(from){
     if(debug){
         var debug_text = '';
-        debug_text += 'loading = ' + loading + '<br />';
+        debug_text += 'loading = ' + BBAPI.isLoading() + '<br />';
         debug_text += 'last updated = ' + (new Date).toLocaleString() + '<br />';
         if(from){
             debug_text += 'updated by ' + from + '<br />';

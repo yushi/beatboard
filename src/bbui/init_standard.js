@@ -12,10 +12,10 @@ function init(){
 
     nick = $.cookie('nick');
     if($.cookie('server') && $.cookie('port') && $.cookie('nick')){
-        connect($.cookie('server'), $.cookie('nick'), $.cookie('port'));
+        BBAPI.connect($.cookie('server'), $.cookie('nick'), $.cookie('port'));
     }
     if($.cookie('channel')){
-        join($.cookie('channel'), $.cookie('nick'));
+        BBAPI.join($.cookie('channel'), $.cookie('nick'));
     }
     update_debuginfo('init');
     debug_log('init');

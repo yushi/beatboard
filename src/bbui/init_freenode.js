@@ -16,7 +16,7 @@ function init(){
         nick = $.cookie('nick');
     }
 
-    connect("irc.freenode.net", nick, "6667");
+    BBAPI.connect("irc.freenode.net", nick, "6667");
 
     var requested = location.pathname;
     var channel = null;
@@ -39,7 +39,7 @@ function init(){
 
 function joinWait(channel, nick){
     if(!isUIBlocking){
-        join(channel, nick);
+        BBAPI.join(channel, nick);
     }else{
         setTimeout(function(){
                        joinWait(channel, nick)

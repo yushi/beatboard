@@ -12,6 +12,7 @@ install:
 	install -m644 jquery-1.3.2.min.js $(BB_UI_HOME)
 	install -m644 jquery.cookie.js $(BB_UI_HOME)
 	install -m644 jquery.blockUI.js.v2.26 $(BB_UI_HOME)
+	install -m644 bbapi.js $(BB_UI_HOME)
 	install -m644 bbui.js $(BB_UI_HOME)
 	install -m644 init_standard.js $(BB_UI_HOME)
 	install -m644 init_freenode.js $(BB_UI_HOME)
