@@ -1,5 +1,13 @@
 #include "example_service.h"
 
+ExampleService::ExampleService()
+{
+}
+
+ExampleService::~ExampleService()
+{
+}
+
 void
 ExampleService::RpcFunc(google::protobuf::RpcController* controller,
                         const sample::Request* request,

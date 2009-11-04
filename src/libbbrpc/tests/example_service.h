@@ -4,6 +4,9 @@
 
 class ExampleService : public sample::RpcService {
  public:
+  ExampleService();
+  virtual ~ExampleService();
+
   void RpcFunc(google::protobuf::RpcController* controller,
                const sample::Request* request,
                sample::Response* response,

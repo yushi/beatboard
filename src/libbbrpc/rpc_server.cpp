@@ -11,6 +11,19 @@ BeatBoard::EventHandller( int sockfd, short event, void *v )
     ((RpcServer*) klass)->Dispatch(sockfd, event, status, clientklass);
 }
 
+int
+BeatBoard::RpcServer::cleanUp()
+{
+  return -1; // exit event_dispatch() 
+}
+
+void
+BeatBoard::RpcServer::sigcb( int sig )
+{
+  extern int event_gotsig;
+  event_gotsig = 1;
+}
+
 BeatBoard::RpcServer::RpcServer( const std::string& host )
 {
   this->host = host;
@@ -18,6 +31,20 @@ BeatBoard::RpcServer::RpcServer( const std::string& host )
 
 BeatBoard::RpcServer::~RpcServer()
 {
+  close(server_sockfd);
+  if (service != NULL)
+  {
+    delete service;
+    service = NULL;
+  }
+
+  std::vector<ClientEventStatus *>::iterator it;
+  for( it = clients.begin(); it != clients.end(); ++it )
+  {
+    (*it)->terminate();
+    delete (*it);
+    clients.erase(it);
+  }
 }
 
 void
@@ -199,6 +226,13 @@ BeatBoard::RpcServer::ExportOnPort( const int port, BBRpcService*& service )
   this->service = service;
   main_base = event_init();
   memset(&server_event, 0, sizeof(server_event));
+
+  extern int (*event_sigcb)(void);
+  event_sigcb = cleanUp;
+  signal(SIGHUP, sigcb);
+  signal(SIGINT, sigcb);
+  signal(SIGTERM, sigcb);
+
   if (!createSocket(port))
   {
     perror("createSocket");
@@ -209,7 +243,7 @@ BeatBoard::RpcServer::ExportOnPort( const int port, BBRpcService*& service )
 void
 BeatBoard::RpcServer::Run()
 {
-  std::cerr << "libevent server start1."  << std::endl;
+  std::cerr << "libevent server start1."  << std::endl;  
   event_dispatch();
 //  std::cerr << "libevent server start2."  << std::endl;
 //  event_base_loop(main_base, 0);
