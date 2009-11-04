@@ -193,14 +193,11 @@ function addImgEmbedTag(url, channel){
 
 
 function extractLink(str, channel){
-    var nico2Regex = new RegExp("");
-    nico2Regex.compile(/http:\/\/www.nicovideo.jp\/watch\/sm(\d+)/);
-
-    var ustRegex = new RegExp("");
-    ustRegex.compile(/https?:\/\/www\.ustream\.tv\/channel\/(\S+)/);
-
-    var youtubeRegex = new RegExp("");
-    youtubeRegex.compile(/https?:\/\/www\.youtube\.com\/watch\S+v=(\S+)&?/);
+    var videoExtractRules = [
+        ["http://www.nicovideo.jp/watch/sm(\\d+)", addNico2EmbedTag],
+        ["https?://www.ustream.tv/channel/(\\S+)", addUstreamEmbedTag],
+        ["https?://www.youtube.com/watch\\S+v=(\\S+)&?", addYoutubeEmbedTag],
+    ];
 
     var imgRegex = new RegExp("");
     imgRegex.compile(/https?:\/\/\S+\.(jpe?g|png|gif|bmp)/);
@@ -209,23 +206,23 @@ function extractLink(str, channel){
     urlRegex.compile(/https?:\/\/\S+/);
     var match_result = str.match(urlRegex);
     if(match_result){
-	var ustChannel = null;
-	if(ustChannel = str.match(ustRegex)){
-	  addUstreamEmbedTag(ustChannel[1], channel);
-	}
-	var youtubeVideoId = null;
-	if(youtubeVideoId = str.match(youtubeRegex)){
-	    addYoutubeEmbedTag(youtubeVideoId[1], channel);
-	}
-	var nico2VideoId = null;
-	if(nico2VideoId = str.match(nico2Regex)){
-	    addNico2EmbedTag(nico2VideoId[1], channel);
-	}
+        //extract videos
+        for(var i = 0; i < videoExtractRules.length; i++){
+            var videoMatchResult = null;
+            var regexp = new RegExp(videoExtractRules[i][0]);
+            var videoEmbedFunction = videoExtractRules[i][1];
+            if(videoMatchResult = str.match(regexp)){
+                videoEmbedFunction(videoMatchResult[1], channel);                
+            }
+        }
+
+        //extract image
 	var imgURL = null;
         if(imgURL = str.match(imgRegex)){
           addImgEmbedTag(imgURL[0], channel);
         }
 
+        //extract link
         if(no_refferer){
             //IE not supported
 	    var html = '<html><head><script type="text/javascript"><!--\n'
