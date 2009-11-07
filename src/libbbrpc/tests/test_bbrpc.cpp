@@ -86,10 +86,11 @@ TEST(BBRpcTest, Server) {
 
   // send sigint to event_dispatch() in rpcserver
   pthread_kill(thread, SIGINT);
-  ret = pthread_detach(thread);
+  //ret = pthread_detach(thread);
+  ret = pthread_join(thread, NULL);
   if (ret != 0)
   {
-    perror("pthread_detach");
+    perror("pthread_join");
     return;
   }
 

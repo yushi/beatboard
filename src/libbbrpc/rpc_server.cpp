@@ -226,16 +226,39 @@ BeatBoard::RpcServer::ExportOnPort( const int port, BBRpcService*& service )
   this->service = service;
   main_base = event_init();
   memset(&server_event, 0, sizeof(server_event));
-
-  extern int (*event_sigcb)(void);
-  event_sigcb = cleanUp;
-  signal(SIGHUP, sigcb);
-  signal(SIGINT, sigcb);
-  signal(SIGTERM, sigcb);
+  setSignal();
 
   if (!createSocket(port))
   {
     perror("createSocket");
+    abort();
+  }
+}
+
+void
+BeatBoard::RpcServer::setSignal()
+{
+  extern int (*event_sigcb)(void);
+  event_sigcb = cleanUp;
+
+  sa.sa_handler = sigcb;
+  sa.sa_flags = SA_RESTART;
+  if ( sigemptyset( &sa.sa_mask ) != 0)
+  {
+    perror("sigemptyset");
+    abort();
+  }
+
+  // stop sigstop interruption
+  if ( sigaddset( &sa.sa_mask, SIGTSTP ) != 0 )
+  {
+    perror("sigaddset");
+    abort();
+  }
+
+  if ( sigaction( SIGINT, &sa, 0 ) != 0 )
+  {
+    perror("sigaction");
     abort();
   }
 }
