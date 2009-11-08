@@ -203,7 +203,7 @@ function extractLink(str, channel){
     imgRegex.compile(/https?:\/\/\S+\.(jpe?g|png|gif|bmp)/);
 
     var urlRegex = new RegExp("");
-    urlRegex.compile(/https?:\/\/[0-9a-zA-Z\-\+\/\;\!\*\(\),\.\_]+/);
+    urlRegex.compile(/https?:\/\/[0-9a-zA-Z\-\+\/\;\!\*\(\),\.\_\?=]+/);
     var match_result = str.match(urlRegex);
     if(match_result){
         //extract videos
@@ -234,7 +234,7 @@ function extractLink(str, channel){
                     + encodeURIComponent(html) 
                     + "\" >" 
                     + match_result[0] 
-                    + "</a>&nbsp;"
+                    + "</a>"
             );
         }else{
             str = str.replace(urlRegex, "<a target=\"_blank\" href=\"" + match_result[0] + "\" >" + match_result[0] + "</a>");
