@@ -11,6 +11,7 @@ BeatBoard::BBRpcChannel::BBRpcChannel( const std::string& host, const int port )
 
 BeatBoard::BBRpcChannel::~BBRpcChannel()
 {
+  close(this->sockfd);
 }
 
 void

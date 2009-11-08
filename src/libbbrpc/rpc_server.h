@@ -15,6 +15,7 @@
 #include <event.h>
 #include <fcntl.h>
 #include <vector>
+#include <signal.h>
 #include <google/protobuf/stubs/common.h>
 
 #include "rpccommon.h"
@@ -39,6 +40,7 @@ namespace BeatBoard {
     struct event_base *main_base;
     struct event server_event;
     std::vector<ClientEventStatus *> clients;
+    struct sigaction sa;
 
   public:
     RpcServer( const std::string& host );
@@ -49,6 +51,7 @@ namespace BeatBoard {
     void Dispatch( int sockfd, short event, int status, void* clientklass );
     void Accept( int sockfd, short event );
     void Read( int sockfd, short event, ClientEventStatus* klass );
+	//	void Finish();
 
   private:
     bool createSocket( const int port );
@@ -56,6 +59,9 @@ namespace BeatBoard {
     void clientDelete( ClientEventStatus* klass );
     bool recvData( int sockfd );
     bool sendData( int sockfd );
+    void setSignal();
+    static int cleanUp();
+    static void sigcb( int sig );
   };
 }
 
