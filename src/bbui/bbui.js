@@ -203,7 +203,7 @@ function extractLink(str, channel){
     imgRegex.compile(/https?:\/\/\S+\.(jpe?g|png|gif|bmp)/);
 
     var urlRegex = new RegExp("");
-    urlRegex.compile(/https?:\/\/\S+/);
+    urlRegex.compile(/(https?:\/\/\S+)&nbsp;/);
     var match_result = str.match(urlRegex);
     if(match_result){
         //extract videos
@@ -226,9 +226,16 @@ function extractLink(str, channel){
         if(no_refferer){
             //IE not supported
 	    var html = '<html><head><script type="text/javascript"><!--\n'
-	        + 'document.write(\'<meta http-equiv="refresh" content="0;url='+match_result[0]+'">\');'
+	        + 'document.write(\'<meta http-equiv="refresh" content="0;url='+match_result[1]+'">\');'
 	        + '// --><'+'/script></head><body></body></html>';
-            str = str.replace(urlRegex, "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" +encodeURIComponent(html) + "\" >" + match_result[0] + "</a>");
+            str = str.replace(
+                urlRegex,
+                "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" 
+                    +encodeURIComponent(html) 
+                    + "\" >" 
+                    + match_result[1] 
+                    + "</a>&nbsp;"
+            );
         }else{
             str = str.replace(urlRegex, "<a target=\"_blank\" href=\"" + match_result[0] + "\" >" + match_result[0] + "</a>");
         }
