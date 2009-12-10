@@ -392,7 +392,8 @@ function getopt(){
 function replace_centity_ref(message) {
     var centity_ref_array = new Array();
     centity_ref_array.push(new Array(RegExp('&', 'g'), '&amp;'));
-    centity_ref_array.push(new Array(RegExp('\'', 'g'), '&quot;'));
+    centity_ref_array.push(new Array(RegExp('\'', 'g'), '&apos;'));
+    centity_ref_array.push(new Array(RegExp('"', 'g'), '&quot;'));
     centity_ref_array.push(new Array(RegExp('<', 'g'), '&lt;'));
     centity_ref_array.push(new Array(RegExp('>', 'g'), '&gt;'));
     centity_ref_array.push(new Array(RegExp(' ', 'g'), '&nbsp;'));
