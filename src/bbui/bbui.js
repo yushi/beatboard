@@ -335,12 +335,12 @@ function addMessage(speaker, channel, message, time){
     createChannelUI(channel);
     $('#messagebox > #\\' + channel).append( 
         '<div id="' + (isOld ? 'oldline' : 'line') + '" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
-            '<div id="usermessage">' + 
-	    '<span id="speaker">' + escaped_nick + '</span>' + 
-            '<span id="leftspace" />' + 
-	    (isSequencial ? extractLink(escaped_message, channel) : '')+ 
-            '</div><div id="time">' + 
-            time + '</div>');
+            '<span id="usermessage">' + 
+	        '<span id="speaker">' + escaped_nick + '</span>' + 
+            '<span id="leftspace"></span>' + 
+	        (isSequencial ? extractLink(escaped_message, channel) : '')+ 
+            '</span><span id="time">' + 
+            time + '</span><div>');
     
     if(channel != active_channel){
         $($('#\\' + channel + '_tab')[0]).css('background-color',notify_color);

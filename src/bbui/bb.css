@@ -84,7 +84,6 @@ body{
     margin: 0px;
     padding: 0px;
     text-align: left;
-    float: left;
 }
 
 #speaker{
@@ -95,6 +94,7 @@ body{
     padding: 0px;
     margin: 0px;
     text-align: right;
+    float: right;
     color: white;
 }
 
