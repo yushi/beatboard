@@ -39,6 +39,7 @@ namespace BeatBoard{
   private:
     string *pass;
     string nick;
+    string server;
     vector<Notifier*> readNotifier;
     vector<Notifier*> joinNotifier;
     static const string newline;

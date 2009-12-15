@@ -152,6 +152,7 @@ void BeatBoard::IRCConnection::create_socket() throw( Exception ) {
 }
 
 void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw (Exception){
+  this->server = addr;
   this->create_socket();
 
   struct addrinfo hints;
@@ -255,6 +256,7 @@ void BeatBoard::IRCConnection::loggingMessage( string channel, string identifier
   request.set_time(unixtime.str().c_str());
   request.set_identifier(identifier.c_str());
   request.set_message(message.c_str());
+  request.set_server(this->server.c_str());
   std::string data;
   if ( !request.SerializeToString( &data ) ){
     std::cout << "Failed to parse request." << std::endl;
