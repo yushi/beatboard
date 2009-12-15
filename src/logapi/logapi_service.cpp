@@ -32,8 +32,9 @@ BeatBoard::LogApiService::RpcFunc(google::protobuf::RpcController* controller,
   std::string time = ApiCommon::escape(request->time());
   std::string identifier = ApiCommon::escape(request->identifier());
   std::string message = ApiCommon::escape(request->message());
+  std::string server = ApiCommon::escape(request->server());
   
-  bool ret = insertLogToDB( channel, time, identifier, message );
+  bool ret = insertLogToDB( channel, time, identifier, message, server );
   if (ret)
   {
     response->set_result(LOGAPI_RESULT_OK);
@@ -50,7 +51,7 @@ BeatBoard::LogApiService::RpcFunc(google::protobuf::RpcController* controller,
 }
 
 bool
-BeatBoard::LogApiService::insertLogToDB( std::string& channel, std::string& time, std::string& identifier, std::string& message )
+BeatBoard::LogApiService::insertLogToDB( std::string& channel, std::string& time, std::string& identifier, std::string& message, std::string& server )
 {
   bool ret = false;
   uuid_t out;
@@ -64,12 +65,12 @@ BeatBoard::LogApiService::insertLogToDB( std::string& channel, std::string& time
   std::cout << "time: " << time << std::endl;
   std::cout << "identifier: " << identifier << std::endl;
   std::cout << "message: " << message << std::endl;
-
+  std::cout << "server: " << server << std::endl;
 
   std::string insert_columns_and_source;
   insert_columns_and_source = "values (null,\'" + std::string(uuidstr) +
     "\', null, \'" + channel + "\', \'" + time + "\', \'" + identifier +
-    "\', \'" + message + "\')";
+    "\', \'" + message + "\', \'" + server + "\')";
 
   std::cout << insert_columns_and_source << std::endl;
 

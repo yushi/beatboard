@@ -5,6 +5,7 @@ message Request {
   required string time = 2; 
   required string identifier = 3;
   required string message = 4;
+  required string server = 5;
 }
 
 message Response {

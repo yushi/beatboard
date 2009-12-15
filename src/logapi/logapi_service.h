@@ -21,7 +21,7 @@ namespace BeatBoard {
     BeatBoard::DrizzleResponse response;
     std::string table_name;
 
-    bool insertLogToDB( std::string& channel, std::string& time, std::string& identifier, std::string& message );
+    bool insertLogToDB( std::string& channel, std::string& time, std::string& identifier, std::string& message, std::string& server );
 
   public:
 	LogApiService( const std::string& db, const std::string& table_name, 

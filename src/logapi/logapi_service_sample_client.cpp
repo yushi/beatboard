@@ -40,11 +40,13 @@ void DoSearch() {
   request.set_channel("cha'nnel");
   request.set_time("20202002");
   request.set_identifier("iden,tifier");
-  request.set_message("hel\lo!!");
+  request.set_message("hello!!");
+  request.set_server("bb.isasaka.net");
   std::cout << "channel: " << request.channel() << std::endl;
   std::cout << "time: " << request.time() << std::endl;
   std::cout << "identifier: " << request.identifier() << std::endl;
   std::cout << "message: " << request.message() << std::endl;
+  std::cout << "server: " << request.server() << std::endl;
 
   google::protobuf::Closure* callback = google::protobuf::NewCallback(&Done);
   service->RpcFunc(controller, &request, &response, callback);
