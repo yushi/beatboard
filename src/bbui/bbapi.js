@@ -85,19 +85,21 @@ var BBAPI = function(){
         isLoading: function(){
           return loading;  
         },
-        connect: function(server, nickname, port){
+        connect: function(server, nickname, port, pass){
             isUIBlocking = true;
             $.blockUI({message: ""});
             nick = nickname;
             $.cookie('nick',nickname, {expires: cookie_expire});
             $.cookie('server',server, {expires: cookie_expire});
             $.cookie('port',port, {expires: cookie_expire});
+            $.cookie('pass',pass, {expires: cookie_expire});
             debug_log('connect req');
             $.post('/api/CONNECT',
                    {
                        'server': server,
                        'nick' : nick ,
-                       'port' : port
+                       'port' : port, 
+                       'pass' : pass
                    },
                    function(data){
                        $.unblockUI();

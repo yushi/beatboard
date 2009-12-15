@@ -24,7 +24,8 @@ function connectServer(){
     var server = $('#server').val();
     var nick = $('#nick').val();
     var port = $('#port').val();
-    BBAPI.connect(server, nick, port);
+    var pass = $('#pass').val();
+    BBAPI.connect(server, nick, port, pass);
     return false;
 }
 
@@ -430,6 +431,7 @@ function delete_cookie(){
     $.cookie('nick', null);
     $.cookie('port', null);
     $.cookie('channel', null);
+    $.cookie('pass', null);
     nick = null;
     location.reload();
 }

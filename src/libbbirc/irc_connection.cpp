@@ -133,9 +133,9 @@ void irc_buffevent_error( struct bufferevent *bev, short what, void *arg ) {
   //FIXME cleanup bufferevent
 }
 
-
-BeatBoard::IRCConnection::IRCConnection(string nick) {
+BeatBoard::IRCConnection::IRCConnection(string nick, string *pass) {
   this->nick = nick;
+  this->pass = pass;
   if(NULL == ev_base){
     ev_base = event_init();
   }
@@ -192,6 +192,9 @@ void BeatBoard::IRCConnection::connectIRCServer(string addr, string port) throw 
     throw Exception( "bufferevent_enable: failed" );
   }
 
+  if(NULL != this->pass){
+    this->PASS(*this->pass);
+  }
   this->NICK(this->nick);
   this->USER(this->nick, "0", "*", ":beatboard");
 }
@@ -209,6 +212,11 @@ void BeatBoard::IRCConnection::write(string str) throw (Exception){
   if ( 0 != result ) {
     throw Exception( "bufferevent_write: failed" );
   }
+}
+
+void BeatBoard::IRCConnection::PASS(string pass) throw (Exception){
+  string message("PASS :" + pass);
+  this->write(message);
 }
 
 void BeatBoard::IRCConnection::NICK(string name) throw (Exception){
@@ -334,6 +342,9 @@ BeatBoard::IRCConnection::~IRCConnection(){
   if(this->buffevent){
     bufferevent_disable(this->buffevent, EV_READ | EV_WRITE);
     bufferevent_free(this->buffevent);
+  }
+  if(NULL != this->pass){
+    delete(this->pass);
   }
 }
 

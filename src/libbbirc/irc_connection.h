@@ -37,6 +37,7 @@ namespace BeatBoard{
     static const string RPL_NAMREPLY;
     static const string RPL_ENDOFNAMES;
   private:
+    string *pass;
     string nick;
     vector<Notifier*> readNotifier;
     vector<Notifier*> joinNotifier;
@@ -46,7 +47,7 @@ namespace BeatBoard{
   public:
     static bool bb_event_dispatch(struct event_base *ev);
     static void bb_event_finish();
-    IRCConnection(string nick);
+    IRCConnection(string nick, string *pass = NULL);
     ~IRCConnection();
     void setReadNotifier(Notifier* notifier);
     void setJoinNotifier(Notifier* notifier);
@@ -59,6 +60,7 @@ namespace BeatBoard{
     void JOIN(string channel) throw (Exception);
     void PRIVMSG(string channel, string msg) throw (Exception);
     void PONG(string server) throw (Exception);
+    void PASS(string pass) throw (Exception);
     void NICK(string name) throw (Exception);
     void USER(string user, string host, string server, string real) throw (Exception);
     void loggingMessage(string channel, string identifier, string message);

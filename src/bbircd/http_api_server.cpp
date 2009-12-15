@@ -152,14 +152,25 @@ void BeatBoard::HTTPAPIServer::connectHandler( struct evhttp_request *req, void 
   const string nick = params[string("nick")];
   const string server = params[string("server")];
   const string port = params[string("port")];
-  logger.debug("nick:" + nick + " server:" + server + " port:" + port);
+  const string pass = params[string("pass")];
+  logger.debug("nick:" + nick +
+               " server:" + server +
+               " port:" + port +
+               " pass:" + pass
+               );
   
   IRCConnection *conn = NULL;
   conn = instance->getIRCConnection( nick );
   ostringstream ss;
   try{
     if(NULL == conn){
-      IRCConnection *newConnection = new IRCConnection(nick);
+      IRCConnection *newConnection;
+      if(pass != string("")){
+        newConnection = new IRCConnection(nick, new string(pass));
+      }else{
+        newConnection = new IRCConnection(nick);
+      }
+
       newConnection->connectIRCServer(server, port);
       instance->setIRCConnection( nick, newConnection );
       ss << create_simple_response(true, "connection created");
