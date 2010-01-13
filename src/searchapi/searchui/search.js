@@ -18,7 +18,7 @@ function remove_search_result() {
     });
 }
 
-function addbutton_event() {
+function addbutton_event() {    
     $("input.buttonTest").click( function() {
         call_api( function(data) {
             append_search_result(data);
@@ -28,7 +28,7 @@ function addbutton_event() {
 
 function call_api(func) {
     var test = $("#q").val();
-    var url = "./search.cgi?q=" + encodeURIComponent(test);
+    var url = "/api/search?q=" + encodeURIComponent(test);
     remove_search_result();
     $.get(url, function(data){
         func(data);
