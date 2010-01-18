@@ -3,8 +3,8 @@
 #include "bblogger.h"
 #include <sstream>
 #include "irc_client_operation.h"
-namespace BeatBoard{
-  
+namespace BeatBoard {
+
   class HTTPAPIReadNotifier: public Notifier {
   public:
     struct evhttp_request* req;
