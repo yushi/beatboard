@@ -104,6 +104,8 @@ BeatBoard::SearchApiService::searchDB( std::string& rawquery, std::string& resul
   bool ret = false;
 
   Query *query = parseQuery(rawquery);
+  std::string keyquery = rawquery;
+  keyquery.erase(std::remove_if(keyquery.begin(), keyquery.end(), isspace), keyquery.end());
 
   if (query == NULL)
   {
@@ -114,7 +116,7 @@ BeatBoard::SearchApiService::searchDB( std::string& rawquery, std::string& resul
   if (memcached_status && 
       (query->cache == NULL || *(query->cache) != std::string("off")))
   {
-    ret = getMemcachedData(rawquery, result);
+    ret = getMemcachedData(keyquery, result);
   }
 
   if (!ret)
@@ -124,7 +126,7 @@ BeatBoard::SearchApiService::searchDB( std::string& rawquery, std::string& resul
     if (ret && memcached_status)
     {
       std::cerr << "set memcached " << std::endl;
-      setMemcachedData(rawquery, result);
+      setMemcachedData(keyquery, result);
     }
   }
   else
