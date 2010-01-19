@@ -110,6 +110,9 @@ var BBAPI = function(){
                        if(obj['status'].match('^OK$')){
                            $('#connect').toggle();
                            $('#join_channel').load('/join_channel.html');
+                       }else{
+                           alert(obj['reason']);
+                           return;
                        }
                        if(obj['users']){
                            for(var channel in obj['users']){

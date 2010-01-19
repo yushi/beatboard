@@ -19,8 +19,8 @@
 #include "logapi.pb.h"
 #include "irc_channel.h"
 using namespace std;
-namespace BeatBoard{
-  class Notifier{
+namespace BeatBoard {
+  class Notifier {
   public:
     virtual ~Notifier();
     virtual bool notify(map<string, vector<string> >* arg);
@@ -28,7 +28,7 @@ namespace BeatBoard{
   /*
    * IRC Connection Class
    */
-  class IRCConnection{
+  class IRCConnection {
     // fields /////////////////////////////////////////////
   public:
     int sock;
@@ -56,18 +56,18 @@ namespace BeatBoard{
     void notifyJoin();
     bool hasMessage();
     map<string, vector<string> > getMessage();
-    void connectIRCServer(string addr, string port) throw (Exception);
-    void disconnectIRCServer(void) throw (Exception);
-    void JOIN(string channel) throw (Exception);
-    void PRIVMSG(string channel, string msg) throw (Exception);
-    void PONG(string server) throw (Exception);
-    void PASS(string pass) throw (Exception);
-    void NICK(string name) throw (Exception);
-    void USER(string user, string host, string server, string real) throw (Exception);
+    void connectIRCServer(string addr, string port) throw(Exception);
+    void disconnectIRCServer(void) throw(Exception);
+    void JOIN(string channel) throw(Exception);
+    void PRIVMSG(string channel, string msg) throw(Exception);
+    void PONG(string server) throw(Exception);
+    void PASS(string pass) throw(Exception);
+    void NICK(string name) throw(Exception);
+    void USER(string user, string host, string server, string real) throw(Exception);
     void loggingMessage(string channel, string identifier, string message);
   private:
-    void write(string str) throw (Exception);
-    void create_socket(void) throw (Exception);
+    void write(string str) throw(Exception);
+    void create_socket(void) throw(Exception);
     bool notify(map<string, vector<string> > messages,
                 vector<Notifier*>* notifiers);
   };

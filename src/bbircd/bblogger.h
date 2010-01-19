@@ -3,18 +3,23 @@
 
 #include <string>
 #include <iostream>
-namespace BeatBoard{
+#include <time.h>
+
+using namespace std;
+
+namespace BeatBoard {
   /*
    * Singleton class
    */
-  class BBLogger{
+  class BBLogger {
   private:
     BBLogger(void);
-    void printLog(const std::string level, const std::string message);
+    void printLog(const string level, const string message);
+    string get_current_time_str();
   public:
-    void debug(const std::string message);
-    void info(const std::string message);
-    static BBLogger& getInstance(void){
+    void debug(const string message);
+    void info(const string message);
+    static BBLogger& getInstance(void) {
       static BBLogger singleton;
       return singleton;
     }
