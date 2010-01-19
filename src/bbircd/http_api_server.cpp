@@ -175,6 +175,10 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
   ostringstream ss;
 
   try {
+    if (nick.size() == 0) {
+      throw BeatBoard::Exception("nick length is 0");
+    }
+
     if (NULL == conn) {
       IRCConnection *newConnection;
 
@@ -218,7 +222,8 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
   } catch (BeatBoard::Exception& error) {
     logger.debug("irc connect error" + string(error.message.data()));
 
-    string res = create_simple_response(true, "connection create failed");
+    string reason = string("connection create failed. ") + error.message;
+    string res = create_simple_response(false, reason.c_str());
     evbuffer_add_printf(buf, "%s", (char*)(res.c_str()));
     ostringstream csize;
     csize << res.size();
