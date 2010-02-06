@@ -6,6 +6,7 @@ var no_refferer = 1;
 var focused = 1;
 var new_message = 0;
 var notify_index = 0;
+var message_count = 0;
 var background_color = '#ddeedd';
 var message_background_color = 'white';
 var highlight_color = '#bbeebb';
@@ -59,7 +60,7 @@ function sendMessage(ev){
 
 function updateNotifyTitle(){
     var notify_message = ['new', 'n e w'];
-    $("title").text(notify_message[notify_index]);
+    $("title").text("("+message_count+") "+notify_message[notify_index]);
     notify_index = notify_index ? 0 : 1;
 }
 
@@ -73,6 +74,7 @@ function checkLoader(){
         updateNotifyTitle();
     }else{
         $("title").text("BeatBoard");
+        message_count = 0;
     }
     update_debuginfo('checkLoader');
 }
@@ -349,6 +351,7 @@ function addMessage(speaker, channel, message, time){
     
     if(!focused){
         new_message = 1;
+        message_count += 1;
     }
     
     if(!isSequencial){
