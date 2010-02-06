@@ -351,7 +351,9 @@ function addMessage(speaker, channel, message, time){
     
     if(!focused){
         new_message = 1;
-        message_count += 1;
+        if(isSequencial){
+            message_count += 1;
+        }
     }
     
     if(!isSequencial){
