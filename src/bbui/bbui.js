@@ -396,15 +396,17 @@ function getopt(){
 }
 
 function replace_centity_ref(message) {
-    var centity_ref_array = new Array();
-    centity_ref_array.push(new Array(RegExp('&', 'g'), '&amp;'));
-    centity_ref_array.push(new Array(RegExp('\'', 'g'), '&apos;'));
-    centity_ref_array.push(new Array(RegExp('"', 'g'), '&quot;'));
-    centity_ref_array.push(new Array(RegExp('<', 'g'), '&lt;'));
-    centity_ref_array.push(new Array(RegExp('>', 'g'), '&gt;'));
-    centity_ref_array.push(new Array(RegExp(' ', 'g'), '&nbsp;'));
+    var centity_ref_array = [
+        ['&', '&amp;'], 
+        ['\'', '&apos;'], 
+        ['"', '&quot;'], 
+        ['<', '&lt;'], 
+        ['>', '&gt;'], 
+        [' ', '&nbsp;']
+    ];
+    
     for(var i = 0; i < centity_ref_array.length; i++) {
-        message = message.replace(centity_ref_array[i][0],
+        message = message.replace(RegExp(centity_ref_array[i][0],'g'), 
                                   centity_ref_array[i][1]);
     }
     return message;
