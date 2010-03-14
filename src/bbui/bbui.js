@@ -158,28 +158,28 @@ function addNico2EmbedTag(videoId, channel){
 
 function setParentToDraggable(elem){
     if($($(elem).parent().get(0)).css('position') == 'fixed'){
-	$($(elem).parent().get(0)).draggable().draggable('enable');
+	    $($(elem).parent().get(0)).draggable().draggable('enable');
     }
 }
 
 function setParentToDisdraggable(elem){
     if($($(elem).parent().get(0)).css('position') == 'fixed'){
-	$($(elem).parent().get(0)).draggable().draggable('disable');
+	    $($(elem).parent().get(0)).draggable().draggable('disable');
     }
 }
 
 function setParentToggleFixed(elem){
     var target = $($($(elem).parent().get(0)).parent().get(0));
     target.fadeOut(1000, function(){
-	    if(target.css('position') != 'fixed'){
-		target.css('left','100px');
-		target.css('top','100px');
-		target.css('position', 'fixed');
-	    }else{
-		target.css('position', 'static');
-	    }
-	    target.fadeIn(1000);	    
-	});
+	                   if(target.css('position') != 'fixed'){
+		                   target.css('left','100px');
+		                   target.css('top','100px');
+		                   target.css('position', 'fixed');
+	                   }else{
+		                   target.css('position', 'static');
+	                   }
+	                   target.fadeIn(1000);	    
+	               });
     
 }
 
@@ -189,8 +189,8 @@ function setObjectToggleVisible(elem){
 }
 
 function addImgEmbedTag(url, channel){
-  var tag = '<img src=' + url + ' /><br />';
-  $('#messagebox > #\\' + channel).append(tag);
+    var tag = '<img src=' + url + ' /><br />';
+    $('#messagebox > #\\' + channel).append(tag);
 }
 
 
@@ -220,7 +220,7 @@ function extractLink(str, channel){
         }
 
         //extract image
-	var imgURL = null;
+	    var imgURL = null;
         if(imgURL = str.match(imgRegex)){
             addImgEmbedTag(imgURL[0], channel);
         }
@@ -228,9 +228,9 @@ function extractLink(str, channel){
         //extract link
         if(no_refferer){
             //IE not supported
-	    var html = '<html><head><script type="text/javascript"><!--\n'
-	        + 'document.write(\'<meta http-equiv="refresh" content="0;url='+match_result[1]+'">\');'
-	        + '// --><'+'/script></head><body></body></html>';
+	        var html = '<html><head><script type="text/javascript"><!--\n'
+	            + 'document.write(\'<meta http-equiv="refresh" content="0;url='+match_result[1]+'">\');'
+	            + '// --><'+'/script></head><body></body></html>';
             str = str.replace(
                 urlRegex,
                 "<a target=\"_blank\" href=\"data:text/html;charset=utf-8,'" 
@@ -364,12 +364,12 @@ function addMessage(speaker, channel, message, time){
 function getLastMessageSpeaker(channel){
     var channel = $('#messagebox > #\\' + channel);
     if(!channel){
-        return;
+        return null;
     }
     
     var index = channel.children().size() - 1;
     if(index < 1){
-        return;
+        return null;
     }
     
     var nick = null;
