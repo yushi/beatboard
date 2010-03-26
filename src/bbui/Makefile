@@ -16,5 +16,7 @@ install:
 	install -m644 bbui.js $(BB_UI_HOME)
 	install -m644 init_standard.js $(BB_UI_HOME)
 	install -m644 init_freenode.js $(BB_UI_HOME)
+	install -m644 top.html $(BB_UI_HOME)
 	cp -r ui $(BB_UI_HOME)
+	cp -r img $(BB_UI_HOME)
 
