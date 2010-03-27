@@ -247,10 +247,6 @@ function extractLink(str, channel){
     return str;
 }
 
-function addChannel(channel){
-    
-}
-
 function selectChannel(channel){
     active_channel = channel;
     var channel_divs = $('#messagebox > *');
