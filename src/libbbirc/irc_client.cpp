@@ -1,4 +1,3 @@
-#include <pthread.h>
 #include <stdio.h>
 #include "irc_connection.h"
 #include <signal.h>
@@ -8,57 +7,68 @@ void* func(void* args);
 void sigcatch(int sig);
 BeatBoard::IRCConnection *conn;
 string channel;
-pthread_t pt;
 
-int main(void){
+static void fifo_read(int fd, short event, void *arg) {
+  //    struct event *ev = arg;
+  char buf[1024];
+  memset(buf, 0, 1024);
+  read(fd, buf, 1024);
+  conn->PRIVMSG(channel, buf);
+}
+
+BeatBoard::IRCConnection* setupConnection() {
+  char buf[1024];
+  //cout << "nick: ";
+  //cin.getline(buf,1024);
+  string nick(buf);
+  nick = string("yushi_im_");
+
+  //cout << "pass: ";
+  //cin.getline(buf, 1024);
+  string pass(buf);
+  pass = string("guestdegues");
+
+
+  //cout << "server: ";
+  //cin.getline(buf, 1024);
+  string server(buf);
+  server = string("bb.isasaka.net");
+  BeatBoard::IRCConnection *ret = new BeatBoard::IRCConnection(nick, &pass);
+  ret->connectIRCServer(server, string("6667"));
+  return ret;
+}
+
+int main(void) {
 
   char buf[1024];
   string line;
 
-  if(SIG_ERR == signal(SIGINT,sigcatch)){
-    fprintf(stderr,"failed to set signalhandler.\n");
+  if (SIG_ERR == signal(SIGINT, sigcatch)) {
+    fprintf(stderr, "failed to set signalhandler.\n");
     exit(1);
   }
 
-  cout << "nick: ";
-
-  cin.getline(buf,1024);
-  conn = new BeatBoard::IRCConnection(string(buf));
-
-  cout << "server: ";
-  cin.getline(buf, 1024);
-  conn->connectIRCServer(string(buf), string("6667"));
-
-  cout << "channel: ";
-  cin.getline(buf, 1024);
+  //cout << "channel: ";
+  //cin.getline(buf, 1024);
   channel = string(buf);
+  channel = string("#bb");
+
+  conn = setupConnection();
   conn->JOIN(channel);
 
-  pthread_create( &pt, NULL, &func, NULL );
+  struct event evfifo;
+  event_set(&evfifo, 0, EV_READ | EV_PERSIST, fifo_read, &evfifo);
+  event_add(&evfifo, NULL);
+
   BeatBoard::IRCConnection::bb_event_dispatch(NULL);
-  pthread_join( pt, NULL );
   return 0;
 }
 
-void sigcatch(int sig)
-{
-  fprintf(stdout,"catch signal %d\n",sig);
-  if(conn != NULL){
-    delete conn;
-  }
-  BeatBoard::IRCConnection::bb_event_finish();
-  //pthread_detach(pt);
-  //pthread_exit((void*)pt);
+void sigcatch(int sig) {
+  fprintf(stdout, "catch signal %d\n", sig);
+  //if(conn != NULL){
+  //delete conn;
+  //}
+  //BeatBoard::IRCConnection::bb_event_finish();
   exit(0);
-  //signal(sig,SIG_DFL);
-}
-
-void* func(void* args){
-  string line;
-
-  while(getline(cin, line)){
-    conn->PRIVMSG(channel, line);
-    sleep(2);
-  }
-  return NULL;
 }
