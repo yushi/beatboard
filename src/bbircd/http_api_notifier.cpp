@@ -22,33 +22,35 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
     return false;
   }
 
-  ostringstream ss;
-  ss << "{";
+  json_object *jsonobj = json_object_new_object();
   map<string, vector<string> >::iterator it = (*messages).begin();
-
   while (it != (*messages).end()) {
-    ss << "\"" << this->escape((*it).first) << "\"";
-    ss << ":";
-    ss << "[";
+    string channel = ((*it).first).c_str();
+    json_object *messages = json_object_new_array();
 
     for (unsigned int i = 0; i < (*it).second.size(); i += 2) {
-      ss << "\"" << this->escape((*it).second[i]) << "\",";
-      ss << "\"" << this->escape((*it).second[i+1]) << "\",";
+      char* type = (char*)((*it).second[i]).c_str();
+      char* message = (char*)((*it).second[i+1]).c_str();
+      
+      json_object_array_add(messages, json_object_new_string(type));
+      json_object_array_add(messages, json_object_new_string(message));
     }
-
-    ss << "],";
     ++it;
+    json_object_object_add(jsonobj, (char*)channel.c_str(), messages);
   }
 
-  ss << "}";
-
-  evhttp_add_header(req->output_headers, "Content-type", "application/x-javascript; charset=utf-8");
+  char* json_str = json_object_get_string(jsonobj);
+  free(jsonobj);
+  size_t json_str_len = strlen(json_str);
+  evhttp_add_header(req->output_headers,
+                    "Content-type",
+                    "application/x-javascript; charset=utf-8");
 
   ostringstream csize;
-  csize << ss.str().size();
+  csize << json_str_len;
   evhttp_add_header(req->output_headers, "Content-Length", csize.str().c_str());
 
-  evbuffer_add(buf, ss.str().c_str(), ss.str().size());
+  evbuffer_add(buf, json_str, json_str_len);
   evhttp_send_reply(req, HTTP_OK, "OK", buf);
   logger.debug("NOTIFY END");
   evbuffer_free(buf);

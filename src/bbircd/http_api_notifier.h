@@ -3,6 +3,8 @@
 #include "bblogger.h"
 #include <sstream>
 #include "irc_client_operation.h"
+#include <json/json.h>
+
 namespace BeatBoard {
 
   class HTTPAPIReadNotifier: public Notifier {
