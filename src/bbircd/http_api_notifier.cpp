@@ -56,19 +56,3 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
   evbuffer_free(buf);
   return true;
 }
-
-string BeatBoard::HTTPAPIReadNotifier::escape(string str) {
-  stringstream ret;
-
-  for (unsigned int i = 0; i < str.size(); i++) {
-    if (str[i] == '\\') {
-      ret << "\\\\";
-    } else if (str[i] == '"') {
-      ret << "\\\"";
-    } else {
-      ret << str[i];
-    }
-  }
-
-  return ret.str();
-}

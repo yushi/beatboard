@@ -16,7 +16,5 @@ namespace BeatBoard {
     HTTPAPIReadNotifier(struct evhttp_request* req);
     ~HTTPAPIReadNotifier();
     bool notify(map<string, vector<string> >* arg);
-  private:
-    string escape(string str);
   };
 }
