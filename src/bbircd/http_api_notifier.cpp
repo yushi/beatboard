@@ -17,6 +17,12 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
   struct evbuffer *buf;
   buf = evbuffer_new();
 
+  // rollback for timeout (2:59)
+  if ( (time(NULL) - this->init_time) > (60 * 3) - 1) {
+    cout << "client was timeout. rollback notify message" << endl;
+    return false;
+  }
+
   if (buf == NULL) {
     fprintf(stderr, "failed to create response buffer\n");
     return false;
@@ -24,6 +30,7 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
 
   json_object *jsonobj = json_object_new_object();
   map<string, vector<string> >::iterator it = (*messages).begin();
+
   while (it != (*messages).end()) {
     string channel = ((*it).first).c_str();
     json_object *messages = json_object_new_array();
@@ -31,10 +38,11 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
     for (unsigned int i = 0; i < (*it).second.size(); i += 2) {
       char* type = (char*)((*it).second[i]).c_str();
       char* message = (char*)((*it).second[i+1]).c_str();
-      
+
       json_object_array_add(messages, json_object_new_string(type));
       json_object_array_add(messages, json_object_new_string(message));
     }
+
     ++it;
     json_object_object_add(jsonobj, (char*)channel.c_str(), messages);
   }
