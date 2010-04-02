@@ -366,25 +366,22 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
     return;
   }
 
+  HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req);
+  // set timeout callback
+  struct timeval tv = get_timeout_timeval();
+  evtimer_set(&(notifier->timeout_timer), timeout_timer, req);
+  evtimer_add(&(notifier->timeout_timer), &tv);
+
   if (conn->hasMessage()) {
     if (buf == NULL) {
       logger.debug("failed to create response buffer in READ");
       return;
     }
-
-    HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req);
     conn->setReadNotifier(notifier);
     conn->notifyRead();
   } else {
     logger.debug("message not found");
-    HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req);
     conn->setReadNotifier(notifier);
-
-    // set timeout callback
-    struct timeval tv = get_timeout_timeval();
-    evtimer_set(&(notifier->timeout_timer), timeout_timer, req);
-    evtimer_add(&(notifier->timeout_timer), &tv);
-
   }
   
   evbuffer_free(buf);
