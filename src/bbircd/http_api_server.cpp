@@ -2,6 +2,18 @@
 
 using namespace std;
 
+struct timeval get_timeout_timeval(){
+  struct timeval tv;  
+  tv.tv_usec = 0;
+  tv.tv_sec = 60 * 3;
+  return tv;
+}
+
+static void timeout_timer(int fd, short event,void *arg){
+  cout << "timer hooked" << endl;
+  evhttp_send_error((struct evhttp_request*)arg, 408, "Time out");
+}
+
 BeatBoard::HTTPAPIServer::HTTPAPIServer() {
   this->httpd = NULL;
   this->http_ev_base = NULL;
@@ -22,7 +34,8 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
   this->http_ev_base = event_init();
 
   httpd = evhttp_new(this->http_ev_base);
-
+  evhttp_set_timeout(httpd, 60 * 3);
+  
   if (evhttp_bind_socket(this->httpd, addr, port) != 0) {};
 
   evhttp_set_cb(httpd, "/", HTTPAPIServer::rootHandler, NULL);
@@ -366,8 +379,14 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
     logger.debug("message not found");
     HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req);
     conn->setReadNotifier(notifier);
-  }
 
+    // set timeout callback
+    struct timeval tv = get_timeout_timeval();
+    evtimer_set(&(notifier->timeout_timer), timeout_timer, req);
+    evtimer_add(&(notifier->timeout_timer), &tv);
+
+  }
+  
   evbuffer_free(buf);
 }
 

@@ -11,6 +11,7 @@ BeatBoard::HTTPAPIReadNotifier::~HTTPAPIReadNotifier() {
 bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messages) {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("NOTIFY");
+  evtimer_del(&(this->timeout_timer));
   evhttp_request* req = this->req;
   this->req = NULL;
 
@@ -25,6 +26,7 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
 
   if (buf == NULL) {
     fprintf(stderr, "failed to create response buffer\n");
+    evhttp_send_error(req, 500, "Internal Server Error");
     return false;
   }
 
