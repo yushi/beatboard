@@ -1,6 +1,7 @@
 #include "bblogger.h"
 
 char* BeatBoard::BBLogger::logfile = NULL;
+std::fstream* BeatBoard::BBLogger::lout = NULL;
 
 BeatBoard::BBLogger::BBLogger() {
   return;

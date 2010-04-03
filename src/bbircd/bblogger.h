@@ -17,7 +17,7 @@ namespace BeatBoard {
     BBLogger(void);
     void printLog(const string level, const string message);
     string get_current_time_str();
-    std::fstream *lout;
+    static std::fstream *lout;
   public:
     static char* logfile;
     void debug(const string message);
