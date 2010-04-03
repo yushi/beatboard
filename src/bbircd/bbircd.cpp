@@ -19,12 +19,12 @@ void sig_handler_SIGPIPE(int sig) {
   logger.debug("SIGPIPE received");
 }
 
-void BeatBoard::BBIRCD::Daemon::setUp(char* addr, int port) {
+void BeatBoard::BBIRCD::Daemon::setUp(char* addr, int port, int timeout) {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-
+  
   try {
     this->httpd = new HTTPAPIServer();
-    this->httpd->setUp(addr, port);
+    this->httpd->setUp(addr, port, timeout);
   } catch (BeatBoard::Exception& error) {
     logger.debug(error.message.data());
     std::cerr << "daemon start failed.\n";
@@ -83,8 +83,10 @@ void daemonize(char* pidfile, char* rundir)
 }
 
 int main(int argc, char* argv[]) {
+  bool is_daemon = false;
   int result;
   int port = 8000;
+  int timeout = 180; // 3min
   char default_addr[] = "0.0.0.0";
   char default_rundir[] = "/";
   char default_logfile[] = "/usr/bb/var/log/bbircd.log";
@@ -92,8 +94,8 @@ int main(int argc, char* argv[]) {
   char* pidfile = NULL;
   char* rundir = default_rundir;
   char* logfile = default_logfile;
-
-  while((result=getopt(argc,argv,"ha:p:P:"))!=-1){
+  
+  while((result=getopt(argc,argv,"ha:dp:P:t:"))!=-1){
     switch(result){
     case 'a':
       addr = (char*)calloc(1, sizeof(char) * strlen(optarg) + 1);
@@ -102,6 +104,9 @@ int main(int argc, char* argv[]) {
     case 'd':
       rundir = (char*)calloc(1, sizeof(char) * strlen(optarg) + 1);
       strncpy(rundir,optarg,strlen(optarg));
+      break;
+    case 'D':
+      is_daemon= true;
       break;
     case 'l':
       rundir = (char*)calloc(1, sizeof(char) * strlen(optarg) + 1);
@@ -115,6 +120,9 @@ int main(int argc, char* argv[]) {
       strncpy(pidfile,optarg,strlen(optarg));
       cout << "pid:" << pidfile << endl;
       break;
+    case 't':
+      timeout = atoi(optarg);
+      break;
     case 'h':
       std::cout << "bbircd [-a <address>] [-p <port>]" << endl;
       exit(-1);
@@ -122,7 +130,10 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  daemonize(pidfile, rundir);
+  if(is_daemon){
+    daemonize(pidfile, rundir);
+  }
+  
   logger = &(BeatBoard::BBLogger::getInstance());
   logger->logfile = logfile;
   logger->info("bbircd started");
@@ -130,7 +141,7 @@ int main(int argc, char* argv[]) {
 
   signal(SIGPIPE , sig_handler_SIGPIPE);
   BeatBoard::BBIRCD::Daemon bbircd;
-  bbircd.setUp(addr,port);
+  bbircd.setUp(addr,port,timeout);
   bbircd.startService();
   return 0;
 }

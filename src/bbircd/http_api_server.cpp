@@ -1,13 +1,7 @@
 #include "http_api_server.h"
 
 using namespace std;
-
-struct timeval get_timeout_timeval(){
-  struct timeval tv;  
-  tv.tv_usec = 0;
-  tv.tv_sec = 60 * 3;
-  return tv;
-}
+int BeatBoard::HTTPAPIServer::timeout = 180; // default
 
 static void timeout_timer(int fd, short event,void *arg){
   cout << "timer hooked" << endl;
@@ -29,12 +23,13 @@ BeatBoard::HTTPAPIServer::~HTTPAPIServer() {
   }
 }
 
-void BeatBoard::HTTPAPIServer::setUp(char *addr, int port) {
+void BeatBoard::HTTPAPIServer::setUp(char *addr, int port, int timeout) {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   this->http_ev_base = event_init();
+  this->timeout = timeout;
 
   httpd = evhttp_new(this->http_ev_base);
-  evhttp_set_timeout(httpd, 60 * 3);
+  evhttp_set_timeout(httpd, this->timeout);
   
   if (evhttp_bind_socket(this->httpd, addr, port) != 0) {};
 
@@ -366,9 +361,12 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
     return;
   }
 
-  HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req);
+  HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req, timeout);
   // set timeout callback
-  struct timeval tv = get_timeout_timeval();
+  struct timeval tv;  
+  tv.tv_usec = 0;
+  tv.tv_sec = timeout;
+
   evtimer_set(&(notifier->timeout_timer), timeout_timer, req);
   evtimer_add(&(notifier->timeout_timer), &tv);
 

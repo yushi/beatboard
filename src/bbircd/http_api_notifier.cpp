@@ -1,6 +1,7 @@
 #include "http_api_notifier.h"
 
-BeatBoard::HTTPAPIReadNotifier::HTTPAPIReadNotifier(struct evhttp_request *req) {
+BeatBoard::HTTPAPIReadNotifier::HTTPAPIReadNotifier(struct evhttp_request *req, int timeout) {
+  this->timeout = timeout;
   this->req = req;
   this->init_time = time(NULL);
 }
@@ -19,7 +20,7 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
   buf = evbuffer_new();
 
   // rollback for timeout (2:59)
-  if ( (time(NULL) - this->init_time) > (60 * 3) - 1) {
+  if ( (time(NULL) - this->init_time) > (this->timeout) - 1) {
     cout << "client was timeout. rollback notify message" << endl;
     return false;
   }

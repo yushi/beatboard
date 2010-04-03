@@ -9,12 +9,13 @@ namespace BeatBoard {
 
   class HTTPAPIReadNotifier: public Notifier {
   public:
+    int timeout;
     struct event timeout_timer;
     struct evhttp_request* req;
     struct evbuffer* buf;
     time_t init_time;
     IRCConnection* conn;
-    HTTPAPIReadNotifier(struct evhttp_request* req);
+    HTTPAPIReadNotifier(struct evhttp_request* req, int timeout);
     ~HTTPAPIReadNotifier();
     bool notify(map<string, vector<string> >* arg);
   };

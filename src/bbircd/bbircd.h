@@ -14,7 +14,7 @@ namespace BeatBoard{
     class Daemon{
     public:
       void startService();
-      void setUp(char* addr, int port);
+      void setUp(char* addr, int port, int timeout);
       IRCClientOperation ircClients;
     private:
       HTTPAPIServer *httpd;
@@ -22,3 +22,6 @@ namespace BeatBoard{
     };
   }
 }
+
+
+
