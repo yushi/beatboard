@@ -9,6 +9,9 @@ body{
     border-bottom: 1px solid #99bb99;
 }
 
+#debug{
+    z-index: 999;
+}
 
 #send_message{
     left: 0px;

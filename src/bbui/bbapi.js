@@ -131,7 +131,7 @@ var BBAPI = function(){
                                                        return !sendMessage(e);
                                                    }
                                                });
-                       setInterval(checkLoader, 1000);
+                       setInterval(checkLoader, 100);
                    });
         },
         join: function(channel, nick){
@@ -189,6 +189,7 @@ var BBAPI = function(){
                        'data': {'nickname':nick},
                        cache: false,
                        success: function(data){
+                           debug_log('read res')
                            readSuccess(data);
                            loading = false;
                        },

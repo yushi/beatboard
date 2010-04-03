@@ -11,7 +11,7 @@ BeatBoard::HTTPAPIReadNotifier::~HTTPAPIReadNotifier() {
 
 bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messages) {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-  logger.debug("NOTIFY");
+  logger.debug("NOTIFY start");
   evtimer_del(&(this->timeout_timer));
   evhttp_request* req = this->req;
   this->req = NULL;
@@ -21,12 +21,14 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
 
   // rollback for timeout (2:59)
   if ( (time(NULL) - this->init_time) > (this->timeout) - 1) {
-    cout << "client was timeout. rollback notify message" << endl;
+    logger.info("client was timeout. rollback notify message");
+    logger.debug("NOTIFY canceled");
     return false;
   }
 
   if (buf == NULL) {
-    fprintf(stderr, "failed to create response buffer\n");
+    logger.info("failed to create response buffer");
+    logger.debug("NOTIFY canceled");
     evhttp_send_error(req, 500, "Internal Server Error");
     return false;
   }
@@ -64,6 +66,7 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
   evbuffer_add(buf, json_str, json_str_len);
   evhttp_send_reply(req, HTTP_OK, "OK", buf);
   logger.debug("NOTIFY END");
+  logger.debug("READ finished.");
   evbuffer_free(buf);
   return true;
 }

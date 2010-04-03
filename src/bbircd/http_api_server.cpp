@@ -348,7 +348,7 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
 
   map<string, string> params = instance->parseParameter(req);
   const string nick = params[string("nickname")];
-  logger.debug("READ nick:" + nick);
+  logger.debug("READ request accepted. nick:" + nick);
 
   IRCConnection *conn = NULL;
   struct evbuffer *buf;
