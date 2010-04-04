@@ -168,6 +168,7 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
   }
 
   map<string, string> params = instance->parseParameter(req);
+  const string session_id = params[string("sid")];
   const string nick = params[string("nick")];
   const string server = params[string("server")];
   const string port = params[string("port")];
@@ -179,7 +180,7 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
               );
 
   IRCConnection *conn = NULL;
-  conn = instance->getIRCConnection(nick);
+  conn = instance->getIRCConnection(session_id);
   ostringstream ss;
 
   try {
@@ -188,6 +189,7 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
     }
 
     if (NULL == conn) {
+      logger.debug("new connect request arrived. nick:" + nick + ", old sid:" + session_id);
       IRCConnection *newConnection;
 
       if (pass != string("")) {
@@ -197,8 +199,13 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
       }
 
       newConnection->connectIRCServer(server, port);
-      instance->setIRCConnection(nick, newConnection);
-      ss << create_simple_response(true, "connection created");
+      string new_session_id = instance->setIRCConnection(nick, newConnection);
+      // create new session
+      evhttp_add_header(req->output_headers,
+                        "Set-Cookie", (string("sid=") + new_session_id + string("; path=/")).c_str());
+      ss << create_simple_response(true, "session and connection created");
+      logger.debug("created new session for " + nick +
+                   ". session_id = " + new_session_id);
       evbuffer_add_printf(buf,  "%s", (char*)(ss.str().c_str()));
     } else {
       map<string, IRCChannel>::iterator it = (conn->received).begin();
@@ -279,13 +286,13 @@ void BeatBoard::HTTPAPIServer::joinHandler(struct evhttp_request *req, void *arg
   }
 
   map<string, string> params = instance->parseParameter(req);
-  const string nick = params[string("nick")];
+  const string session_id = params[string("sid")];
   const string channel = params[string("channel")];
-  logger.debug("JOIN nick:" + nick + " channel:" + channel);
+  logger.debug("JOIN session_id:" + session_id + " channel:" + channel);
   string res;
 
   try {
-    IRCConnection *conn = instance->getIRCConnection(nick);
+    IRCConnection *conn = instance->getIRCConnection(session_id);
 
     if (conn == NULL) {
       BeatBoard::Exception notfound(string("connection not found"));
@@ -322,13 +329,13 @@ void BeatBoard::HTTPAPIServer::speakHandler(struct evhttp_request *req, void *ar
   }
 
   map<string, string> params = instance->parseParameter(req);
-  const string nick = params[string("nick")];
+  const string session_id = params[string("sid")];
   const string channel = params[string("channel")];
   const string message = params[string("message")];
-  logger.debug("SPEAK nick:" + nick + " channel:" + channel + " message:" + message);
+  logger.debug("SPEAK session:" + session_id + " channel:" + channel + " message:" + message);
 
 
-  IRCConnection *conn = instance->getIRCConnection(nick);
+  IRCConnection *conn = instance->getIRCConnection(session_id);
 
   if (conn == NULL) {
     evbuffer_add_printf(buf, "connection not found");
@@ -345,19 +352,24 @@ void BeatBoard::HTTPAPIServer::speakHandler(struct evhttp_request *req, void *ar
 void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg) {
   HTTPAPIServer *instance = (HTTPAPIServer*)(arg);
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-
+  
   map<string, string> params = instance->parseParameter(req);
-  const string nick = params[string("nickname")];
-  logger.debug("READ request accepted. nick:" + nick);
+  const string session_id = params[string("sid")];
+  logger.debug("READ request accepted. session:" + session_id);
 
   IRCConnection *conn = NULL;
-  struct evbuffer *buf;
-  conn = instance->getIRCConnection(nick);
+struct evbuffer *buf;
+  conn = instance->getIRCConnection(session_id);
   buf = evbuffer_new();
 
   if (conn == NULL) {
-    logger.debug("connection not found");
-    evhttp_send_reply(req, HTTP_OK, "OK",  buf);
+    logger.debug("connection not found at read");
+    string res = create_simple_response(false, "connection not found");
+    evbuffer_add_printf(buf, "%s", (char*)(res.c_str()));
+    ostringstream csize;
+    csize << res.size();
+    evhttp_add_header(req->output_headers, "Content-Length", csize.str().c_str());
+    evhttp_send_reply(req, HTTP_OK, "OK", buf);
     return;
   }
 

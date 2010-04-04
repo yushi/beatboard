@@ -7,17 +7,30 @@ BeatBoard::IRCClientOperation::IRCClientOperation() {
 BeatBoard::IRCClientOperation::~IRCClientOperation() {
 }
 
-void BeatBoard::IRCClientOperation::setIRCConnection(string nick, IRCConnection* conn) {
-  this->ircConnections[nick] = conn;
+string BeatBoard::IRCClientOperation::setIRCConnection(string nick, IRCConnection* conn) {
+  string session_id = this->createSessionId();
+  this->session2ircConnection[session_id] = conn;
+  this->session2nick[session_id] = nick;
+  
+  return session_id;
 }
 
-BeatBoard::IRCConnection* BeatBoard::IRCClientOperation::getIRCConnection(string nick) {
+BeatBoard::IRCConnection* BeatBoard::IRCClientOperation::getIRCConnection(string session_id) {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-  IRCConnection* conn = this->ircConnections[nick];
+  IRCConnection* conn = this->session2ircConnection[session_id];
 
   if (conn == NULL) {
-    logger.debug(nick + " has not active connection");
+    logger.debug(session2nick[session_id] + " has not active connection");
   }
 
   return conn;
 }
+
+string BeatBoard::IRCClientOperation::createSessionId() {
+  uuid_t uuid;
+  char buff[1024];
+  uuid_generate(uuid);
+  uuid_unparse_upper(uuid, buff);
+  return string(buff);
+}
+

@@ -9,16 +9,17 @@ function init(){
         $('#debug_menu').hide();
         $('#debug_log').hide();
     }
+    debug_log('init start');
 
     nick = $.cookie('nick');
     if($.cookie('server') && $.cookie('port') && $.cookie('nick')){
-        BBAPI.connect($.cookie('server'), $.cookie('nick'), $.cookie('port'));
+        BBAPI.connect($.cookie('server'), $.cookie('nick'), $.cookie('port'), $.cookie('pass'));
     }
     if($.cookie('channel')){
         BBAPI.join($.cookie('channel'), $.cookie('nick'));
     }
     update_debuginfo('init');
-    debug_log('init');
+    debug_log('init end');
 }
 
 

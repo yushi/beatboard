@@ -6,6 +6,9 @@ var BBAPI = function(){
         debug_log('read response succeess');
         try{
             eval('received=' + data);
+            if(received['status'] == 'NG'){
+                throw received['reason'];
+            }
             for(channel in received){
                 var messages = received[channel];
                 for(var i = 0; i < messages.length; i+=2){
@@ -44,7 +47,7 @@ var BBAPI = function(){
                 }
             }
         }catch(e){
-            //alert('error in read received')
+            return 1;
         }
         window.scrollBy( 0, screen.height );
         update_debuginfo('read success');
@@ -99,7 +102,8 @@ var BBAPI = function(){
                        'server': server,
                        'nick' : nick ,
                        'port' : port, 
-                       'pass' : pass
+                       'pass' : pass, 
+                       'sid': $.cookie('sid')
                    },
                    function(data){
                        $.unblockUI();
@@ -143,6 +147,7 @@ var BBAPI = function(){
                    {
                        'channel':channel, //escape(channel),
                        'nick' : nick,
+                       'sid': $.cookie('sid')
                    },
                    function(data){
                        debug_log('join res');
@@ -167,6 +172,7 @@ var BBAPI = function(){
                        'message':message,
                        'channel':target, //escape(target),
                        'nick':nick,
+                       'sid': $.cookie('sid')
                    },
                    function(data){
                        debug_log('privmsg res');
@@ -186,15 +192,20 @@ var BBAPI = function(){
             $.ajax({
                        'type': 'POST',
                        'url': url,
-                       'data': {'nickname':nick},
+                       'data': {'nickname':nick, 'sid': $.cookie('sid')},
                        cache: false,
                        success: function(data){
                            debug_log('read res')
-                           readSuccess(data);
-                           loading = false;
+                           var error = readSuccess(data);
+                           if(error){
+                               isUIBlocking = true;
+                               $.blockUI({message: "please reload later"});
+                           }else{
+                               loading = false;                              
+                           }
                        },
                        error: function(XMLHttpRequest, textStatus, errorThrown){
-                           debug_log('read response error');
+                           debug_log('Error occured. Please reload.');
                            loading = false;
                        }
                    });

@@ -133,7 +133,7 @@ span{
 
 #debug{
     position:fixed;
-    top: 0px;
+    top: 20px;
     right: 0px;
     z-index: 999;
     height: 100%;
