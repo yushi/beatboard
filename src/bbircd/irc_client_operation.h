@@ -14,10 +14,13 @@ namespace BeatBoard {
     // set connection by nick and returns session_id
     string setIRCConnection(std::string nick, IRCConnection* conn);
     IRCConnection* getIRCConnection(std::string nick);
+    bool isExistNick(string nick);
+    string getSessionByNick(string nick);
   private:
     string createSessionId();
     std::map<std::string, IRCConnection*> session2ircConnection; // session id to IRCConnection map
     std::map<std::string, std::string> session2nick; // session id to nick map
+    std::map<std::string, std::string> nick2session; // session id to nick map
   };
 }
 

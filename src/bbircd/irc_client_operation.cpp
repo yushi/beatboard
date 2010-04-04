@@ -11,6 +11,7 @@ string BeatBoard::IRCClientOperation::setIRCConnection(string nick, IRCConnectio
   string session_id = this->createSessionId();
   this->session2ircConnection[session_id] = conn;
   this->session2nick[session_id] = nick;
+  this->nick2session[nick] = session_id;
   
   return session_id;
 }
@@ -32,5 +33,14 @@ string BeatBoard::IRCClientOperation::createSessionId() {
   uuid_generate(uuid);
   uuid_unparse_upper(uuid, buff);
   return string(buff);
+}
+
+bool BeatBoard::IRCClientOperation::isExistNick(string nick){
+  string empty = string();
+  return (this->nick2session[nick] != empty) ? true : false;
+}
+
+string BeatBoard::IRCClientOperation::getSessionByNick(string nick){
+  return this->nick2session[nick];
 }
 

@@ -192,13 +192,17 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
       logger.debug("new connect request arrived. nick:" + nick + ", old sid:" + session_id);
       IRCConnection *newConnection;
 
-      if (pass != string("")) {
-        newConnection = new IRCConnection(nick, new string(pass));
-      } else {
-        newConnection = new IRCConnection(nick);
+      if(instance->isExistNick(nick)){
+        newConnection = instance->getIRCConnection(instance->getSessionByNick(nick));
+      }else{
+        if (pass != string("")) {
+          newConnection = new IRCConnection(nick, new string(pass));
+        } else {
+          newConnection = new IRCConnection(nick);
+        }
+        newConnection->connectIRCServer(server, port);
       }
 
-      newConnection->connectIRCServer(server, port);
       string new_session_id = instance->setIRCConnection(nick, newConnection);
       // create new session
       evhttp_add_header(req->output_headers,
