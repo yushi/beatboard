@@ -27,6 +27,17 @@ BeatBoard::IRCConnection* BeatBoard::IRCClientOperation::getIRCConnection(string
   return conn;
 }
 
+BeatBoard::IRCConnection* BeatBoard::IRCClientOperation::getIRCConnectionByNick(string nick) {
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  IRCConnection* conn = this->session2ircConnection[this->nick2session[nick]];
+
+  if (conn == NULL) {
+    logger.debug(nick + " has not active connection");
+  }
+
+  return conn;
+}
+
 string BeatBoard::IRCClientOperation::createSessionId() {
   uuid_t uuid;
   char buff[1024];
@@ -39,8 +50,3 @@ bool BeatBoard::IRCClientOperation::isExistNick(string nick){
   string empty = string();
   return (this->nick2session[nick] != empty) ? true : false;
 }
-
-string BeatBoard::IRCClientOperation::getSessionByNick(string nick){
-  return this->nick2session[nick];
-}
-

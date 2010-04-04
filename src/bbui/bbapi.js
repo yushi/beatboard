@@ -90,7 +90,7 @@ var BBAPI = function(){
         },
         connect: function(server, nickname, port, pass){
             isUIBlocking = true;
-            $.blockUI({message: ""});
+            $.blockUI({message: "Now Connectinng..."});
             nick = nickname;
             $.cookie('nick',nickname, {expires: cookie_expire});
             $.cookie('server',server, {expires: cookie_expire});
@@ -205,7 +205,6 @@ var BBAPI = function(){
                            }
                        },
                        error: function(XMLHttpRequest, textStatus, errorThrown){
-                           debug_log('Error occured. Please reload.');
                            loading = false;
                        }
                    });

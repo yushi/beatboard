@@ -193,7 +193,7 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
       IRCConnection *newConnection;
 
       if(instance->isExistNick(nick)){
-        newConnection = instance->getIRCConnection(instance->getSessionByNick(nick));
+        newConnection = instance->getIRCConnectionByNick(nick);
       }else{
         if (pass != string("")) {
           newConnection = new IRCConnection(nick, new string(pass));

@@ -13,7 +13,8 @@ namespace BeatBoard {
     virtual ~IRCClientOperation();
     // set connection by nick and returns session_id
     string setIRCConnection(std::string nick, IRCConnection* conn);
-    IRCConnection* getIRCConnection(std::string nick);
+    IRCConnection* getIRCConnection(std::string session_id);
+    IRCConnection* getIRCConnectionByNick(std::string nick);
     bool isExistNick(string nick);
     string getSessionByNick(string nick);
   private:
