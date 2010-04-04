@@ -20,6 +20,7 @@ var video_seq_num = 0;
 cookie_expire.setDate( cookie_expire.getDate()+7 );
 
 $.ajaxSetup({'timeout': 1000 * 60 * 3} ); // 3 minutes
+setInterval(notifyNewMessage, 1000);
 
 function connectServer(){
     var server = $('#server').val();
@@ -69,14 +70,16 @@ function checkLoader(){
                           var rColumnHight = document.getElementById(active_channel+"_users").style.height;
                           rColumnHight = rColumnHight+10;
                       });
+    update_debuginfo('checkLoader');
+}
 
+function notifyNewMessage(){
     if(new_message){
         updateNotifyTitle();
     }else{
         $("title").text("BeatBoard");
         message_count = 0;
     }
-    update_debuginfo('checkLoader');
 }
 
 function addPrivmsg(target, message, nick){
