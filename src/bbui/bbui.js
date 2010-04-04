@@ -429,6 +429,7 @@ function debug_log(message){
         var debug_text = (new Date).toLocaleString() + ':  ' + message + '<br />';
         $('#debug_log').append(debug_text);
     }
+    $('#debug_log').scrollTop($('#debug_log').attr('scrollHeight'));
     return;
 }
 

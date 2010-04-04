@@ -9,10 +9,6 @@ body{
     border-bottom: 1px solid #99bb99;
 }
 
-#debug{
-    z-index: 999;
-}
-
 #send_message{
     left: 0px;
     width: 100%;
@@ -139,8 +135,13 @@ span{
     position:fixed;
     top: 0px;
     right: 0px;
-    overflow: scroll;
+    z-index: 999;
+    height: 100%;
+}
+
+#debug_log{ 
     height: 80%;
+    overflow: scroll;
 }
 
 .users{
