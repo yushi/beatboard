@@ -50,6 +50,7 @@ namespace BeatBoard {
     static void bb_event_finish();
     IRCConnection(string nick, string *pass = NULL);
     ~IRCConnection();
+    string getNick();
     void setReadNotifier(Notifier* notifier);
     void setJoinNotifier(Notifier* notifier);
     void notifyRead();

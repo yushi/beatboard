@@ -152,6 +152,10 @@ BeatBoard::IRCConnection::IRCConnection(string nick, string *pass) {
   }
 }
 
+string BeatBoard::IRCConnection::getNick() {
+  return this->nick;
+}
+
 void BeatBoard::IRCConnection::create_socket() throw(Exception) {
   this->sock = socket(AF_INET, SOCK_STREAM, 0);
 
