@@ -14,7 +14,7 @@ CC_INC_DIR=-I$(BB_HOME)/local/include -I../libbbevqueue -I../logapi
 CC_LIB_DIR=-L$(BB_HOME)/local/lib -L../libbbevqueue -L../libbbrpc -L../libapicommon
 CC_LIBS=-levent -lbbevqueue -lbbrpc -lapicommon -lprotobuf
 CC_LIBS_TEST=-lgtest
-CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR) $(CC_LIBS)
+CC_OPTS=$(CC_LIB_DIR) $(CC_INC_DIR)
 OBJS=irc_proto.o irc_connection.o irc_channel.o
 COVER_INFO=libbbirc.info
 COVER_DIR=cov
@@ -27,7 +27,7 @@ all: $(LIBBBIRC) $(OBJS) irc_client
 	make -C tests
 
 $(LIBBBIRC): $(OBJS)
-	$(CC) $(CC_OPTS) ../logapi/logapi.pb.cc $^ $(CLIBFLAGS) -o $@
+	$(CC) $(CC_OPTS) $(CC_LIBS) ../logapi/logapi.pb.cc $^ $(CLIBFLAGS) -o $@
 
 irc_proto.cpp: irc_proto.rl
 	$(RAGEL) -C $< -o $@
@@ -41,7 +41,7 @@ memtest: all
 	make -C tests memtest
 
 irc_client: irc_client.cpp $(LIBBBIRC)
-	$(CC) $(CC_OPTS) $< -o irc_client -lpthread -lbbirc -L.
+	$(CC) $(CC_OPTS) $(CC_LIBS) $< -o irc_client -lpthread -lbbirc -L.
 
 run_irc_client: irc_client
 	LD_LIBRARY_PATH=. valgrind --leak-check=full --show-reachable=yes ./irc_client
