@@ -22,8 +22,10 @@ using namespace std;
 namespace BeatBoard {
   class Notifier {
   public:
+    Notifier();
     virtual ~Notifier();
     virtual bool notify(map<string, vector<string> >* arg);
+    bool isPersistent;
   };
   /*
    * IRC Connection Class

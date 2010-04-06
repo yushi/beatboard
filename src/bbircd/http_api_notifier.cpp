@@ -11,7 +11,7 @@ BeatBoard::HTTPAPIReadNotifier::~HTTPAPIReadNotifier() {
 
 bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messages) {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-  logger.debug("NOTIFY start");
+  logger.debug("NOTIFY");
   evtimer_del(&(this->timeout_timer));
   evhttp_request* req = this->req;
   this->req = NULL;
@@ -65,6 +65,7 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
 
   evbuffer_add(buf, json_str, json_str_len);
   evhttp_send_reply(req, HTTP_OK, "OK", buf);
+  logger.debug(json_str);
   logger.debug("NOTIFY END");
   logger.debug("READ finished.");
   evbuffer_free(buf);

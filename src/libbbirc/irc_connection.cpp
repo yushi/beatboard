@@ -6,6 +6,11 @@ const string BeatBoard::IRCConnection::newline = string("\r\n");
 const string BeatBoard::IRCConnection::RPL_NAMREPLY = string("353");
 const string BeatBoard::IRCConnection::RPL_ENDOFNAMES = string("366");
 
+BeatBoard::Notifier::Notifier(){
+  this->isPersistent = false;
+}
+
+
 bool BeatBoard::IRCConnection::bb_event_dispatch(struct event_base *ev) {
   if (ev != NULL) {
     ev_base = ev;
@@ -308,16 +313,20 @@ bool BeatBoard::IRCConnection::notify(map<string, vector<string> > messages,
 
   while (it != notifiers->end()) {
     bool result = (*it)->notify(&messages);
-    delete((*it));
-
     if (result) {
       notify_success = true;
     }
 
-    ++it;
+    if(!(*it)->isPersistent){
+      delete((*it));
+      it = notifiers->erase(it);
+    }else{
+      ++it;
+    }
+
   }
 
-  notifiers->clear();
+  //notifiers->clear();
   return notify_success;
 }
 
