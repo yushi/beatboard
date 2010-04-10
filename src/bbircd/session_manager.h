@@ -38,6 +38,7 @@ namespace BeatBoard {
   public:
     SessionManager();
     virtual ~SessionManager();
+    void setUpTimer();
     string createSession(IRCConnection* conn); // return session_id
     void setHTTPAPIReadNotifier(string session_id, HTTPAPIReadNotifier* notifier);
     IRCConnection* getIRCConnectionBySessionId(string session_id);

@@ -25,6 +25,8 @@ void BeatBoard::BBIRCD::Daemon::setUp(char* addr, int port, int timeout) {
   try {
     this->httpd = new HTTPAPIServer();
     this->httpd->setUp(addr, port, timeout);
+    this->httpd->setUpTimer();
+    
   } catch (BeatBoard::Exception& error) {
     logger.debug(error.message.data());
     std::cerr << "daemon start failed.\n";

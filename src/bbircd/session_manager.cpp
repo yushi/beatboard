@@ -42,7 +42,18 @@ static void notify_timer(int fd, short event, void *arg) {
   while (notifiable != sessionManager->notifiableSessionId.end()) {
     if (notifiable->second) {
       notifiable->second = false;
-      sessionManager->waitingConnections[notifiable->first]->notify(&(sessionManager->sessionBuffers[notifiable->first]));
+      cout << notifiable->first << endl;
+
+      BeatBoard::HTTPAPIReadNotifier* notifier = sessionManager->waitingConnections[notifiable->first];
+
+      if (notifier != NULL) {
+        notifier->notify(&(sessionManager->sessionBuffers[notifiable->first]));
+      }else{
+        cout << "notifier not found: "<< notifiable->first << endl;
+      }
+      
+
+
     }
 
     notifiable++;
@@ -58,16 +69,19 @@ static void notify_timer(int fd, short event, void *arg) {
 }
 
 BeatBoard::SessionManager::SessionManager() {
+}
+
+BeatBoard::SessionManager::~SessionManager() {
+
+}
+
+void BeatBoard::SessionManager::setUpTimer() {
   struct timeval tv;
   tv.tv_usec = 0;
   tv.tv_sec = 1;
 
   evtimer_set(&timer, notify_timer, this);
   evtimer_add(&timer, &tv);
-}
-
-BeatBoard::SessionManager::~SessionManager() {
-
 }
 
 string BeatBoard::SessionManager::createSession(IRCConnection* conn) {
