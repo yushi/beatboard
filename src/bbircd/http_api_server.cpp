@@ -3,7 +3,7 @@
 using namespace std;
 int BeatBoard::HTTPAPIServer::timeout = 180; // default
 
-static void timeout_timer(int fd, short event,void *arg){
+static void timeout_timer(int fd, short event, void *arg) {
   cout << "timer hooked" << endl;
   evhttp_send_error((struct evhttp_request*)arg, 408, "Time out");
 }
@@ -30,7 +30,7 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port, int timeout) {
 
   httpd = evhttp_new(this->http_ev_base);
   evhttp_set_timeout(httpd, this->timeout);
-  
+
   if (evhttp_bind_socket(this->httpd, addr, port) != 0) {};
 
   evhttp_set_cb(httpd, "/", HTTPAPIServer::rootHandler, NULL);
@@ -180,7 +180,7 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
               );
 
   IRCConnection *conn = NULL;
-  conn = instance->getIRCConnection(session_id);
+  conn = instance->getIRCConnectionBySessionId(session_id);
   ostringstream ss;
 
   try {
@@ -192,18 +192,19 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
       logger.debug("new connect request arrived. nick:" + nick + ", old sid:" + session_id);
       IRCConnection *newConnection;
 
-      if(instance->isExistNick(nick)){
+      if (instance->isExistNick(nick)) {
         newConnection = instance->getIRCConnectionByNick(nick);
-      }else{
+      } else {
         if (pass != string("")) {
           newConnection = new IRCConnection(nick, new string(pass));
         } else {
           newConnection = new IRCConnection(nick);
         }
+
         newConnection->connectIRCServer(server, port);
       }
 
-      string new_session_id = instance->setIRCConnection(nick, newConnection);
+      string new_session_id = instance->createSession(newConnection);
       // create new session
       evhttp_add_header(req->output_headers,
                         "Set-Cookie", (string("sid=") + new_session_id + string("; path=/")).c_str());
@@ -296,7 +297,7 @@ void BeatBoard::HTTPAPIServer::joinHandler(struct evhttp_request *req, void *arg
   string res;
 
   try {
-    IRCConnection *conn = instance->getIRCConnection(session_id);
+    IRCConnection *conn = instance->getIRCConnectionBySessionId(session_id);
 
     if (conn == NULL) {
       BeatBoard::Exception notfound(string("connection not found"));
@@ -339,7 +340,7 @@ void BeatBoard::HTTPAPIServer::speakHandler(struct evhttp_request *req, void *ar
   logger.debug("SPEAK session:" + session_id + " channel:" + channel + " message:" + message);
 
 
-  IRCConnection *conn = instance->getIRCConnection(session_id);
+  IRCConnection *conn = instance->getIRCConnectionBySessionId(session_id);
 
   if (conn == NULL) {
     evbuffer_add_printf(buf, "connection not found");
@@ -356,14 +357,14 @@ void BeatBoard::HTTPAPIServer::speakHandler(struct evhttp_request *req, void *ar
 void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg) {
   HTTPAPIServer *instance = (HTTPAPIServer*)(arg);
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
-  
+
   map<string, string> params = instance->parseParameter(req);
   const string session_id = params[string("sid")];
   logger.debug("READ request accepted. session:" + session_id);
 
   IRCConnection *conn = NULL;
-struct evbuffer *buf;
-  conn = instance->getIRCConnection(session_id);
+  struct evbuffer *buf;
+  conn = instance->getIRCConnectionBySessionId(session_id);
   buf = evbuffer_new();
 
   if (conn == NULL) {
@@ -379,7 +380,7 @@ struct evbuffer *buf;
 
   HTTPAPIReadNotifier* notifier =   new HTTPAPIReadNotifier(req, timeout);
   // set timeout callback
-  struct timeval tv;  
+  struct timeval tv;
   tv.tv_usec = 0;
   tv.tv_sec = timeout;
 
@@ -391,13 +392,14 @@ struct evbuffer *buf;
       logger.debug("failed to create response buffer in READ");
       return;
     }
+
     conn->setReadNotifier(notifier);
     conn->notifyRead();
   } else {
     logger.debug("message not found");
     conn->setReadNotifier(notifier);
   }
-  
+
   evbuffer_free(buf);
 }
 

@@ -6,8 +6,8 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include "irc_client_operation.h"
 #include "http_api_server.h"
+#include "session_manager.h"
 
 namespace BeatBoard{
   namespace BBIRCD{
@@ -15,7 +15,7 @@ namespace BeatBoard{
     public:
       void startService();
       void setUp(char* addr, int port, int timeout);
-      IRCClientOperation ircClients;
+      SessionManager ircClients;
     private:
       HTTPAPIServer *httpd;
 

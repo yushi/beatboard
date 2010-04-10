@@ -1,10 +1,16 @@
+#ifndef __HTTP_API_NOTIFIER__
+#define __HTTP_API_NOTIFIER__
+
+#include <json/json.h>
+#include <map>
+#include <vector>
 #include <event.h>
 #include <evhttp.h>
-#include "bblogger.h"
 #include <sstream>
-#include "irc_client_operation.h"
-#include <json/json.h>
+#include <irc_connection.h>
+#include "bblogger.h"
 
+using namespace std;
 namespace BeatBoard {
 
   class HTTPAPIReadNotifier: public Notifier {
@@ -20,3 +26,5 @@ namespace BeatBoard {
     bool notify(map<string, vector<string> >* arg);
   };
 }
+
+#endif /* __HTTP_API_NOTIFIER__ */

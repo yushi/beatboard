@@ -6,9 +6,12 @@
 #include <iostream>
 #include <sstream>
 #include "bblogger.h"
+#include "session_manager.h"
 #include "http_api_notifier.h"
+
+
 namespace BeatBoard {
-  class HTTPAPIServer  : public IRCClientOperation {
+  class HTTPAPIServer  : public SessionManager {
   public:
     HTTPAPIServer();
     ~HTTPAPIServer();
