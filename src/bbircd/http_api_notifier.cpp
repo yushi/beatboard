@@ -4,6 +4,7 @@ BeatBoard::HTTPAPIReadNotifier::HTTPAPIReadNotifier(struct evhttp_request *req, 
   this->timeout = timeout;
   this->req = req;
   this->init_time = time(NULL);
+  this->buf = NULL;
 }
 
 BeatBoard::HTTPAPIReadNotifier::~HTTPAPIReadNotifier() {
@@ -13,6 +14,12 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("NOTIFY");
   evtimer_del(&(this->timeout_timer));
+
+  if (this->req == NULL) {
+    logger.debug("req == NULL, nothing to do");
+    return false;
+  }
+
   evhttp_request* req = this->req;
   this->req = NULL;
 
@@ -20,8 +27,8 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
   buf = evbuffer_new();
 
   // rollback for timeout (2:59)
-  if ( (time(NULL) - this->init_time) > (this->timeout) - 1) {
-    logger.info("client was timeout. rollback notify message");
+  if ((time(NULL) - this->init_time) > (this->timeout) - 1) {
+    logger.info("client was timeout. response already backed");
     logger.debug("NOTIFY canceled");
     return false;
   }
@@ -48,6 +55,7 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
       json_object_array_add(messages, json_object_new_string(message));
     }
 
+    it->second.clear();
     ++it;
     json_object_object_add(jsonobj, (char*)channel.c_str(), messages);
   }

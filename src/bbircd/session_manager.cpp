@@ -14,7 +14,8 @@ BeatBoard::MessageCollector::~MessageCollector() {
 
 
 bool BeatBoard::MessageCollector::notify(map<string, vector<string> >* arg) {
-  cout << "colector notify" << endl;
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("colector notify received");
   map<string, vector<string> >::iterator map_it = arg->begin();
 
   while (map_it != arg->end()) {
@@ -34,24 +35,24 @@ bool BeatBoard::MessageCollector::notify(map<string, vector<string> >* arg) {
 }
 
 static void notify_timer(int fd, short event, void *arg) {
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   BeatBoard::SessionManager *sessionManager = (BeatBoard::SessionManager*)arg;
-  printf("notify hook at SessionManager\n");
-
   map<string, bool>::iterator notifiable = sessionManager->notifiableSessionId.begin();
 
   while (notifiable != sessionManager->notifiableSessionId.end()) {
     if (notifiable->second) {
       notifiable->second = false;
-      cout << notifiable->first << endl;
+      logger.debug("notify timer: " + notifiable->first);
 
       BeatBoard::HTTPAPIReadNotifier* notifier = sessionManager->waitingConnections[notifiable->first];
 
       if (notifier != NULL) {
         notifier->notify(&(sessionManager->sessionBuffers[notifiable->first]));
-      }else{
-        cout << "notifier not found: "<< notifiable->first << endl;
+        sessionManager->waitingConnections[notifiable->first] = NULL;
+      } else {
+        logger.debug("notifier not found");
       }
-      
+
 
 
     }
@@ -97,6 +98,15 @@ string BeatBoard::SessionManager::createSession(IRCConnection* conn) {
 
 void BeatBoard::SessionManager::setHTTPAPIReadNotifier(string session_id,
     HTTPAPIReadNotifier* notifier) {
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("setNotifier" + session_id);
+
+  if (this->waitingConnections[session_id] != NULL) {
+    HTTPAPIReadNotifier* n = this->waitingConnections[session_id];
+    this->waitingConnections[session_id] = NULL;
+    delete(n);
+  }
+
   this->waitingConnections[session_id] = notifier;
 }
 

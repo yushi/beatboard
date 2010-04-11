@@ -4,8 +4,12 @@ using namespace std;
 int BeatBoard::HTTPAPIServer::timeout = 180; // default
 
 static void timeout_timer(int fd, short event, void *arg) {
-  cout << "timer hooked" << endl;
-  evhttp_send_error((struct evhttp_request*)arg, 408, "Time out");
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("timeout exceeded");
+  if(arg != NULL){
+    evhttp_send_error((struct evhttp_request*)arg, 408, "Time out");
+  }
+  
 }
 
 BeatBoard::HTTPAPIServer::HTTPAPIServer() {
@@ -366,6 +370,10 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
   struct evbuffer *buf;
   conn = instance->getIRCConnectionBySessionId(session_id);
   buf = evbuffer_new();
+  if (buf == NULL) {
+    logger.debug("failed to create response buffer in READ");
+    return;
+  }
 
   if (conn == NULL) {
     logger.debug("connection not found at read");
@@ -387,19 +395,8 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
   evtimer_set(&(notifier->timeout_timer), timeout_timer, req);
   evtimer_add(&(notifier->timeout_timer), &tv);
 
-  if (conn->hasMessage()) {
-    if (buf == NULL) {
-      logger.debug("failed to create response buffer in READ");
-      return;
-    }
-
-    conn->setReadNotifier(notifier);
-    conn->notifyRead();
-  } else {
-    logger.debug("message not found");
-    conn->setReadNotifier(notifier);
-  }
-
+  instance->setHTTPAPIReadNotifier(session_id,notifier);
+  
   evbuffer_free(buf);
 }
 
