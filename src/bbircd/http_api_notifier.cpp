@@ -5,12 +5,14 @@ BeatBoard::HTTPAPIReadNotifier::HTTPAPIReadNotifier(struct evhttp_request *req, 
   this->req = req;
   this->init_time = time(NULL);
   this->buf = NULL;
+  this->isResponsed = false;
 }
 
 BeatBoard::HTTPAPIReadNotifier::~HTTPAPIReadNotifier() {
 }
 
 bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messages) {
+  this->isResponsed = true;
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("NOTIFY");
   evtimer_del(&(this->timeout_timer));

@@ -4,10 +4,12 @@ using namespace std;
 int BeatBoard::HTTPAPIServer::timeout = 180; // default
 
 static void timeout_timer(int fd, short event, void *arg) {
+  BeatBoard::HTTPAPIReadNotifier* instance = (BeatBoard::HTTPAPIReadNotifier*)arg;
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("timeout exceeded");
-  if(arg != NULL){
-    evhttp_send_error((struct evhttp_request*)arg, 408, "Time out");
+  if(instance != NULL && !instance->isResponsed){
+    instance->isResponsed = true;
+    evhttp_send_error(instance->req, 408, "Time out");
   }
   
 }
@@ -399,4 +401,3 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
   
   evbuffer_free(buf);
 }
-

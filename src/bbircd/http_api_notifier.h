@@ -16,6 +16,7 @@ namespace BeatBoard {
   class HTTPAPIReadNotifier: public Notifier {
   public:
     int timeout;
+    bool isResponsed;
     struct event timeout_timer;
     struct evhttp_request* req;
     struct evbuffer* buf;
