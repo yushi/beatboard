@@ -7,11 +7,11 @@ static void timeout_timer(int fd, short event, void *arg) {
   BeatBoard::HTTPAPIReadNotifier* instance = (BeatBoard::HTTPAPIReadNotifier*)arg;
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("timeout exceeded");
-  if(instance != NULL && !instance->isResponsed){
+
+  if (instance != NULL && !(instance->isResponsed)) {
     instance->isResponsed = true;
     evhttp_send_error(instance->req, 408, "Time out");
   }
-  
 }
 
 BeatBoard::HTTPAPIServer::HTTPAPIServer() {
@@ -372,6 +372,7 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
   struct evbuffer *buf;
   conn = instance->getIRCConnectionBySessionId(session_id);
   buf = evbuffer_new();
+
   if (buf == NULL) {
     logger.debug("failed to create response buffer in READ");
     return;
@@ -394,10 +395,10 @@ void BeatBoard::HTTPAPIServer::readHandler(struct evhttp_request *req, void *arg
   tv.tv_usec = 0;
   tv.tv_sec = timeout;
 
-  evtimer_set(&(notifier->timeout_timer), timeout_timer, req);
+  evtimer_set(&(notifier->timeout_timer), timeout_timer, notifier);
   evtimer_add(&(notifier->timeout_timer), &tv);
 
-  instance->setHTTPAPIReadNotifier(session_id,notifier);
-  
+  instance->setHTTPAPIReadNotifier(session_id, notifier);
+
   evbuffer_free(buf);
 }
