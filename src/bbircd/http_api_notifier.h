@@ -24,7 +24,9 @@ namespace BeatBoard {
     IRCConnection* conn;
     HTTPAPIReadNotifier(struct evhttp_request* req, int timeout);
     ~HTTPAPIReadNotifier();
+    void timeout_response();
     bool notify(map<string, vector<string> >* arg);
+    bool timeout_timer_enabled;
   };
 }
 

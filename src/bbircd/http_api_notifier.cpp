@@ -1,21 +1,63 @@
 #include "http_api_notifier.h"
 
+static void timeout_timer_function(int fd, short event, void *arg) {
+  BeatBoard::HTTPAPIReadNotifier* instance = (BeatBoard::HTTPAPIReadNotifier*)arg;
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("timeout time hooked");
+  if (instance != NULL) {
+    instance->timeout_timer_enabled = false;
+    instance->timeout_response();
+  }
+}
+
 BeatBoard::HTTPAPIReadNotifier::HTTPAPIReadNotifier(struct evhttp_request *req, int timeout) {
   this->timeout = timeout;
   this->req = req;
   this->init_time = time(NULL);
   this->buf = NULL;
   this->isResponsed = false;
+  // set timeout callback
+  struct timeval tv;
+  tv.tv_usec = 0;
+  tv.tv_sec = timeout;
+
+  evtimer_set(&(this->timeout_timer), timeout_timer_function, this);
+  evtimer_add(&(this->timeout_timer), &tv);
+  this->timeout_timer_enabled = true;
 }
 
 BeatBoard::HTTPAPIReadNotifier::~HTTPAPIReadNotifier() {
 }
 
-bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messages) {
-  this->isResponsed = true;
+void BeatBoard::HTTPAPIReadNotifier::timeout_response(){
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  logger.debug("timeout exceeded");
+
+  if(this->timeout_timer_enabled){
+    evtimer_del(&(this->timeout_timer));
+    this->timeout_timer_enabled = false;
+  }
+
+  if (!(this->isResponsed)) {
+    this->isResponsed = true;
+    evhttp_send_error(this->req, 408, "Time out");
+  }
+}
+
+bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messages) {
+  BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
+  if(this->isResponsed == true){
+    logger.debug("notify called but already responsed");
+    return false;
+  }
+
+  if(this->timeout_timer_enabled){
+    evtimer_del(&(this->timeout_timer));    
+    this->timeout_timer_enabled = false;
+  }
+  
+  this->isResponsed = true;
   logger.debug("NOTIFY");
-  evtimer_del(&(this->timeout_timer));
 
   if (this->req == NULL) {
     logger.debug("req == NULL, nothing to do");

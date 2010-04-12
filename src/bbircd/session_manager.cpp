@@ -104,6 +104,7 @@ void BeatBoard::SessionManager::setHTTPAPIReadNotifier(string session_id,
   if (this->waitingConnections[session_id] != NULL) {
     HTTPAPIReadNotifier* n = this->waitingConnections[session_id];
     this->waitingConnections[session_id] = NULL;
+    n->timeout_response();
     delete(n);
   }
 
