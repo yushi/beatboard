@@ -12,6 +12,7 @@ namespace BeatBoard{
     void addMessage(string from, string message, time_t time);
     void addUser(string user);
     void addUserJoin(string user);
+    bool isJoined(string user);
     void delUser(string user);
     void addUserEnd();
     vector<string> getUsers();

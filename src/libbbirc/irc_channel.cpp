@@ -47,6 +47,25 @@ void BeatBoard::IRCChannel::removeOldMessages(){
   }
 }
 
+bool BeatBoard::IRCChannel::isJoined(string user){
+  vector<string>::iterator i = (this->users).begin();
+  if(user.find('!')){
+    user = user.substr(0, user.find('!'));
+  }
+  while(i != (this->users).end()){
+    string target = *i;
+    if(target[0] == '@'){
+      target = target.substr(1,target.size() - 1);
+    }
+    if(target == user){
+      return true;
+    }else{
+      ++i;
+    }
+  }
+  return false;
+}
+
 void BeatBoard::IRCChannel::delUser(string user){
   vector<string>::iterator i = (this->users).begin();
   if(user.find('!')){

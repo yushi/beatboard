@@ -119,9 +119,11 @@ void irc_buffevent_read(struct bufferevent *bev, void *arg) {
           (irc_conn->received).begin();
 
         while (it != (irc_conn->received).end()) {
-          irc_conn->received[it->first].addMessage(message, prefix);
-          irc_conn->received[it->first].delUser(prefix);
-          irc_conn->loggingMessage(it->first, prefix, message);
+          if(irc_conn->received[it->first].isJoined(prefix)){
+            irc_conn->received[it->first].addMessage(message, prefix);
+            irc_conn->received[it->first].delUser(prefix);
+            irc_conn->loggingMessage(it->first, prefix, message);
+          }
           ++it;
         }
 
