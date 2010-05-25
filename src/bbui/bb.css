@@ -95,6 +95,15 @@ body{
     color: #99aa99;
 }
 
+#reply{
+    padding: 0px;
+    margin: 0px;
+    margin-right: 5px;
+    text-align: right;
+    float: right;
+	color: white;
+}
+
 #time{
     padding: 0px;
     margin: 0px;

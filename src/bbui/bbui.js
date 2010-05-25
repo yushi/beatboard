@@ -317,6 +317,16 @@ function getCurrentTimeStr(){
 function toggleTime(elem, flag){
     var color = flag ? font_color : message_background_color;
     $(elem.childNodes[1]).css('color', color);
+    $(elem.childNodes[3]).css('color', color);
+}
+
+function replyMessage(elem){
+    PREFIX = '> ';
+    if(elem.parentNode.childNodes[0].innerText == undefined){
+        $('#message').val(PREFIX + elem.parentNode.childNodes[0].textContent);
+    }else{
+        $('#message').val(PREFIX + elem.parentNode.childNodes[0].innerText);
+    }
 }
 
 function addMessage(speaker, channel, message, time){
@@ -342,7 +352,8 @@ function addMessage(speaker, channel, message, time){
             '<span id="leftspace"></span>' + 
 	        (isSequencial ? extractLink(escaped_message, channel) : '')+ 
             '</span><span id="time">' + 
-            time + '</span><div>');
+            time + '</span>' + 
+            '<span style="color: white;" id="reply"	onclick="javascript:replyMessage(this)">reply</span><div>');
     
     if(channel != active_channel){
         $($('#\\' + channel + '_tab')[0]).css('background-color',notify_color);
