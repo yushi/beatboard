@@ -314,10 +314,10 @@ function getCurrentTimeStr(){
         zeroPadding(now.getMinutes());
 }
 
-function toggleTime(elem, flag){
+function toggleMessageInfo(elem, flag){
     var color = flag ? font_color : message_background_color;
-    $(elem.childNodes[1]).css('color', color);
-    $(elem.childNodes[3]).css('color', color);
+    $(elem.childNodes[1]).css('color', color); // for time color
+    $(elem.childNodes[2]).css('color', color); // for reply button color
 }
 
 function replyMessage(elem){
@@ -327,6 +327,7 @@ function replyMessage(elem){
     }else{
         $('#message').val(PREFIX + elem.parentNode.childNodes[0].innerText);
     }
+    $('#message').focus();
 }
 
 function addMessage(speaker, channel, message, time){
@@ -346,7 +347,7 @@ function addMessage(speaker, channel, message, time){
     var escaped_message = replace_centity_ref(message);
     createChannelUI(channel);
     $('#messagebox > #\\' + channel).append( 
-        '<div id="' + (isOld ? 'oldline' : 'line') + '" onmouseover="javascript:toggleTime(this, 1)" onmouseout="javascript:toggleTime(this, 0)">' + 
+        '<div id="' + (isOld ? 'oldline' : 'line') + '" onmouseover="javascript:toggleMessageInfo(this, 1)" onmouseout="javascript:toggleMessageInfo(this, 0)">' + 
             '<span id="usermessage">' + 
 	        '<span id="speaker">' + escaped_nick + '</span>' + 
             '<span id="leftspace"></span>' + 
