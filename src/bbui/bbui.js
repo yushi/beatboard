@@ -264,7 +264,28 @@ function selectChannel(channel){
             $('#\\' + channel_divs[i].id + '_tab').css('background-color',highlight_color);
         }
     }
-    $('#message').focus();
+}
+
+function selectNextChannel(){
+    var channels = $("#channels").children();
+    for(var i = 0; i < channels.length - 1; i++){
+        if(channels[i].innerHTML == active_channel){
+            selectChannel(channels[i+1].innerHTML);
+            return;
+        }
+    }
+    selectChannel(channels[0].innerHTML);
+}
+
+function selectPrevChannel(){
+    var channels = $("#channels").children();
+    for(var i = channels.length - 1; i > 0; i--){
+        if(channels[i].innerHTML == active_channel){
+            selectChannel(channels[i-1].innerHTML);
+            return;
+        }
+    }
+    selectChannel(channels[channels.length-1].innerHTML);
 }
 
 function createChannelUI(channel, active){
@@ -454,3 +475,58 @@ function delete_cookie(){
     nick = null;
     location.reload();
 }
+
+function keyEventHandler(event){
+    var ret = true;
+
+    var KEY_ESC = 27;
+    var KEY_LEFT = 37;
+    var KEY_UP = 38;
+    var KEY_RIGHT = 39;
+    var KEY_DOWN = 40;
+    var KEY_I = 73;
+    var KEY_SLASH = 191;
+
+    if(document.activeElement == $("#message").get()[0]){
+        if(event.keyCode == KEY_ESC){
+            $("#message").blur();
+        }
+        return ret;
+    }
+
+    if(document.activeElement == $("#channel").get()[0]){
+        if(event.keyCode == KEY_ESC){
+            $("#channel").blur();
+        }
+        return ret;
+    }
+
+
+    if(event.shiftKey){
+        if(event.keyCode == KEY_SLASH){
+            var help = [
+                "i:\t\tfocus message textarea", 
+                "right:\tselect next channel", 
+                "left:\t\tselect prev channel", 
+                "?:\t\tprint this help", 
+                "ESC:\t\tunfocus(in textarea only)"
+            ];
+            alert(help.join("\n"));
+        }
+    }
+
+    if(event.keyCode == KEY_I){
+        $("#message").focus();
+        ret = false;
+    }
+    if(event.keyCode == KEY_RIGHT){
+        selectNextChannel();
+    }
+    if(event.keyCode == KEY_LEFT){
+        selectPrevChannel();
+    }
+    //alert(event.keyCode);
+    return ret;
+}
+
+$("body").keydown(keyEventHandler);
