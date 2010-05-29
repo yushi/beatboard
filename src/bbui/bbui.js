@@ -514,12 +514,14 @@ function keyUpHandler(event){
 
 function keyPressHandler(event){
     var CHARCODE_SLASH = 63;
+    var ret = true;
     if(document.activeElement == $("#message").get()[0]){
         return ret;
     }
     if(document.activeElement == $("#channel").get()[0]){
         return ret;
     }
+
     // for "?" key only capture in press event. (firefox)
     if(event.shiftKey){
         if(event.charCode == CHARCODE_SLASH){
@@ -533,7 +535,7 @@ function keyPressHandler(event){
             alert(help.join("\n"));
         }
     }
-
+    return ret;
 }
 
 $(document).keyup(keyUpHandler);
