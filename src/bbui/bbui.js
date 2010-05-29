@@ -476,7 +476,7 @@ function delete_cookie(){
     location.reload();
 }
 
-function keyEventHandler(event){
+function keyUpHandler(event){
     var ret = true;
 
     var KEY_ESC = 27;
@@ -485,25 +485,44 @@ function keyEventHandler(event){
     var KEY_RIGHT = 39;
     var KEY_DOWN = 40;
     var KEY_I = 73;
-    var KEY_SLASH = 191;
 
+    //alert(event);
     if(document.activeElement == $("#message").get()[0]){
         if(event.keyCode == KEY_ESC){
             $("#message").blur();
         }
         return ret;
     }
-
     if(document.activeElement == $("#channel").get()[0]){
         if(event.keyCode == KEY_ESC){
             $("#channel").blur();
         }
         return ret;
     }
+    if(event.keyCode == KEY_I){
+        $("#message").focus();
+        ret = false;
+    }
+    if(event.keyCode == KEY_RIGHT){
+        selectNextChannel();
+    }
+    if(event.keyCode == KEY_LEFT){
+        selectPrevChannel();
+    }
+    return ret;
+}
 
-
+function keyPressHandler(event){
+    var CHARCODE_SLASH = 63;
+    if(document.activeElement == $("#message").get()[0]){
+        return ret;
+    }
+    if(document.activeElement == $("#channel").get()[0]){
+        return ret;
+    }
+    // for "?" key only capture in press event. (firefox)
     if(event.shiftKey){
-        if(event.keyCode == KEY_SLASH){
+        if(event.charCode == CHARCODE_SLASH){
             var help = [
                 "i:\t\tfocus message textarea", 
                 "right:\tselect next channel", 
@@ -515,18 +534,7 @@ function keyEventHandler(event){
         }
     }
 
-    if(event.keyCode == KEY_I){
-        $("#message").focus();
-        ret = false;
-    }
-    if(event.keyCode == KEY_RIGHT){
-        selectNextChannel();
-    }
-    if(event.keyCode == KEY_LEFT){
-        selectPrevChannel();
-    }
-    //alert(event.keyCode);
-    return ret;
 }
 
-$("body").keydown(keyEventHandler);
+$(document).keyup(keyUpHandler);
+$(document).keypress(keyPressHandler);
