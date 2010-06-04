@@ -151,7 +151,7 @@ function addYoutubeEmbedTag(videoId, channel){
 }
 
 function addNico2EmbedTag(videoId, channel){
-    var objectTag = '<div id="video_' + ++video_seq_num + '"></div><script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/sm'
+    var objectTag = '<div id="video_' + ++video_seq_num + '"></div><script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/'
         + videoId 
         + '"></script>';
     document.write_org = document.write;
@@ -200,7 +200,7 @@ function addImgEmbedTag(url, channel){
 
 function extractLink(str, channel){
     var videoExtractRules = [
-        ["http://www.nicovideo.jp/watch/sm(\\d+)", addNico2EmbedTag],
+        ["http://www.nicovideo.jp/watch/((?:\\S+)?\\d+)", addNico2EmbedTag],
         ["https?://www.ustream.tv/channel/(\\S+)", addUstreamEmbedTag],
         ["https?://www.youtube.com/watch\\S+v=(\\S+)&?", addYoutubeEmbedTag],
     ];
