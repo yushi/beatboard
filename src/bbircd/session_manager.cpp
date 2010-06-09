@@ -27,6 +27,11 @@ bool BeatBoard::MessageCollector::notify(map<string, vector<string> >* arg) {
       vec_it++;
     }
 
+    vector<string> *buff = &(*this->sessionBuffer)[map_it->first] ;
+    while(buff->size() > 10){
+      buff->erase(buff->begin());
+    }
+    
     *(this->notifiable) = true;
     map_it++;
   }
