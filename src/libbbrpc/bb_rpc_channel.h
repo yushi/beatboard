@@ -1,6 +1,7 @@
 #ifndef BBRPCCHANNEL_H
 #define BBRPCCHANNEL_H
 
+#include <stdio.h>
 #include <string>
 #include <iostream>
 #include <google/protobuf/service.h>
