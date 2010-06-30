@@ -56,6 +56,7 @@ static void notify_timer(int fd, short event, void *arg) {
         sessionManager->waitingConnections[notifiable->first] = NULL;
       } else {
         logger.debug("notifier not found");
+        notifiable->second = true;
       }
 
 
@@ -113,7 +114,14 @@ void BeatBoard::SessionManager::setHTTPAPIReadNotifier(string session_id,
     delete(n);
   }
 
-  this->waitingConnections[session_id] = notifier;
+  if(this->notifiableSessionId[session_id]){
+    this->notifiableSessionId[session_id] = false;
+    logger.debug("notify hooked by client connection:" + session_id);
+    notifier->notify(&(this->sessionBuffers[session_id]));
+    this->waitingConnections[session_id] = NULL;
+  }else{
+    this->waitingConnections[session_id] = notifier;
+  }
 }
 
 BeatBoard::IRCConnection* BeatBoard::SessionManager::getIRCConnectionBySessionId(string session_id) {
