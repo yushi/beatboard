@@ -18,20 +18,21 @@ bool BeatBoard::MessageCollector::notify(map<string, vector<string> >* arg) {
   logger.debug("colector notify received");
   map<string, vector<string> >::iterator map_it = arg->begin();
 
-  while (map_it != arg->end()) {
+  while(map_it != arg->end()) {
     vector<string>::iterator vec_it = map_it->second.begin();
 
-    while (vec_it != map_it->second.end()) {
+    while(vec_it != map_it->second.end()) {
       vector<string> *buff = &(*this->sessionBuffer)[map_it->first] ;
       buff->push_back(*vec_it);
       vec_it++;
     }
 
     vector<string> *buff = &(*this->sessionBuffer)[map_it->first] ;
-    while(buff->size() > 10){
+
+    while(buff->size() > 10) {
       buff->erase(buff->begin());
     }
-    
+
     *(this->notifiable) = true;
     map_it++;
   }
@@ -44,14 +45,14 @@ static void notify_timer(int fd, short event, void *arg) {
   BeatBoard::SessionManager *sessionManager = (BeatBoard::SessionManager*)arg;
   map<string, bool>::iterator notifiable = sessionManager->notifiableSessionId.begin();
 
-  while (notifiable != sessionManager->notifiableSessionId.end()) {
-    if (notifiable->second) {
+  while(notifiable != sessionManager->notifiableSessionId.end()) {
+    if(notifiable->second) {
       notifiable->second = false;
       logger.debug("notify timer: " + notifiable->first);
 
       BeatBoard::HTTPAPIReadNotifier* notifier = sessionManager->waitingConnections[notifiable->first];
 
-      if (notifier != NULL) {
+      if(notifier != NULL) {
         notifier->notify(&(sessionManager->sessionBuffers[notifiable->first]));
         sessionManager->waitingConnections[notifiable->first] = NULL;
       } else {
@@ -107,19 +108,19 @@ void BeatBoard::SessionManager::setHTTPAPIReadNotifier(string session_id,
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   logger.debug("setNotifier" + session_id);
 
-  if (this->waitingConnections[session_id] != NULL) {
+  if(this->waitingConnections[session_id] != NULL) {
     HTTPAPIReadNotifier* n = this->waitingConnections[session_id];
     this->waitingConnections[session_id] = NULL;
     n->timeout_response();
     delete(n);
   }
 
-  if(this->notifiableSessionId[session_id]){
+  if(this->notifiableSessionId[session_id]) {
     this->notifiableSessionId[session_id] = false;
     logger.debug("notify hooked by client connection:" + session_id);
     notifier->notify(&(this->sessionBuffers[session_id]));
     this->waitingConnections[session_id] = NULL;
-  }else{
+  } else {
     this->waitingConnections[session_id] = notifier;
   }
 }
