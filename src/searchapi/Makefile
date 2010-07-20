@@ -102,3 +102,8 @@ $(PYTHON_WRRAPER_TARGET): $(PYTHON_WRRAPER_OBJS)
 
 clean:
 	rm -f $(SERVER_TARGET) $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) $(EVHTTP_TARGET) $(PROTOBUF_HEADER)
+
+install: $(SERVER_TARGET) $(EVHTTP_TARGET)
+	mkdir -p /usr/bb/sbin
+	install -m755 $(SERVER_TARGET) /usr/bb/sbin
+	install -m755 $(EVHTTP_TARGET) /usr/bb/sbin

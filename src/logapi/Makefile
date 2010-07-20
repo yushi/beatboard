@@ -77,3 +77,8 @@ $(CLIENT_TARGET): $(CLIENT_OBJS)
 
 clean:
 	rm -rf $(SERVER_TARGET) $(SERVER_TARGET).dSYM $(SERVER_OBJS) $(CLIENT_TARGET) $(CLIENT_OBJS) $(CLIENT_TARGET) $(BBEVQUEUE_TARGET) $(PROTOBUF_HEADER)
+
+install: $(SERVER_TARGET) $(BBEVQUEUE_TARGET)
+	mkdir -p /usr/bb/sbin
+	install -m755 $(SERVER_TARGET) /usr/bb/sbin
+	install -m755 $(BBEVQUEUE_TARGET) /usr/bb/sbin
