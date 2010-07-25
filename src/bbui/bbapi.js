@@ -51,6 +51,7 @@ var BBAPI = function(){
         }
         window.scrollBy( 0, screen.height );
         update_debuginfo('read success');
+        return 0;
     }
     
     var searchRecentLog = function(channel, count){
@@ -133,7 +134,7 @@ var BBAPI = function(){
                                                    
                                                    $('#message').get(0).onkeydown = function(e){
                                                        return !sendMessage(e);
-                                                   }
+                                                   };
                                                });
                        setInterval(checkLoader, 100);
                    });
@@ -195,7 +196,7 @@ var BBAPI = function(){
                        'data': {'nickname':nick, 'sid': $.cookie('sid')},
                        cache: false,
                        success: function(data){
-                           debug_log('read res')
+                           debug_log('read res');
                            var error = readSuccess(data);
                            if(error){
                                isUIBlocking = true;

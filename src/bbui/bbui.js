@@ -351,6 +351,35 @@ function replyMessage(elem){
     $('#message').focus();
 }
 
+function desktopNotifySetup(){
+    console.log("a");
+    if(!window.webkitNotifications){
+        return;
+    }
+
+    if (window.webkitNotifications.checkPermission() == 1){
+        console.log("b");
+        //not permitted
+        console.log(window.webkitNotifications.requestPermission());
+        
+    }
+}
+
+function desktopNotifyMessage(message){
+    if(!window.webkitNotifications){
+        return;
+    }
+
+    if (window.webkitNotifications.checkPermission() == 0){
+        var notify = window.webkitNotifications.createNotification("./favicon.ico", 'Notify me', message);
+        notify.show();
+        setTimeout(function(){
+                       notify.cancel();
+                   },
+                   3000);
+    }
+}
+
 function addMessage(speaker, channel, message, time){
     var isOld = true;
     var isSequencial = false;
@@ -387,9 +416,11 @@ function addMessage(speaker, channel, message, time){
             message_count += 1;
         }
     }
-    
+
     if(!isSequencial){
         addMessage(speaker, channel, message, isOld ? time:undefined);
+    }else{
+        desktopNotifyMessage(escaped_message);
     }
 }
 
