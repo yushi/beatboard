@@ -365,13 +365,13 @@ function desktopNotifySetup(){
     }
 }
 
-function desktopNotifyMessage(message){
+function desktopNotifyMessage(speaker, message){
     if(!window.webkitNotifications){
         return;
     }
 
     if (window.webkitNotifications.checkPermission() == 0){
-        var notify = window.webkitNotifications.createNotification("./favicon.ico", 'Notify me', message);
+        var notify = window.webkitNotifications.createNotification("./favicon.ico", speaker, message);
         notify.show();
         setTimeout(function(){
                        notify.cancel();
@@ -420,7 +420,7 @@ function addMessage(speaker, channel, message, time){
     if(!isSequencial){
         addMessage(speaker, channel, message, isOld ? time:undefined);
     }else{
-        desktopNotifyMessage(escaped_message);
+        desktopNotifyMessage(speaker, escaped_message);
     }
 }
 
