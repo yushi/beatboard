@@ -1,0 +1,6 @@
+#!/bin/bash
+export BBEVHTTPSEARCHCLIENT='/usr/bb/sbin/evhttp_search_client'
+export DYLD_LIBRARY_PATH=/usr/bb/lib:/usr/bb/local/lib
+export LD_LIBRARY_PATH=/usr/bb/lib:/usr/bb/local/lib
+ulimit -c unlimited
+exec setuidgid bb $BBEVHTTPSEARCHCLIENT
