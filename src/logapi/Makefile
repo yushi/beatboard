@@ -44,7 +44,7 @@ CLIENT_OBJS = $(CLIENT_SRCS:.cpp=.o)
 BBEVQUEUE_LDFLAGS = $(LDFLAGS) -lbbevqueue
 BBEVQUEUE_LIBS = $(LIBS) -L../libbbevqueue
 BBEVQUEUE_INCLUDES = $(INCLUDES) -I../libbbevqueue
-BBEVQUEUE_TARGET = logapibbevequeue
+BBEVQUEUE_TARGET = logapibbevqueue
 BBEVQUEUE_SRCS = logapi_service_client_bbevqueue_main.cpp\
 				logapi_service_client_bbevqueue.cpp\
 				logapi_service_common.cpp\
