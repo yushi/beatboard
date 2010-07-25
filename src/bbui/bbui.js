@@ -37,13 +37,9 @@ function joinChannel(elem){
     return false;
 }
 
-function sendMessage(ev){
-    var shift = typeof ev.modifiers == 'undefined' ? ev.shiftKey : ev.modifiers & Event.SHIFT_MASK;
-    if(shift || ev.keyCode != 13){
-        return false;
-    }
+function sendMessage(){
+    console.log("hoge");
     var message_str = $('#message').val();
-    
     if(message_str.length != 0){
         var messages = message_str.split("\n");
         for(var i in messages){
@@ -57,6 +53,14 @@ function sendMessage(ev){
         $('#message').val('');
     }
     return true;
+}
+
+function sendMessageByKeyEvent(ev){
+    var shift = typeof ev.modifiers == 'undefined' ? ev.shiftKey : ev.modifiers & Event.SHIFT_MASK;
+    if(shift || ev.keyCode != 13){
+        return false;
+    }
+    return sendMessage();
 }
 
 function updateNotifyTitle(){

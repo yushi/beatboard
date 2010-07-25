@@ -133,7 +133,7 @@ var BBAPI = function(){
                                                    $('#message').focus();
                                                    
                                                    $('#message').get(0).onkeydown = function(e){
-                                                       return !sendMessage(e);
+                                                       return !sendMessageByKeyEvent(e);
                                                    };
                                                });
                        setInterval(checkLoader, 100);
