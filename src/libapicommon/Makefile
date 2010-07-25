@@ -52,7 +52,7 @@ $(MAINTARGET): $(MAINOBJS) $(TARGET)
 
 install: $(TARGET)
 	mkdir -p /usr/bb/lib
-	install $(TARGET) /usr/bb/lib
+	install -m644 $(TARGET) /usr/bb/lib
 
 test: clean all
 	make -C tests test
