@@ -1,0 +1,5 @@
+#!/bin/bash
+exec 2>&1
+export NGINX="/usr/bb/local/sbin/nginx"
+export NGINX_CONF_FILE="/usr/bb/etc/nginx.conf"
+exec $NGINX -c $NGINX_CONF_FILE -g "daemon off;"
