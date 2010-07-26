@@ -38,7 +38,6 @@ function joinChannel(elem){
 }
 
 function sendMessage(){
-    console.log("hoge");
     var message_str = $('#message').val();
     if(message_str.length != 0){
         var messages = message_str.split("\n");
@@ -356,15 +355,13 @@ function replyMessage(elem){
 }
 
 function desktopNotifySetup(){
-    console.log("a");
     if(!window.webkitNotifications){
         return;
     }
 
     if (window.webkitNotifications.checkPermission() == 1){
-        console.log("b");
         //not permitted
-        console.log(window.webkitNotifications.requestPermission());
+        window.webkitNotifications.requestPermission();
         
     }
 }
