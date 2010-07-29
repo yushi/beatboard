@@ -1,0 +1,4 @@
+#!/bin/bash
+BB_HOME=/usr/bb
+exec 2>&1
+exec setuidgid bb $BB_HOME/local/sbin/ngircd -f /usr/bb/etc/ngircd.conf -n
