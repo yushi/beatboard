@@ -1,0 +1,4 @@
+#!/bin/bash
+MEMCACHED=/usr/bb/local/bin/memcached
+exec 2>&1
+exec $MEMCACHED -u bb
