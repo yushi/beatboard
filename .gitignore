@@ -19,3 +19,9 @@ src/logapi/logapi.pb.cc
 src/logapi/logapi.pb.h
 src/logapi/logapibbevequeue
 src/logapi/logapiserver
+src/logapi/logapibbevqueue
+src/searchapi/evhttp_search_client
+src/searchapi/searchapi.pb.cc
+src/searchapi/searchapi.pb.h
+src/searchapi/searchapiserver
+
