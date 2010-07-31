@@ -346,15 +346,13 @@ bool
 BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_array )
 {
   drizzle_field_t field;
-  size_t offset;
-  size_t size;
   size_t total;
   std::string data;
   std::vector<std::string> field_data;
 
   while (1)
   {
-    field= drizzle_field_read(&drizzle_response.result, &offset, &size, &total, &drizzle_response.ret);
+    field= drizzle_field_buffer(&drizzle_response.result, &total, &drizzle_response.ret);
     if ( drizzle_response.ret == DRIZZLE_RETURN_ROW_END)
     {
       std::cerr << "row end" << std::endl;
@@ -371,7 +369,7 @@ BeatBoard::SearchApiService::readDrizzleField( struct json_object* my_array )
     if (field != NULL)
     {
       data = std::string(field);
-      field_data.push_back(data.substr(0, size));
+      field_data.push_back(data.substr(0, total));
     }
   }
   return true;
