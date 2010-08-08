@@ -168,10 +168,32 @@ BeatBoard::RpcServer::sendData( int sockfd )
     len = write(sockfd, &length_buf, sizeof(length_buf));
   } while ( len < 0 && errno == EINTR );
 
-  do {
-    len = write(sockfd, data.c_str(), data.size());
-    std::cerr << "len: " << len << std::endl;
-  } while ( len < 0 && errno == EINTR );
+  ssize_t total_length = 0;
+  unsigned int data_length = data.size();
+  unsigned int write_length = 0;
+  unsigned int data_substr_length = 0;
+  while (true)
+  {
+    do {
+      if (total_length + BUFSIZE > data_length)
+        data_substr_length = data_length;
+      else
+        data_substr_length = total_length + BUFSIZE;
+      write_length = data_substr_length - total_length;
+
+      len = write(sockfd, data.substr(total_length, data_substr_length).c_str(), write_length);
+      total_length += len;
+      std::cerr << "len: " << len << std::endl;
+      std::cerr << "total_length: " << total_length << std::endl;
+      std::cerr << "data_substr_length: " << data_substr_length << std::endl;      
+
+    } while ( len < 0 && errno == EINTR);
+    if (total_length >= data_length)
+    {
+      std::cerr << "data_len: " << data_length << std::endl;
+      break;
+    }
+  }
 
   std::cout << "send response" << std::endl;
 

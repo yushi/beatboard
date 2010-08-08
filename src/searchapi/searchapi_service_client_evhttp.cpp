@@ -39,7 +39,7 @@ SearchapiServiceClientEvhttp::sendQuery( std::string query )
   service->RpcFunc(controller, &request, &response, cb);
 
   std::cout << "result code: " << response.result_code() << std::endl;
-  std::cout << "result: " << response.result() << std::endl;
+  //std::cout << "result: " << response.result() << std::endl;
   delete service;
   delete channel;
   delete controller;
