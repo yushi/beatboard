@@ -56,7 +56,6 @@ static void notify_timer(int fd, short event, void *arg) {
         notifier->notify(&(sessionManager->sessionBuffers[notifiable->first]));
         sessionManager->waitingConnections[notifiable->first] = NULL;
       } else {
-        logger.debug("notifier not found");
         notifiable->second = true;
       }
 
