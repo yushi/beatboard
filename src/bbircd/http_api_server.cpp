@@ -23,7 +23,7 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port, int timeout) {
   this->http_ev_base = event_init();
   this->timeout = timeout;
 
-  httpd = evhttp_new(this->http_ev_base);
+  this->httpd = evhttp_new(this->http_ev_base);
   evhttp_set_timeout(httpd, this->timeout);
 
   if (evhttp_bind_socket(this->httpd, addr, port) != 0) {};
@@ -41,6 +41,10 @@ void BeatBoard::HTTPAPIServer::setUp(char *addr, int port, int timeout) {
   evhttp_set_cb(httpd, "/READ", HTTPAPIServer::readHandler, this);
 
   logger.debug("setup finished");
+}
+
+void BeatBoard::HTTPAPIServer::shutdown(){
+  evhttp_free(this->httpd);
 }
 
 void BeatBoard::HTTPAPIServer::rootHandler(struct evhttp_request *req, void *arg) {
@@ -251,6 +255,7 @@ void BeatBoard::HTTPAPIServer::connectHandler(struct evhttp_request *req, void *
 }
 
 void BeatBoard::HTTPAPIServer::exitHandler(struct evhttp_request *req, void *arg) {
+  HTTPAPIServer *instance = (HTTPAPIServer*)(arg);
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
   struct evbuffer *buf;
   buf = evbuffer_new();
@@ -271,7 +276,10 @@ void BeatBoard::HTTPAPIServer::exitHandler(struct evhttp_request *req, void *arg
   }
 
   evbuffer_free(buf);
-  exit(0);
+  instance->destroyAllSession();
+  instance->shutdown();
+  event_loopbreak();
+  //exit(0);
 }
 
 void BeatBoard::HTTPAPIServer::joinHandler(struct evhttp_request *req, void *arg) {

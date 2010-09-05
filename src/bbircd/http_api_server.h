@@ -16,6 +16,7 @@ namespace BeatBoard {
     HTTPAPIServer();
     ~HTTPAPIServer();
     void setUp(char *addr, int port, int timeout);
+    void shutdown();
     static void rootHandler(struct evhttp_request *req, void *arg);
     static void connectHandler(struct evhttp_request *req, void *arg);
     static void joinHandler(struct evhttp_request *req, void *arg);

@@ -103,6 +103,15 @@ string BeatBoard::SessionManager::createSession(IRCConnection* conn) {
   return session_id;
 }
 
+
+void BeatBoard::SessionManager::destroyAllSession(){
+  map<string, IRCConnection*>::iterator it = nick2ircConnection.begin();
+  while(it != nick2ircConnection.end()){
+    (*it).second->removeReadNotifiers();
+  }
+  return;
+}
+
 void BeatBoard::SessionManager::setHTTPAPIReadNotifier(string session_id,
     HTTPAPIReadNotifier* notifier) {
   BeatBoard::BBLogger logger = BeatBoard::BBLogger::getInstance();
@@ -144,4 +153,3 @@ string BeatBoard::SessionManager::createSessionId() {
   uuid_unparse_upper(uuid, buff);
   return string(buff);
 }
-

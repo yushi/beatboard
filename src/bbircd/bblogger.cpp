@@ -36,7 +36,6 @@ string BeatBoard::BBLogger::get_current_time_str() {
 
   tm = localtime(&t);
   strftime(str, sizeof(str), "[%Y-%m-%d %H:%M:%S]", tm);
-
   return string(str);
 }
 

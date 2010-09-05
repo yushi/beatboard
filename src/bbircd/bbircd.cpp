@@ -35,6 +35,10 @@ void BeatBoard::BBIRCD::Daemon::setUp(char* addr, int port, int timeout) {
   return;
 }
 
+void BeatBoard::BBIRCD::Daemon::shutdown(){
+  delete(this->httpd);
+}
+
 void BeatBoard::BBIRCD::Daemon::startService() {
   while (!IRCConnection::bb_event_dispatch(this->httpd->http_ev_base)) {
     fprintf(stderr, "start fail\n");
@@ -145,5 +149,6 @@ int main(int argc, char* argv[]) {
   BeatBoard::BBIRCD::Daemon bbircd;
   bbircd.setUp(addr,port,timeout);
   bbircd.startService();
+  bbircd.shutdown();
   return 0;
 }

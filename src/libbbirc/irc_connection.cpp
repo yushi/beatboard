@@ -304,6 +304,16 @@ void BeatBoard::IRCConnection::loggingMessage(string channel, string identifier,
 void BeatBoard::IRCConnection::setReadNotifier(BeatBoard::Notifier* notifier) {
   this->readNotifier.push_back(notifier);
 }
+
+void BeatBoard::IRCConnection::removeReadNotifiers() {
+  while(!this->readNotifier.empty()){
+    BeatBoard::Notifier* n = this->readNotifier.back();
+    this->readNotifier.pop_back();
+    delete(n);
+  }
+  return;
+}
+
 void BeatBoard::IRCConnection::setJoinNotifier(BeatBoard::Notifier* notifier) {
   this->joinNotifier.push_back(notifier);
 }

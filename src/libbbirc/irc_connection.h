@@ -54,6 +54,7 @@ namespace BeatBoard {
     ~IRCConnection();
     string getNick();
     void setReadNotifier(Notifier* notifier);
+    void removeReadNotifiers();
     void setJoinNotifier(Notifier* notifier);
     void notifyRead();
     void notifyJoin();

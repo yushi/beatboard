@@ -44,7 +44,7 @@ namespace BeatBoard {
     IRCConnection* getIRCConnectionBySessionId(string session_id);
     IRCConnection* getIRCConnectionByNick(string nick);
     bool isExistNick(string nick);
-
+    void destroyAllSession();
     struct event timer;
     map<string, bool> notifiableSessionId;
     map<string, HTTPAPIReadNotifier*> waitingConnections;

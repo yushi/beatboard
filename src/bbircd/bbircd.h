@@ -15,6 +15,7 @@ namespace BeatBoard{
     public:
       void startService();
       void setUp(char* addr, int port, int timeout);
+      void shutdown();
       SessionManager ircClients;
     private:
       HTTPAPIServer *httpd;
