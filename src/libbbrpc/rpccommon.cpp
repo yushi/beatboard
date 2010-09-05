@@ -1,5 +1,5 @@
 #include "rpccommon.h"
 
 namespace BeatBoard {
-unsigned int BUFSIZE = 1024;
+unsigned int BUFSIZE = 2048;
 }

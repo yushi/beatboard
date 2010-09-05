@@ -39,7 +39,7 @@ SearchapiServiceClientEvhttp::sendQuery( std::string query )
   service->RpcFunc(controller, &request, &response, cb);
 
   std::cout << "result code: " << response.result_code() << std::endl;
-  std::cout << "result: " << response.result() << std::endl;
+  //std::cout << "result: " << response.result() << std::endl;
   delete service;
   delete channel;
   delete controller;
@@ -95,7 +95,7 @@ SearchapiServiceClientEvhttp::searchHandler( struct evhttp_request *req,
       std::stringstream result_size;
       result_size << result.size();
       evhttp_add_header(req->output_headers, "Content-Length", result_size.str().c_str());
-      evbuffer_add_printf(buf, "%s", evhttp_htmlescape(result.c_str()));
+      evbuffer_add_printf(buf, "%s", result.c_str());
       free(escaped_val);
     }
     else

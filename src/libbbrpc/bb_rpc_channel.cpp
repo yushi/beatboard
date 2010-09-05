@@ -82,16 +82,28 @@ BeatBoard::BBRpcChannel::CallMethod( const google::protobuf::MethodDescriptor* m
     std::cerr << "data len: " << data_length << std::endl;
   } while (len < 0 && errno == EINTR);
     
-  do {
-    char *data_buf;
-    data_buf = (char *)malloc(sizeof(char) * data_length + 1);
-    len = read(sockfd, data_buf, data_length);
-    recv_data += std::string(data_buf);
-    std::cerr << "Recv: " << recv_data << std::endl;
-    std::cerr << "len: " << len << std::endl;
-    free(data_buf);
-  } while (len < 0 && errno == EINTR);
-
+  ssize_t total_len = 0;
+  char *data_buf;
+  data_buf = (char *)malloc(sizeof(char) * data_length + 1);
+  while (true)
+  {
+    do {
+      memset(data_buf, 0, sizeof(char) * data_length + 1);
+      len = read(sockfd, data_buf, BUFSIZE);
+      recv_data += std::string(data_buf);
+      total_len += len;
+      std::cerr << "len: " << len << std::endl;
+      std::cerr << "total_len: " << total_len << std::endl;
+      std::cerr << "data_len: " << data_length << std::endl;
+    } while (len < 0 && errno == EINTR);
+    if (total_len >= data_length)
+    {
+      std::cerr << "Recv: " << std::string(data_buf) << std::endl;
+      std::cerr << sizeof(data_buf) << std::endl;
+      break;
+    }
+  }
+  free(data_buf);
 
   if ( !response->ParseFromString( recv_data ) ) {
     std::cout << "Failed to parse response." << std::endl;

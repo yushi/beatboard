@@ -421,7 +421,9 @@ function addMessage(speaker, channel, message, time){
     if(!isSequencial){
         addMessage(speaker, channel, message, isOld ? time:undefined);
     }else{
-        desktopNotifyMessage(speaker, message);
+        if(!isOld){
+            desktopNotifyMessage(speaker, message);            
+        }
     }
 }
 

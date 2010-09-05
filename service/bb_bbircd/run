@@ -3,4 +3,4 @@ export BBIRCD='/usr/bb/sbin/bbircd'
 export DYLD_LIBRARY_PATH=/usr/bb/lib:/usr/bb/local/lib
 export LD_LIBRARY_PATH=/usr/bb/lib:/usr/bb/local/lib
 ulimit -c unlimited
-exec $BBIRCD
+exec setuidgid bb $BBIRCD
