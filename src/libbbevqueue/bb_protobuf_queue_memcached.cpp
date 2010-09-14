@@ -6,7 +6,7 @@
 const char* BeatBoard::ProtobufQueueMemcached::index_key = "index";
 const int BeatBoard::ProtobufQueueMemcached::uint64_str_len = 21;
 
-BeatBoard::MemcachedValue::MemcachedValue(uint64_t cas, char *value){
+BeatBoard::MemcachedValue::MemcachedValue(uint64_t cas, const char *value){
   this->cas = cas;
   this->value = (char*)malloc(sizeof(char) * (strlen(value) + 1));
   memcpy(this->value, value, strlen(value) + 1);

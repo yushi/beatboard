@@ -7,7 +7,7 @@
 namespace BeatBoard{
   class MemcachedValue{
   public:
-    MemcachedValue(uint64_t cas, char *value);
+    MemcachedValue(uint64_t cas, const char *value);
     ~MemcachedValue();
     uint64_t cas;
     char *value;

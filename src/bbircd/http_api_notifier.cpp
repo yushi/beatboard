@@ -104,7 +104,7 @@ bool BeatBoard::HTTPAPIReadNotifier::notify(map<string, vector<string> >* messag
     json_object_object_add(jsonobj, (char*)channel.c_str(), messages);
   }
 
-  char* json_str = json_object_get_string(jsonobj);
+  const char* json_str = json_object_get_string(jsonobj);
   free(jsonobj);
   size_t json_str_len = strlen(json_str);
   evhttp_add_header(req->output_headers,
