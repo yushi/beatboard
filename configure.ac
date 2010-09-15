@@ -7,15 +7,34 @@ AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_PROG_LIBTOOL
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADER([config.h])
+AC_CONFIG_MACRO_DIR([m4])
+
+# Checks for third-party software
+AC_CHECK_HEADERS(json/json.h, break,
+                         AC_MSG_ERROR([json-c is required for beatboard to build]))
+
+AC_CHECK_HEADERS(event.h, break,
+                         AC_MSG_ERROR([libevent is required for beatboard to build]))
+
+AC_CHECK_HEADERS(libmemcached/memcached.h, break,
+                         AC_MSG_ERROR([libmemcached is required for beatboard to build]))
+
+AC_CHECK_HEADERS(libdrizzle/drizzle_client.h, break,
+                         AC_MSG_ERROR([libmemcached is required for beatboard to build]))
+
+AC_PATH_TOOL(PROTOC, protoc)
+AS_IF([test "$PROTOC" = ""],
+  AC_MSG_ERROR(["protobuf is required for beatboard to build"]))
+
+AC_PATH_TOOL(RAGEL, ragel)
+AS_IF([test "$RAGEL" = ""],
+  AC_MSG_ERROR(["ragel is required for beatboard to build"]))
 
 # Checks for programs.
 AC_PROG_CXX
 #AC_PROG_CC
 #AC_PROG_INSTALL
 #AC_PROG_MAKE_SET
-
-AC_PATH_TOOL(PROTOC, protoc)
-AC_PATH_TOOL(RAGEL, ragel)
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lapicommon':
