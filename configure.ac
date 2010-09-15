@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
+AC_INIT(beatboard, 1, yushi.nakai@gmail.com)
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_PROG_LIBTOOL
 AC_CONFIG_SRCDIR([config.h.in])
@@ -21,6 +21,9 @@ AC_CHECK_HEADERS(libmemcached/memcached.h, break,
 
 AC_CHECK_HEADERS(libdrizzle/drizzle_client.h, break,
                          AC_MSG_ERROR([libmemcached is required for beatboard to build]))
+
+AC_CHECK_HEADERS(uuid/uuid.h, break,
+                         AC_MSG_ERROR([uuid is required for beatboard to build]))
 
 AC_PATH_TOOL(PROTOC, protoc)
 AS_IF([test "$PROTOC" = ""],
