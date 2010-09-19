@@ -1,7 +1,12 @@
-function append_search_result(data) {
+function append_search_result(data, query) {
     //eval("var jsondata =" + data);
     var jsondata = eval("("+data+")");
-    if (jsondata.messages != null)
+    if (jsondata.toString.length == 0)
+    {
+        var message = "No results for " + query;
+        $("div.contents").find("p.s").append("<p class=\"search-result\" >" + message + "</p>");
+    }
+    else if (jsondata.messages != null)
     {
         for (i = 0; i < jsondata.messages.length; i++) {
             var classid = "m" + i;
@@ -19,25 +24,19 @@ function remove_search_result() {
 }
 
 function addbutton_event() {    
-    $("input.buttonTest").click( function() {
-        call_api( function(data) {
-            append_search_result(data);
+    $("input.searchButton").click( function() {
+        call_api( function(data, query) {
+            append_search_result(data, query);
         });
     });
 }
 
 function call_api(func) {
-    var test = $("#q").val();
-    var url = "/api/search?q=" + encodeURIComponent(test);
+    var query = $("#q").val();
+    var url = "/api/search?q=" + encodeURIComponent(query);
     remove_search_result();
     $.get(url, function(data){
-        func(data);
-    });
-}
-
-function send_query() {
-    call_api( function(data) {
-        append_search_result(data);
+        func(data, query);
     });
 }
 
