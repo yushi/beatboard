@@ -101,6 +101,7 @@ AC_CONFIG_FILES([Makefile
                    src/logapi/Makefile
                    src/libbbirc/Makefile
                    src/bbircd/Makefile
+                   src/searchapi/Makefile
                 ])
 
 #AC_CONFIG_FILES([Makefile

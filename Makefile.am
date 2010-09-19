@@ -6,4 +6,5 @@ SUBDIRS = \
           src/libbbrpc \
           src/logapi \
           src/libbbirc \
-          src/bbircd 
+          src/bbircd \
+          src/searchapi 
