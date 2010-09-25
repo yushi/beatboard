@@ -215,9 +215,10 @@ BeatBoard::SearchApiService::generateSqlWhereClause( Query *query )
   std::string words_clause = "";
   std::string order_clause = "";
   std::string limit_clause = "";
+  std::string ts_clause = "";
   std::vector<std::string> clauses;
 
-  if (query->date || query->channel || !query->words->empty())
+  if (query->date || query->channel || query->ts || !query->words->empty())
   {
     where_clause = "where ";
   }
@@ -230,6 +231,13 @@ BeatBoard::SearchApiService::generateSqlWhereClause( Query *query )
   {
     std::string date = ApiCommon::escape(*(query->date));
     clauses.push_back(dateClause(date));
+  }
+
+  if (query->ts)
+  {
+    ts_clause += "msgts = \"" + ApiCommon::escape(*(query->ts)) + "\"";
+    std::cerr << ts_clause << std::endl;
+    clauses.push_back(ts_clause);
   }
 
   if (query->channel)

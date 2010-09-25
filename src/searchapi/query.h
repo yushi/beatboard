@@ -16,6 +16,7 @@ public:
   std::string *order;
   std::string *limit;
   std::string *cache;
+  std::string *ts;
 
   Query();
   ~Query();

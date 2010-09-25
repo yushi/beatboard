@@ -6,6 +6,7 @@ Query::Query() {
   order = NULL;
   limit = NULL;
   cache = NULL;
+  ts = NULL;
   words = new std::vector<std::string*>;
 }
 
@@ -33,6 +34,11 @@ Query::~Query() {
   if (cache)
   {
     delete cache;
+  }
+
+  if (ts)
+  {
+    delete ts;
   }
 
   if (!words->empty())
