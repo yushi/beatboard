@@ -7,6 +7,7 @@ Query::Query() {
   limit = NULL;
   cache = NULL;
   ts = NULL;
+  id = NULL;
   words = new std::vector<std::string*>;
 }
 
@@ -39,6 +40,11 @@ Query::~Query() {
   if (ts)
   {
     delete ts;
+  }
+
+  if (id)
+  {
+    delete id;
   }
 
   if (!words->empty())

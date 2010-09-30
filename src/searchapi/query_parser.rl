@@ -45,6 +45,13 @@
     query->ts = substr(begin, fpc);
   }
 
+  action begin_id { begin = fpc; }
+  action end_id {
+    puts("parse id");
+    query->id = substr(begin, fpc);
+  }
+
+
   action error { 
     puts("parse error");
     parse_result = false;
@@ -62,7 +69,8 @@
   channel = "channel" colon (irc_ch_prefix words_chstring{1,}) >begin_channel %end_channel;
   date = "date" colon (digit){8} >begin_date %end_date;
   ts = "ts" colon (digit){10} >begin_ts %end_ts;
-  options = date | channel | order | limit | cache | ts;
+  id = "id" colon (digit){1,20} >begin_id %end_id;
+  options = date | channel | order | limit | cache | ts | id;
   words = (words_chstring){1,} >begin_query %end_query;  
   label = (words | options);
   query = sp? label sp{1,} (label sp)*;
