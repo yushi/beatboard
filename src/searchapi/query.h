@@ -18,6 +18,7 @@ public:
   std::string *cache;
   std::string *ts;
   std::string *id;
+  std::string *acontext;
 
   Query();
   ~Query();

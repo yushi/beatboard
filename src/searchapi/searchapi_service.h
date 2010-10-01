@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <sstream>
 
 #include <algorithm>
 #include <vector>
@@ -42,6 +43,7 @@ namespace BeatBoard {
 	void setUpMemcached( const std::string& memcached_host, 
 						 const in_port_t memcached_port );
 	std::string generateSqlWhereClause( Query* rawquery );
+	std::string contextClause( Query* query );
 	std::string dateClause( const std::string& date );
 	std::string wordsClause( std::vector<std::string*> *words );
 	void logQuery( const std::string& query );

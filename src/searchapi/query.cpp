@@ -8,6 +8,7 @@ Query::Query() {
   cache = NULL;
   ts = NULL;
   id = NULL;
+  acontext = NULL;
   words = new std::vector<std::string*>;
 }
 
@@ -45,6 +46,11 @@ Query::~Query() {
   if (id)
   {
     delete id;
+  }
+
+  if (acontext)
+  {
+    delete acontext;
   }
 
   if (!words->empty())
