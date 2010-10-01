@@ -192,11 +192,23 @@ BeatBoard::SearchApiService::dateClause( const std::string& date )
 std::string
 BeatBoard::SearchApiService::contextClause( Query *query )
 {
+  std::string id_clause = "";
   std::string id = ApiCommon::escape(*(query->id));
-  std::string acontext = ApiCommon::escape(*(query->acontext));
-  std::stringstream upper_id;
-  upper_id << (atoi(id.c_str()) + atoi(acontext.c_str()));
-  std::string id_clause = "added_id <=\"" + upper_id.str() + "\" and added_id >= \"" +  id + "\"";
+
+  if (query->acontext)
+  {
+    std::string acontext = ApiCommon::escape(*(query->acontext));
+    std::stringstream upper_id;
+    upper_id << (atoi(id.c_str()) + atoi(acontext.c_str()));
+    id_clause += "added_id <=\"" + upper_id.str() + "\" and added_id >= \"" +  id + "\"";
+  }
+  else if (query->bcontext)
+  {
+    std::string bcontext = ApiCommon::escape(*(query->bcontext));
+    std::stringstream lower_id;
+    lower_id << (atoi(id.c_str()) - atoi(bcontext.c_str()));
+    id_clause += "added_id <=\"" + id + "\" and added_id >= \"" + lower_id.str()+ "\"";
+  }
   std::cerr << id_clause << std::endl;
   return id_clause;
 }
@@ -246,11 +258,11 @@ BeatBoard::SearchApiService::generateSqlWhereClause( Query *query )
     clauses.push_back(dateClause(date));
   }
 
-  if (query->id && query->acontext)
+  if (query->id && (query->acontext || query->bcontext))
   {
     clauses.push_back(contextClause(query));
   }
-  else if (query->id && !query->acontext)
+  else if (query->id && !query->acontext && !query->bcontext)
   {
     id_clause += "added_id = \"" + ApiCommon::escape(*(query->id)) + "\"";
     std::cerr << id_clause << std::endl;

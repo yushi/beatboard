@@ -9,6 +9,7 @@ Query::Query() {
   ts = NULL;
   id = NULL;
   acontext = NULL;
+  bcontext = NULL;
   words = new std::vector<std::string*>;
 }
 
@@ -51,6 +52,11 @@ Query::~Query() {
   if (acontext)
   {
     delete acontext;
+  }
+
+  if (bcontext)
+  {
+    delete bcontext;
   }
 
   if (!words->empty())

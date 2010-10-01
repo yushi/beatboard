@@ -19,6 +19,7 @@ public:
   std::string *ts;
   std::string *id;
   std::string *acontext;
+  std::string *bcontext;
 
   Query();
   ~Query();

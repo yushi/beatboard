@@ -57,6 +57,12 @@
     query->acontext = substr(begin, fpc);
   }
 
+  action begin_bcontext { begin = fpc; }
+  action end_bcontext {
+    puts("parse bcontext");
+    query->bcontext = substr(begin, fpc);
+  }
+
   action error { 
     puts("parse error");
     parse_result = false;
@@ -76,7 +82,8 @@
   ts = "ts" colon (digit){10} >begin_ts %end_ts;
   id = "id" colon (digit){1,20} >begin_id %end_id;
   acontext = "acontext" colon (digit){1,2} >begin_acontext %end_acontext;
-  options = date | channel | order | limit | cache | ts | id | acontext;
+  bcontext = "bcontext" colon (digit){1,2} >begin_bcontext %end_bcontext;
+  options = date | channel | order | limit | cache | ts | id | acontext | bcontext;
   words = (words_chstring){1,} >begin_query %end_query;  
   label = (words | options);
   query = sp? label sp{1,} (label sp)*;
