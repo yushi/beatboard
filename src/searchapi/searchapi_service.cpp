@@ -190,6 +190,25 @@ BeatBoard::SearchApiService::dateClause( const std::string& date )
 }
 
 std::string
+BeatBoard::SearchApiService::abcontextClause( std::string& id, std::string& context, bool ab_flag )
+{
+  std::string id_clause = "";
+  if (ab_flag)
+  {
+    std::stringstream upper_id;
+    upper_id << (atoi(id.c_str()) + atoi(context.c_str()));
+    id_clause += "added_id <=\"" + upper_id.str() + "\" and added_id >= \"" +  id + "\"";
+  }
+  else
+  {
+    std::stringstream lower_id;
+    lower_id << (atoi(id.c_str()) - atoi(context.c_str()));
+    id_clause += "added_id <=\"" + id + "\" and added_id >= \"" + lower_id.str()+ "\"";
+  }
+  return id_clause;
+}
+
+std::string
 BeatBoard::SearchApiService::contextClause( Query *query )
 {
   std::string id_clause = "";
@@ -197,17 +216,20 @@ BeatBoard::SearchApiService::contextClause( Query *query )
 
   if (query->acontext)
   {
-    std::string acontext = ApiCommon::escape(*(query->acontext));
-    std::stringstream upper_id;
-    upper_id << (atoi(id.c_str()) + atoi(acontext.c_str()));
-    id_clause += "added_id <=\"" + upper_id.str() + "\" and added_id >= \"" +  id + "\"";
+    std::string context = ApiCommon::escape(*(query->acontext));
+    id_clause += abcontextClause(id, context, true);
   }
   else if (query->bcontext)
   {
-    std::string bcontext = ApiCommon::escape(*(query->bcontext));
-    std::stringstream lower_id;
-    lower_id << (atoi(id.c_str()) - atoi(bcontext.c_str()));
-    id_clause += "added_id <=\"" + id + "\" and added_id >= \"" + lower_id.str()+ "\"";
+    std::string context = ApiCommon::escape(*(query->bcontext));
+    id_clause += abcontextClause(id, context, false);
+  }
+  else if (query->context)
+  {
+    std::string context = ApiCommon::escape(*(query->context));
+    id_clause += abcontextClause(id, context, true);
+    id_clause += " or ";
+    id_clause += abcontextClause(id, context, false);
   }
   std::cerr << id_clause << std::endl;
   return id_clause;
@@ -258,11 +280,11 @@ BeatBoard::SearchApiService::generateSqlWhereClause( Query *query )
     clauses.push_back(dateClause(date));
   }
 
-  if (query->id && (query->acontext || query->bcontext))
+  if (query->id && (query->acontext || query->bcontext || query->context))
   {
     clauses.push_back(contextClause(query));
   }
-  else if (query->id && !query->acontext && !query->bcontext)
+  else if (query->id && !query->acontext && !query->bcontext && !query->context)
   {
     id_clause += "added_id = \"" + ApiCommon::escape(*(query->id)) + "\"";
     std::cerr << id_clause << std::endl;

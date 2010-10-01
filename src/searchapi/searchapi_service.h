@@ -44,6 +44,7 @@ namespace BeatBoard {
 						 const in_port_t memcached_port );
 	std::string generateSqlWhereClause( Query* rawquery );
 	std::string contextClause( Query* query );
+	std::string abcontextClause( std::string& id, std::string& context, bool ab_flag );
 	std::string dateClause( const std::string& date );
 	std::string wordsClause( std::vector<std::string*> *words );
 	void logQuery( const std::string& query );

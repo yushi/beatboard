@@ -20,6 +20,7 @@ public:
   std::string *id;
   std::string *acontext;
   std::string *bcontext;
+  std::string *context;
 
   Query();
   ~Query();
