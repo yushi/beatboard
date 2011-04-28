@@ -162,6 +162,49 @@ function addNico2EmbedTag(videoId, channel){
     addObjectEmbedTag(channel, objectTag);
 }
 
+function addTwitterEmbedTag(tweetId, channel) {
+    var url = '/api/tp/twitter/1/statuses/show.json?id=' + tweetId;
+    debug_log('twitter embed req');
+    $.ajax({
+        'type': 'GET',
+        'url': url,
+        cache: false,
+        success: function(data){
+            eval('tweet=' + data);
+            var tweet_data = {
+                id : tweet.id,
+                screen_name : tweet.user.screen_name,
+                name : tweet.user.name,
+                background_url : tweet.user.profile_background_image_url,
+                profile_url : tweet.user.profile_image_url,
+                source : tweet.source,
+                timestamp : tweet.created_at.substr(0,tweet.created_at.indexOf('+')),
+                content : tweet.text,
+                profile_background_color : tweet.user.profile_background_color,
+                permalink : "http://twitter.com/" + tweet.user.screen_name + "/status/" + tweet.id
+            };
+            var textbody = "<style type='text/css'>.bbpBox{background:url({background_url})#{profile_background_color};padding:20px;}</style>"
+              + "<div id='tweet_{id}' class='bbpBox' style='background:url({background_url})#{profile_background_color};padding:20px;'>"
+              + "<p class='bbpTweet' style='background:#fff;padding:10px 12px 10px 12px;margin:0;min-height:48px;color:#000;font-size:16px !important;line-height:22px;-moz-border-radius:5px;-webkit-border-radius:5px;'>"
+              + "{content}<span class='{timestamp}' style='font-size:12px;display:block;'><a title='{timestamp}'"
+              + "href='{permalink}'>{timestamp}</a> via {source}</span>"
+              + "<span class='metadata' style='display:block;width:100%;clear:both;margin-top:8px;padding-top:12px;height:40px;border-top:1px solid #fff;border-top:1px solid #e6e6e6;'>"
+              + "<span class='author' style='line-height:19px;'><a href='http://twitter.com/{screen_name}'>"
+              + "<img src='{profile_url}' style='float:left;margin:0 7px 0 0px;width:38px;height:38px;' />"
+              + "</a><strong><a href='http://twitter.com/{screen_name}'>{name}</a></strong><br/>{screen_name}"
+              + "</span></span></p></div>";
+
+            textbody = textbody.replace(/{[^{}]+}/g, function(key){
+                return tweet_data[key.replace(/[{}]+/g, "")] || "";
+            });
+            $('#messagebox > #\\' + channel).append(textbody);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown){
+        debug_log('twitter embed tag response error');
+      }
+    });
+}
+
 function setParentToDraggable(elem){
     if($($(elem).parent().get(0)).css('position') == 'fixed'){
 	    $($(elem).parent().get(0)).draggable().draggable('enable');
@@ -211,6 +254,11 @@ function extractLink(str, channel){
     var imgRegex = new RegExp("");
     imgRegex.compile(/https?:\/\/\S+\.(jpe?g|png|gif|bmp)/);
 
+    var twitterRegex = new RegExp("");
+    twitterRegex.compile(/^http(s)*:\/\/twitter\.com\/(\w+)\/status(es)*\/(\d+)$/i);
+    var twitterRegexSharpBang = new RegExp("");
+    twitterRegexSharpBang.compile(/^http(s)*:\/\/twitter\.com\/(\#\!)\/(\w+)\/status(es)*\/(\d+)$/i);
+
     var urlRegex = new RegExp("");
     urlRegex.compile(/(https?:\/\/(?:(?!\&nbsp).)*)(.*)/);
     var match_result = str.match(urlRegex);
@@ -229,6 +277,14 @@ function extractLink(str, channel){
 	    var imgURL = null;
         if(imgURL = str.match(imgRegex)){
             addImgEmbedTag(imgURL[0], channel);
+        }
+
+        //extract twitter
+        var twitterURL = null;
+        if(twitterURL = str.match(twitterRegex)){
+            addTwitterEmbedTag(twitterURL[twitterURL.length-1], channel);
+        } else if (twitterURL = str.match(twitterRegexSharpBang)){
+            addTwitterEmbedTag(twitterURL[twitterURL.length-1], channel);
         }
 
         //extract link
